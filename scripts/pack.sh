@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# 킷 하나를 반입용 압축 파일로 만듭니다.
+# 사용법: scripts/pack.sh <킷이름>
+set -euo pipefail
+
+KIT="${1:?사용법: scripts/pack.sh <킷이름>}"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SRC="$ROOT/kits/$KIT"
+OUT="$ROOT/dist"
+
+[ -d "$SRC" ] || { echo "킷을 찾을 수 없습니다: $SRC" >&2; exit 1; }
+
+echo "== 원격 URL 검사 =="
+if grep -rnI --exclude-dir=vendor --exclude-dir=node_modules -E 'https?://(cdn|unpkg|fonts\.googleapis|cdnjs)' "$SRC"; then
+  echo "위 항목은 사내에서 로드되지 않습니다. 제거 후 다시 실행하세요." >&2
+  exit 1
+fi
+
+echo "== 범위 버전 검사 =="
+if [ -f "$SRC/package.json" ] && grep -nE '"[^"]+": *"[\^~]' "$SRC/package.json"; then
+  echo "범위 버전이 있습니다. 정확한 버전으로 고정하세요." >&2
+  exit 1
+fi
+
+mkdir -p "$OUT"
+STAMP="$(date +%Y%m%d)"
+ARCHIVE="$OUT/${KIT}_${STAMP}.zip"
+rm -f "$ARCHIVE"
+( cd "$ROOT/kits" && zip -qr "$ARCHIVE" "$KIT" -x '*/node_modules/.cache/*' '*/.DS_Store' )
+
+echo
+echo "생성: $ARCHIVE"
+du -h "$ARCHIVE" | cut -f1 | sed 's/^/크기: /'
+echo "SHA256: $(sha256sum "$ARCHIVE" | cut -d' ' -f1)"
+echo
+echo "반입 전 docs/intake-checklist.md 를 확인하세요."
