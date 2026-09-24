@@ -6,3 +6,8 @@
 *.zip binary
 *.tgz binary
 *.whl binary
+
+# Windows 배치 파일은 CRLF 로 내보냅니다. LF 만 있으면 cmd 가 goto/label 에서 오동작합니다.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

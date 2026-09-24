@@ -1,0 +1,172 @@
+/* 디자인 토큰
+ * 폐쇄망 사내 도구용. 원격 참조 없음.
+ * 폰트 경로는 이 파일 기준 상대경로입니다. 킷으로 복사할 때 확인하세요.
+ */
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 930;
+  font-style: normal;
+  font-display: swap;
+  src: url('../fonts/PretendardVariable.subset.woff2') format('woff2-variations');
+}
+
+:root {
+  /* 타이포 */
+  --font-sans: 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
+    'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+  --font-mono: 'Cascadia Mono', Consolas, 'D2Coding', 'Courier New', monospace;
+
+  --text-xs: 0.75rem;   /* 12 */
+  --text-sm: 0.8125rem; /* 13 */
+  --text-md: 0.875rem;  /* 14 - 사내 도구 본문 기본값 */
+  --text-lg: 1rem;      /* 16 */
+  --text-xl: 1.25rem;   /* 20 */
+  --text-2xl: 1.5rem;   /* 24 */
+
+  /* 한글은 라틴보다 행간을 넉넉히 줘야 읽힙니다 */
+  --leading-tight: 1.35;
+  --leading-normal: 1.65;
+  --leading-loose: 1.85;
+  --tracking-ko: -0.003em;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* 간격: 4px 배수 */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-full: 999px;
+
+  --dur-fast: 100ms;
+  --dur-base: 160ms;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --z-sticky: 100;
+  --z-overlay: 500;
+  --z-toast: 900;
+
+  /* 라이트 팔레트 */
+  --c-bg: #ffffff;
+  --c-bg-sunken: #f6f7f9;
+  --c-bg-raised: #ffffff;
+  --c-bg-hover: #f1f3f5;
+  --c-bg-active: #e7eaee;
+
+  --c-fg: #16191d;
+  --c-fg-muted: #5c6672;
+  --c-fg-subtle: #8a94a0;
+  --c-fg-inverse: #ffffff;
+
+  --c-border: #dfe3e8;
+  --c-border-strong: #c3cad3;
+
+  --c-accent: #2563c9;
+  --c-accent-hover: #1d4fa3;
+  --c-accent-bg: #eaf1fd;
+  --c-accent-fg: #ffffff;
+
+  --c-danger: #c8322c;
+  --c-danger-bg: #fdecec;
+  --c-warn: #9a6100;
+  --c-warn-bg: #fdf3e0;
+  --c-ok: #1d7a4c;
+  --c-ok-bg: #e7f6ee;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.1);
+  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.16);
+
+  --focus-ring: 0 0 0 3px rgba(37, 99, 201, 0.35);
+}
+
+/* 다크 팔레트. 시스템 설정을 따르되 data-theme 로 덮어쓸 수 있습니다. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --c-bg: #15181c;
+    --c-bg-sunken: #101317;
+    --c-bg-raised: #1c2026;
+    --c-bg-hover: #242931;
+    --c-bg-active: #2d333c;
+
+    --c-fg: #e6e9ed;
+    --c-fg-muted: #9aa4b1;
+    --c-fg-subtle: #6d7784;
+    --c-fg-inverse: #15181c;
+
+    --c-border: #2b313a;
+    --c-border-strong: #3d4550;
+
+    --c-accent: #6ba3f5;
+    --c-accent-hover: #8ab8f8;
+    --c-accent-bg: #1a2635;
+    --c-accent-fg: #0d1116;
+
+    --c-danger: #f2837d;
+    --c-danger-bg: #2e1a1a;
+    --c-warn: #e0ad5c;
+    --c-warn-bg: #2b2117;
+    --c-ok: #64c391;
+    --c-ok-bg: #16281f;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.55);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.65);
+
+    --focus-ring: 0 0 0 3px rgba(107, 163, 245, 0.4);
+  }
+}
+
+:root[data-theme='dark'] {
+  --c-bg: #15181c;
+  --c-bg-sunken: #101317;
+  --c-bg-raised: #1c2026;
+  --c-bg-hover: #242931;
+  --c-bg-active: #2d333c;
+
+  --c-fg: #e6e9ed;
+  --c-fg-muted: #9aa4b1;
+  --c-fg-subtle: #6d7784;
+  --c-fg-inverse: #15181c;
+
+  --c-border: #2b313a;
+  --c-border-strong: #3d4550;
+
+  --c-accent: #6ba3f5;
+  --c-accent-hover: #8ab8f8;
+  --c-accent-bg: #1a2635;
+  --c-accent-fg: #0d1116;
+
+  --c-danger: #f2837d;
+  --c-danger-bg: #2e1a1a;
+  --c-warn: #e0ad5c;
+  --c-warn-bg: #2b2117;
+  --c-ok: #64c391;
+  --c-ok-bg: #16281f;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.65);
+
+  --focus-ring: 0 0 0 3px rgba(107, 163, 245, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}
