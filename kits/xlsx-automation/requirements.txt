@@ -1,0 +1,6 @@
+# 정확한 버전과 해시로 고정. vendor/ 의 휠과 1:1 대응합니다.
+# 둘 다 py3-none-any (순수 파이썬)라 파이썬 3.8 이상이면 OS 와 버전을 가리지 않습니다.
+et-xmlfile==2.0.0 \
+    --hash=sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa
+openpyxl==3.1.5 \
+    --hash=sha256:5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2

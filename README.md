@@ -27,8 +27,18 @@
 | `docs/` | 작업 절차와 반입 체크리스트 |
 | `scripts/` | 킷 패키징, 검증 스크립트 |
 
+## 지금 있는 킷
+
+| 킷 | 형태 | 반입 방식 | 크기 |
+| --- | --- | --- | --- |
+| `kits/web-tool-starter` | 브라우저 도구. `index.html` 더블클릭으로 실행 | C. npm 의존성 0개 | 616KB |
+| `kits/xlsx-automation` | 엑셀/CSV 가공과 보고서 생성 (Python) | B. 휠 동봉, 오프라인 설치 | 280KB |
+
+둘 다 이 저장소에서 실제로 실행해 확인했습니다. 검증 내용은 각 킷의 `MANIFEST.md` 아래쪽에 있습니다.
+
 ## 시작점
 
 - 작업 절차: `docs/playbook.md`
 - 반입 전 확인: `docs/intake-checklist.md`
+- 반입용 압축: `scripts/pack.sh <킷이름>`
 - 새 킷 만들기: `kits/_template/` 복사

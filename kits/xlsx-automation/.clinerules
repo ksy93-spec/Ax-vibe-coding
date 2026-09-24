@@ -1,0 +1,22 @@
+이 프로젝트는 인터넷이 차단된 환경에서 실행된다.
+
+금지:
+- pip install 로 새 패키지를 받는 것. vendor/ 안의 휠이 전부다.
+- openpyxl 외의 서드파티 import (pandas, numpy, xlrd, xlsxwriter 등 전부 금지)
+- requirements.txt 수정
+- src/ktable.py 수정. 이미 검증된 코드다.
+- 요청받지 않은 파일 열기, 수정, 리팩터링
+
+쓸 수 있는 것:
+- 표준 라이브러리 전부
+- openpyxl 3.1.5
+- src/ktable.py 의 함수 (read_table, read_csv, read_xlsx, write_xlsx, write_csv,
+  write_sheet, to_number, to_date, display_width, safe_sheet_name, detect_encoding)
+
+지켜야 할 것:
+- 한 번에 한 파일만 수정한다. 주로 src/main.py 다.
+- CSV 를 직접 open() 해서 읽지 말고 ktable.read_table 을 쓴다. 인코딩 판별이 들어 있다.
+- CSV 를 쓸 때 ktable.write_csv 를 쓴다. BOM 이 없으면 엑셀에서 한글이 깨진다.
+- 새 함수를 만들면 docstring 을 한 줄 이상 쓴다.
+- 고친 뒤 python src/test_ktable.py 가 통과하는지 확인한다.
+- 확신이 없으면 코드를 쓰지 말고 질문한다.

@@ -11,3 +11,6 @@
 *.bat text eol=crlf
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
+
+# 인코딩 시험용 고정 파일. 줄바꿈 정규화를 거치면 CRLF 와 CP949 재현이 깨집니다.
+kits/*/samples/** binary

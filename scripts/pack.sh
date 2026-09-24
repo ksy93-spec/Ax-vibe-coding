@@ -21,12 +21,25 @@ if [ -f "$SRC/package.json" ] && grep -nE '"[^"]+": *"[\^~]' "$SRC/package.json"
   echo "범위 버전이 있습니다. 정확한 버전으로 고정하세요." >&2
   exit 1
 fi
+if [ -f "$SRC/requirements.txt" ] && grep -nE '^[A-Za-z0-9._-]+ *([><~!]=|[<>])' "$SRC/requirements.txt"; then
+  echo "범위 버전이 있습니다. == 로 고정하세요." >&2
+  exit 1
+fi
+
+echo "== 의존성 동봉 검사 =="
+if [ -f "$SRC/requirements.txt" ] && [ -z "$(ls "$SRC/vendor"/*.whl 2>/dev/null)" ]; then
+  echo "requirements.txt 는 있는데 vendor/ 에 휠이 없습니다. pip download 를 먼저 하세요." >&2
+  exit 1
+fi
 
 mkdir -p "$OUT"
 STAMP="$(date +%Y%m%d)"
 ARCHIVE="$OUT/${KIT}_${STAMP}.zip"
 rm -f "$ARCHIVE"
-( cd "$ROOT/kits" && zip -qr "$ARCHIVE" "$KIT" -x '*/node_modules/.cache/*' '*/.DS_Store' )
+# 작업 중 생긴 폴더는 빼고 압축합니다.
+( cd "$ROOT/kits" && zip -qr "$ARCHIVE" "$KIT" \
+    -x "$KIT/.venv/*" "$KIT/input/*" "$KIT/output/*" \
+       '*/__pycache__/*' '*/node_modules/.cache/*' '*/.DS_Store' )
 
 echo
 echo "생성: $ARCHIVE"
