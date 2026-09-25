@@ -12,6 +12,8 @@
 }
 
 :root {
+  color-scheme: light;
+
   /* 타이포 */
   --font-sans: 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
     'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
@@ -119,6 +121,7 @@
 /* 다크 팔레트. 시스템 설정을 따르되 data-theme 로 덮어쓸 수 있습니다. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
+    color-scheme: dark;
     --c-bg: #15181c;
     --c-bg-sunken: #101317;
     --c-bg-raised: #1c2026;
@@ -167,6 +170,7 @@
 }
 
 :root[data-theme='dark'] {
+  color-scheme: dark;
   --c-bg: #15181c;
   --c-bg-sunken: #101317;
   --c-bg-raised: #1c2026;
