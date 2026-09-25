@@ -31,6 +31,7 @@
 
 | 킷 | 형태 | 반입 방식 | 크기 |
 | --- | --- | --- | --- |
+| `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
 | `kits/web-tool-starter` | 브라우저 도구. `index.html` 더블클릭으로 실행 | C. npm 의존성 0개 | 616KB |
 | `kits/xlsx-automation` | 엑셀/CSV 가공과 보고서 생성 (Python) | B. 휠 동봉, 오프라인 설치 | 280KB |
 
@@ -38,6 +39,8 @@
 
 ## 시작점
 
+- 망 구조와 자료 흐름: `docs/topology.md`
+- 1차 프로젝트 설계안: `docs/portal-architecture.md`
 - 작업 절차: `docs/playbook.md`
 - 반입 전 확인: `docs/intake-checklist.md`
 - 반입용 압축: `scripts/pack.sh <킷이름>`
