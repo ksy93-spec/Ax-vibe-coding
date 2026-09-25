@@ -1,0 +1,29 @@
+이 프로젝트는 인터넷이 차단된 환경에서 file:// 로 실행됩니다.
+
+금지:
+- 패키지 설치 (npm install, npx, pip install)
+- 원격 URL 참조 (CDN, 원격 폰트, 외부 API)
+- <script type="module"> 사용. file:// 에서 CORS 로 막힌다.
+- fetch 나 XMLHttpRequest 로 로컬 파일 읽기. file:// 에서 막힌다. data.js 방식을 쓴다.
+- src/lib/ 아래 파일 수정. 검증된 코드다.
+- src/registry.js 수정
+- assets/css/tokens.css 에 새 hex 값이나 rgb 값 추가
+- --viz-* 색 순서 변경이나 새 계열 색 추가. 색맹 안전성 검증을 통과한 순서다.
+- 차트에 두 번째 y축 추가. 자릿수가 다르면 지수화하거나 차트를 나눈다.
+- 차트의 "표로 보기" 버튼 제거. 접근성 요건이다.
+- 요청받지 않은 파일 열기, 수정, 리팩터링
+
+지켜야 할 것:
+- 한 번에 한 파일만 수정한다.
+- 기능을 추가할 때는 포탈 코드가 아니라 data/ 아래 모듈을 추가한다.
+- 모듈 데이터는 tools/portal_export.py 의 export_module 로 만든다. 손으로 쓰지 않는다.
+- 색과 간격은 tokens.css 의 CSS 변수만 쓴다. 필요한 변수가 없으면 물어본다.
+- 새 스크립트 파일은 index.html 의 </body> 앞에 클래식 <script> 로 추가하고
+  전역 App 네임스페이스에 붙인다.
+- types/portal.d.ts 의 시그니처를 바꾸지 않는다.
+- 고친 뒤 python tools/test_portal_export.py 가 통과하는지 확인한다.
+- 확신이 없으면 코드를 쓰지 말고 질문한다.
+
+참고 파일 (읽기만):
+- types/portal.d.ts - 모듈 계약과 사용 가능한 API
+- MANIFEST.md - 이 킷이 이미 해결해 둔 것과 차트 고르는 기준

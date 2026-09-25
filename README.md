@@ -32,6 +32,7 @@
 | 킷 | 형태 | 반입 방식 | 크기 |
 | --- | --- | --- | --- |
 | `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
+| `kits/portal-shell` | Market Intelligence 통합 포탈 셸 (1차 프로젝트) | C. npm 의존성 0개 | 640KB |
 | `kits/web-tool-starter` | 브라우저 도구. `index.html` 더블클릭으로 실행 | C. npm 의존성 0개 | 616KB |
 | `kits/xlsx-automation` | 엑셀/CSV 가공과 보고서 생성 (Python) | B. 휠 동봉, 오프라인 설치 | 280KB |
 
