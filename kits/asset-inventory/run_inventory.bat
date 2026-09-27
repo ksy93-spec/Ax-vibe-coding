@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 REM 현재 폴더를 조사합니다. 다른 폴더를 보려면 뒤에 경로를 붙이세요.
 REM   run_inventory.bat C:\작업폴더
 cd /d "%~dp0"

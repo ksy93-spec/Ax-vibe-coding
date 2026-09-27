@@ -1,0 +1,18 @@
+이 프로젝트는 인터넷이 차단된 PC 에서 개발하고, 결과물은 file:// 로 열린다.
+PROMPT.md 의 "붙여넣기용 지침" 을 그대로 따른다. 요약:
+
+금지:
+- npm install, npx, 새 패키지 추가. package.json 과 package-lock.json 수정
+- 'echarts', 'echarts-for-react', 'ag-grid-community/styles/*', '@hyunbinseo/holidays-kr' 직접 import
+- Tailwind 기본 색(gray-500, blue-600, white, black), hex 색상값
+- 원격 URL (CDN, 외부 API)
+- src/components/, src/lib/, tools/, vite.config.js 수정 (요청받은 경우 제외)
+- 두 번째 y축
+- 요청받지 않은 파일 열기, 수정, 리팩터링
+
+지켜야 할 것:
+- 한 번에 한 파일. 새 화면은 src/pages/ 에 만들고 App.jsx 의 TABS 에 한 줄 추가
+- 차트는 components/Chart.jsx, 표는 components/DataGrid.jsx, 엑셀은 lib/excel.js
+- 계산 로직은 src/lib/ 에 순수 함수로 두고 node:test 테스트를 같이 만든다
+- 수정 후 npm run verify 가 통과해야 완료다
+- 확신이 없으면 코드를 쓰지 말고 질문한다

@@ -33,6 +33,7 @@
 | --- | --- | --- | --- |
 | `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
 | `kits/portal-shell` | Market Intelligence 통합 포탈 셸 (1차 프로젝트) | C. npm 의존성 0개 | 640KB |
+| `kits/mi-starter` | MI 기능을 ChatGPT 로 만들 때의 시작 템플릿과 오프라인 패키지 | B. npm 캐시 동봉 | 91MB |
 | `kits/web-tool-starter` | 브라우저 도구. `index.html` 더블클릭으로 실행 | C. npm 의존성 0개 | 616KB |
 | `kits/xlsx-automation` | 엑셀/CSV 가공과 보고서 생성 (Python) | B. 휠 동봉, 오프라인 설치 | 280KB |
 
@@ -43,6 +44,7 @@
 - 망 구조와 자료 흐름: `docs/topology.md`
 - 1차 프로젝트 설계안: `docs/portal-architecture.md`
 - 사내 앱을 포탈에 붙이는 법: `docs/app-integration.md`
+- MI 기능용 패키지 목록과 ChatGPT 지침: `kits/mi-starter/MANIFEST.md`, `kits/mi-starter/PROMPT.md`
 - 작업 절차: `docs/playbook.md`
 - 반입 전 확인: `docs/intake-checklist.md`
 - 반입용 압축: `scripts/pack.sh <킷이름>`

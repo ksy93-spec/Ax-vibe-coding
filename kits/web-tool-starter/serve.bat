@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 REM 로컬 서버로 열기. Python 이 설치되어 있을 때만 됩니다.
 REM file:// 로 충분하면 이 파일은 쓰지 않아도 됩니다.
 cd /d "%~dp0"

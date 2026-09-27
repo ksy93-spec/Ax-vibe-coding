@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 REM input 폴더의 파일을 모아 output 폴더에 보고서를 만듭니다.
 cd /d "%~dp0"
 if not exist .venv\Scripts\python.exe (

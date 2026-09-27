@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 REM 오프라인 설치. 인터넷에 접속하지 않습니다.
 cd /d "%~dp0"
 

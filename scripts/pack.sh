@@ -40,6 +40,7 @@ rm -f "$ARCHIVE"
 ( cd "$ROOT/kits" && zip -qr "$ARCHIVE" "$KIT" \
     -x "$KIT/.venv/*" "$KIT/input/*" "$KIT/output/*" \
        "$KIT/examples/*/node_modules/*" "$KIT/examples/*/dist/*" \
+       "$KIT/node_modules/*" "$KIT/dist/*" "$KIT/dist-single/*" \
        '*/__pycache__/*' '*/node_modules/.cache/*' '*/.DS_Store' )
 
 echo

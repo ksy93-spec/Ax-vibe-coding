@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/* 포탈과 같은 디자인 토큰. 색은 여기서만 정합니다.
+   Tailwind 기본 색(gray-500, blue-600, white 등)은 아래에서 꺼 두었습니다.
+   다크 모드가 깨지고 포탈과 색이 어긋나기 때문입니다.
+   bg-surface, text-muted 처럼 여기 정의한 이름만 쓰세요. */
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 930;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/PretendardVariable.subset.woff2') format('woff2-variations');
+}
+
+:root {
+  color-scheme: light;
+  --c-bg: #ffffff;
+  --c-bg-sunken: #f6f7f9;
+  --c-bg-raised: #ffffff;
+  --c-bg-hover: #f1f3f5;
+  --c-fg: #16191d;
+  --c-fg-muted: #5c6672;
+  --c-fg-subtle: #8a94a0;
+  --c-border: #dfe3e8;
+  --c-border-strong: #c3cad3;
+  --c-accent: #2563c9;
+  --c-accent-bg: #eaf1fd;
+  --c-accent-fg: #ffffff;
+  --c-ok: #1d7a4c;
+  --c-ok-bg: #e7f6ee;
+  --c-warn: #9a6100;
+  --c-warn-bg: #fdf3e0;
+  --c-danger: #c8322c;
+  --c-danger-bg: #fdecec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --c-bg: #15181c;
+    --c-bg-sunken: #101317;
+    --c-bg-raised: #1c2026;
+    --c-bg-hover: #242931;
+    --c-fg: #e6e9ed;
+    --c-fg-muted: #9aa4b1;
+    --c-fg-subtle: #6d7784;
+    --c-border: #2b313a;
+    --c-border-strong: #3d4550;
+    --c-accent: #6ba3f5;
+    --c-accent-bg: #1a2635;
+    --c-accent-fg: #0d1116;
+    --c-ok: #64c391;
+    --c-ok-bg: #16281f;
+    --c-warn: #e0ad5c;
+    --c-warn-bg: #2b2117;
+    --c-danger: #f2837d;
+    --c-danger-bg: #2e1a1a;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-bg: #15181c;
+  --c-bg-sunken: #101317;
+  --c-bg-raised: #1c2026;
+  --c-bg-hover: #242931;
+  --c-fg: #e6e9ed;
+  --c-fg-muted: #9aa4b1;
+  --c-fg-subtle: #6d7784;
+  --c-border: #2b313a;
+  --c-border-strong: #3d4550;
+  --c-accent: #6ba3f5;
+  --c-accent-bg: #1a2635;
+  --c-accent-fg: #0d1116;
+  --c-ok: #64c391;
+  --c-ok-bg: #16281f;
+  --c-warn: #e0ad5c;
+  --c-warn-bg: #2b2117;
+  --c-danger: #f2837d;
+  --c-danger-bg: #2e1a1a;
+}
+
+@theme {
+  --color-*: initial;
+}
+
+@theme inline {
+  --font-sans: 'Pretendard Variable', 'Malgun Gothic', system-ui, sans-serif;
+
+  --color-page: var(--c-bg-sunken);
+  --color-surface: var(--c-bg-raised);
+  --color-hover: var(--c-bg-hover);
+  --color-fg: var(--c-fg);
+  --color-muted: var(--c-fg-muted);
+  --color-subtle: var(--c-fg-subtle);
+  --color-line: var(--c-border);
+  --color-line-strong: var(--c-border-strong);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-bg);
+  --color-on-accent: var(--c-accent-fg);
+  --color-good: var(--c-ok);
+  --color-good-soft: var(--c-ok-bg);
+  --color-warn: var(--c-warn);
+  --color-warn-soft: var(--c-warn-bg);
+  --color-bad: var(--c-danger);
+  --color-bad-soft: var(--c-danger-bg);
+  --color-transparent: transparent;
+}
+
+html, body { margin: 0; }
+body {
+  background: var(--c-bg-sunken);
+  color: var(--c-fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.65;
+  letter-spacing: -0.003em;
+  -webkit-font-smoothing: antialiased;
+}
