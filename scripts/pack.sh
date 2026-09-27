@@ -17,7 +17,20 @@ if grep -rnI --exclude-dir=vendor --exclude-dir=node_modules -E 'https?://(cdn|u
 fi
 
 echo "== 범위 버전 검사 =="
-if [ -f "$SRC/package.json" ] && grep -nE '"[^"]+": *"[\^~]' "$SRC/package.json"; then
+# 의존성 항목만 봅니다. engines 의 "node": "^20.19.0" 같은 실행 환경 표기는 범위가 맞습니다.
+if [ -f "$SRC/package.json" ] && ! python3 - "$SRC/package.json" <<'PY'
+import json, re, sys
+pkg = json.load(open(sys.argv[1], encoding="utf-8"))
+bad = []
+for sec in ("dependencies", "devDependencies", "optionalDependencies", "overrides"):
+    for name, ver in (pkg.get(sec) or {}).items():
+        if isinstance(ver, str) and (re.match(r"^[\^~<>*]|^latest$|^x$", ver) or " " in ver or "||" in ver):
+            bad.append("%s: %s %s" % (sec, name, ver))
+for b in bad:
+    print(b)
+sys.exit(1 if bad else 0)
+PY
+then
   echo "범위 버전이 있습니다. 정확한 버전으로 고정하세요." >&2
   exit 1
 fi
