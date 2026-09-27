@@ -33,6 +33,17 @@
     charts = [];
   }
 
+  /** 포탈 안에 띄운 앱(iframe)에 지금 테마를 알립니다. 앱의 theme.js 가 받아서 따라갑니다. */
+  function broadcastTheme(frame) {
+    var theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var frames = frame ? [frame] : Array.prototype.slice.call(document.querySelectorAll('iframe.appframe__frame'));
+    frames.forEach(function (f) {
+      try {
+        if (f.contentWindow) f.contentWindow.postMessage({ type: 'portal-theme', theme: theme }, '*');
+      } catch (e) { /* 앱이 아직 안 떴으면 onload 에서 다시 보냅니다 */ }
+    });
+  }
+
   function themeToggle() {
     var root = document.documentElement;
     try {
@@ -46,6 +57,7 @@
         root.setAttribute('data-theme', next);
         try { localStorage.setItem('portal-theme', next); } catch (e) { /* 무시 */ }
         render();
+        broadcastTheme();
       },
     });
   }
@@ -178,6 +190,7 @@
           src: d.app.entry,
           title: d.title || m.id,
           loading: 'lazy',
+          onload: function (e) { broadcastTheme(e.target); },
         }),
       ]));
     }

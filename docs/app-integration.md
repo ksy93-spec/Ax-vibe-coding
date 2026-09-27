@@ -153,6 +153,22 @@ export_module(
 숫자는 앱이 아니라 앱이 읽는 데이터(엑셀, CSV)에서 파이썬으로 계산해 넣는 게 안정적입니다.
 앱 화면은 iframe 안에 있어서 포탈이 그 안의 값을 직접 읽지 못합니다.
 
+## 포탈의 화면 전환을 앱에도 적용하기
+
+포탈의 "화면 전환" 버튼을 누르면 포탈이 안에 띄운 앱에 `postMessage({ type: 'portal-theme', theme: 'dark' })`
+를 보냅니다. 앱이 이걸 받아 자기 `<html>` 에 `data-theme` 을 붙이면 같이 바뀝니다.
+`kits/mi-starter` 로 만든 앱은 `src/lib/theme.js` 에 이미 들어 있습니다. 다른 앱은 이 몇 줄을 넣으면 됩니다.
+
+```js
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'portal-theme') {
+    document.documentElement.setAttribute('data-theme', e.data.theme);
+  }
+});
+```
+
+앱의 CSS 가 `[data-theme='dark']` 를 보고 색을 바꾸도록 되어 있어야 효과가 있습니다.
+
 ## 서버가 필요한 앱
 
 express, Next.js 처럼 서버가 도는 앱은 `file://` 로 열리지 않습니다. 사내 서버에 띄워 둔 주소가 있다면
