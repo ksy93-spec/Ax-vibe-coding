@@ -35,12 +35,20 @@ npm 패키지 없음.
 | `src/lib/table.js` | 정렬/검색 표 | 아니오 |
 | `src/lib/dom.js` `store.js` `csv.js` `ui.js` | 공용 도구 | 아니오 |
 | `tools/portal_export.py` | 파이썬에서 data.js 내보내기 | 아니오 |
-| `tools/test_portal_export.py` | 자체 점검 16건 | 아니오 |
+| `tools/test_portal_export.py` | 자체 점검 21건 | 아니오 |
+| `tools/inline-build.cjs` | 앱 빌드 결과를 HTML 한 파일로 합치기 (Node 표준 모듈만) | 아니오 |
+| `apps/<id>/index.html` | 포탈에 붙인 앱. 한 파일 | 앱 담당자가 교체 |
+| `examples/nesting-calc/` | 앱 모듈 예시의 소스 (React + Vite). node_modules 없음 | 참고용 |
 | `assets/css/tokens.css` | 디자인 토큰과 차트 색 | 브랜드 색만 |
 | `assets/css/portal.css` | 화면 스타일 | 예 |
 
 ## 이 킷이 대신 해결해 둔 것
 
+- **사내에서 만든 앱을 그대로 붙입니다.** React, Vite 로 만든 앱을 빌드해 한 파일로 합치면
+  포탈 안에 뜹니다. 앱의 node_modules 는 포탈로 옮기지 않으므로 앱끼리 라이브러리 버전이
+  달라도 충돌하지 않습니다. 절차는 `docs/app-integration.md`.
+- **Vite 빌드가 더블클릭으로 안 열리는 문제를 풉니다.** 기본 빌드와 `base: './'` 빌드 모두
+  `file://` 에서 빈 화면이 되는 것을 확인했고, `tools/inline-build.cjs` 로 합치면 열립니다.
 - **`file://` 에서 모듈을 동적으로 불러옵니다.** 로컬 JSON 을 `fetch` 로 못 읽는 제약을
   `<script>` 주입으로 우회합니다. 모듈을 추가할 때 포탈 코드를 고칠 필요가 없습니다.
 - **모듈 하나가 깨져도 나머지는 뜹니다.** 없는 모듈은 건너뛰고, 계약을 어긴 모듈은
@@ -70,4 +78,11 @@ npm 패키지 없음.
 호버 툴팁, 크로스헤어, 키보드 좌우 이동, 표 보기 전환, 다크 모드, 콘솔 에러 없음,
 1280px 와 390px 에서 가로 스크롤 없음.
 없는 모듈과 계약 위반 모듈을 섞어도 정상 모듈이 그대로 뜨는 것을 확인했습니다.
-`tools/test_portal_export.py` 16건 통과.
+`tools/test_portal_export.py` 21건 통과.
+
+2026-09-27 앱 모듈 추가. Vite 8.3.1 + React 19.3.0 예시 앱으로 확인.
+기본 빌드와 `base: './'` 빌드가 `file://` 에서 빈 화면인 것, 한 파일 설정 + `inline-build.cjs`
+결과가 열리고 계산되는 것, 지연 로딩 조각이 남으면 도구가 멈추는 것, 이미지와 CSS 배경과
+파비콘이 인라인되는 것, 포탈 iframe 안에서 입력과 계산이 되는 것, 깨끗한 폴더에서
+`npm install && npm run build:portal` 로 다시 만들어지는 것을 확인했습니다.
+Vite 5~7 식 설정(`inlineDynamicImports`)도 Vite 8 에서 경고만 내고 동작했습니다.

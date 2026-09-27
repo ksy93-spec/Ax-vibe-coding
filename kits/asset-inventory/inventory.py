@@ -36,6 +36,7 @@ import hashlib
 import io
 import json
 import os
+import platform
 import re
 import sys
 import zipfile
@@ -52,8 +53,15 @@ SKIP_DIRS = {
 TEXT_EXT = {
     ".py", ".js", ".mjs", ".ts", ".jsx", ".tsx", ".html", ".htm", ".css",
     ".json", ".md", ".txt", ".csv", ".tsv", ".yml", ".yaml", ".xml",
-    ".sql", ".r", ".bat", ".cmd", ".ps1", ".sh", ".vbs", ".ipynb",
+    ".sql", ".r", ".bat", ".cmd", ".ps1", ".sh", ".vbs", ".ipynb", ".vue", ".svelte",
 }
+
+# 외부 URL 을 검사할 텍스트 파일. 실행 중에 무언가를 불러올 수 있는 종류만 봅니다.
+# README 의 링크나 lockfile 의 레지스트리 주소는 실행 시 로드가 아니라 경고 대상이 아닙니다.
+URL_SCAN_EXT = {".css", ".json", ".vue", ".svelte", ".sql", ".r", ".ipynb",
+                ".bat", ".cmd", ".ps1", ".sh", ".vbs"}
+LOCKFILES = {"package-lock.json", "npm-shrinkwrap.json", "yarn.lock", "pnpm-lock.yaml",
+             "bun.lockb", "Pipfile.lock", "poetry.lock", "composer.lock"}
 
 EXCEL_EXT = {".xlsx", ".xlsm", ".xltx", ".xltm"}
 LEGACY_OFFICE_EXT = {".xls", ".doc", ".ppt", ".mdb", ".accdb"}
@@ -361,6 +369,153 @@ def scan_web(path: str, ext: str) -> Dict[str, Any]:
     return info
 
 
+BUILD_TOOLS = [
+    ("vite", "Vite"), ("react-scripts", "Create React App"), ("next", "Next.js"),
+    ("@angular/cli", "Angular CLI"), ("@vue/cli-service", "Vue CLI"), ("parcel", "Parcel"),
+    ("webpack", "Webpack"), ("esbuild", "esbuild"), ("rollup", "Rollup"),
+]
+FRAMEWORKS = [("react", "React"), ("vue", "Vue"), ("svelte", "Svelte"),
+              ("@angular/core", "Angular"), ("preact", "Preact"), ("solid-js", "Solid")]
+SERVER_DEPS = ("express", "fastify", "koa", "@nestjs/core", "hapi", "@hapi/hapi",
+               "socket.io", "next", "nuxt", "remix", "@remix-run/node")
+# OS 마다 다른 바이너리가 설치되는 패키지. node_modules 를 다른 OS 로 옮기면 여기서 깨집니다.
+NATIVE_PATTERNS = [
+    ("@esbuild", re.compile(r"^(?P<plat>(?:win32|linux|darwin|freebsd|android|netbsd|openbsd|sunos|aix)-[a-z0-9]+)$")),
+    ("@rollup", re.compile(r"^rollup-(?P<plat>(?:win32|linux|darwin|freebsd|android)-[a-z0-9]+)")),
+    ("@rolldown", re.compile(r"^binding-(?P<plat>(?:win32|linux|darwin|freebsd|android|wasm32)-[a-z0-9]+)")),
+    ("@swc", re.compile(r"^core-(?P<plat>(?:win32|linux|darwin|freebsd|android)-[a-z0-9]+)")),
+    ("@tailwindcss", re.compile(r"^oxide-(?P<plat>(?:win32|linux|darwin|freebsd|android|wasm32)-[a-z0-9]+)")),
+    ("@parcel", re.compile(r"^watcher-(?P<plat>(?:win32|linux|darwin|freebsd|android)-[a-z0-9]+)")),
+    ("", re.compile(r"^lightningcss-(?P<plat>(?:win32|linux|darwin|freebsd|android)-[a-z0-9]+)")),
+]
+
+
+def current_platform() -> str:
+    """이 도구가 도는 PC 의 플랫폼 표기. node_modules 안의 바이너리 이름과 같은 형식."""
+    osname = {"win32": "win32", "linux": "linux", "darwin": "darwin"}.get(sys.platform, sys.platform)
+    mach = platform.machine().lower()
+    arch = {"amd64": "x64", "x86_64": "x64", "arm64": "arm64", "aarch64": "arm64",
+            "x86": "ia32", "i386": "ia32", "i686": "ia32"}.get(mach, mach)
+    return "%s-%s" % (osname, arch)
+
+
+def _installed_version(node_modules: str, pkg: str) -> Optional[str]:
+    try:
+        with open(os.path.join(node_modules, *pkg.split("/"), "package.json"), encoding="utf-8") as fh:
+            return json.load(fh).get("version")
+    except (OSError, ValueError):
+        return None
+
+
+def scan_js_project(pkg_path: str) -> Dict[str, Any]:
+    """package.json 이 있는 폴더를 앱 프로젝트로 보고, 포탈에 붙이는 방법을 판정합니다.
+
+    node_modules 와 dist 는 파일 목록 조사에서 건너뛰므로 여기서 따로 들여다봅니다.
+    내용은 읽지 않고 이름, 버전, 설정 유무만 봅니다.
+    """
+    root = os.path.dirname(pkg_path)
+    text, _ = read_text(pkg_path)
+    try:
+        pkg = json.loads(text)
+    except ValueError:
+        return {"error": "package.json 을 읽지 못했습니다"}
+    deps: Dict[str, str] = {}
+    for key in ("dependencies", "devDependencies"):
+        deps.update(pkg.get(key) or {})
+
+    nm = os.path.join(root, "node_modules")
+    has_nm = os.path.isdir(nm)
+    info: Dict[str, Any] = {
+        "name": label(pkg.get("name") or os.path.basename(root)),
+        "scripts": sorted((pkg.get("scripts") or {}).keys())[:12],
+        "build_tool": next((name for key, name in BUILD_TOOLS if key in deps), None),
+        "framework": next((name for key, name in FRAMEWORKS if key in deps), None),
+        "server_deps": sorted(d for d in SERVER_DEPS if d in deps),
+        "dep_count": len(deps),
+        "node_modules": has_nm,
+        "installed": {},
+        "native_platforms": [],
+        "dist": None,
+        "vite_single_file": None,
+    }
+    for key in ("vite", "react", "react-scripts", "next", "webpack"):
+        if key in deps:
+            ver = _installed_version(nm, key) if has_nm else None
+            info["installed"][key] = ver or ("선언만 " + str(deps[key]))
+
+    if has_nm:
+        plats = set()
+        for scope, pattern in NATIVE_PATTERNS:
+            base = os.path.join(nm, scope) if scope else nm
+            try:
+                names = os.listdir(base)
+            except OSError:
+                continue
+            for n in names:
+                m = pattern.match(n)
+                if m:
+                    plats.add(m.group("plat").replace("-gnu", "").replace("-musl", "").replace("-msvc", ""))
+        info["native_platforms"] = sorted(plats)
+        try:
+            info["top_level_packages"] = sum(
+                len(os.listdir(os.path.join(nm, d))) if d.startswith("@") else 1
+                for d in os.listdir(nm) if not d.startswith("."))
+        except OSError:
+            pass
+
+    for out in ("dist", "build", "out"):
+        idx = os.path.join(root, out, "index.html")
+        if os.path.isfile(idx):
+            html, _ = read_text(idx)
+            info["dist"] = {
+                "folder": out,
+                "module_script": bool(re.search(r"<script[^>]+type=[\"']module[\"'][^>]+src=", html)),
+                "absolute_paths": bool(re.search(r"(?:src|href)=[\"']/(?!/)", html)),
+                "chunks": 0,
+            }
+            assets = os.path.join(root, out, "assets")
+            if os.path.isdir(assets):
+                info["dist"]["chunks"] = sum(1 for f in os.listdir(assets) if f.endswith(".js"))
+            break
+
+    for cfg in ("vite.config.js", "vite.config.ts", "vite.config.mjs", "vite.config.mts"):
+        cpath = os.path.join(root, cfg)
+        if os.path.isfile(cpath):
+            ctext, _ = read_text(cpath)
+            info["vite_single_file"] = bool(re.search(r"inlineDynamicImports\s*:\s*true|codeSplitting\s*:\s*false", ctext))
+            break
+
+    info["verdict"], info["notes"] = _verdict(info)
+    return info
+
+
+def _verdict(info: Dict[str, Any]) -> Tuple[str, List[str]]:
+    """포탈에 어떤 방식으로 붙일지와 그 이유."""
+    notes: List[str] = []
+    here = current_platform()
+    plats = info.get("native_platforms") or []
+    if plats and here not in plats:
+        notes.append("node_modules 가 다른 OS 에서 설치됐습니다 (%s, 지금 PC 는 %s). "
+                     "이 상태로는 빌드가 실패합니다. 빌드는 설치한 PC 에서 하세요." % (", ".join(plats), here))
+    if info["server_deps"]:
+        notes.append("서버가 도는 앱입니다 (%s). file:// 로는 열리지 않습니다." % ", ".join(info["server_deps"]))
+        return "링크 연결 (서버 필요)", notes
+    if not info["framework"] and not info["build_tool"]:
+        return "데이터 모듈 또는 도구 스크립트", notes
+    d = info.get("dist")
+    if d and d["module_script"]:
+        notes.append("현재 빌드 결과는 ES 모듈이라 file:// 에서 빈 화면이 됩니다. inline-build 로 합쳐야 합니다.")
+    if d and d["chunks"] > 1:
+        notes.append("빌드 결과가 JS %d조각으로 나뉘어 있습니다. 한 파일 설정이 필요합니다." % d["chunks"])
+    if info["build_tool"] == "Vite" and not info["vite_single_file"]:
+        notes.append("vite.config 에 한 파일 설정(inlineDynamicImports)이 없습니다.")
+    if info["build_tool"] == "Create React App":
+        notes.append("CRA 는 package.json 에 \"homepage\": \".\" 가 있어야 상대 경로로 빌드됩니다.")
+    if not info["node_modules"]:
+        notes.append("node_modules 가 없습니다. 이 PC 에서는 다시 빌드할 수 없습니다.")
+    return "앱 모듈 (빌드 후 inline-build)", notes
+
+
 def scan_deps(path: str, name: str) -> Dict[str, Any]:
     text, _ = read_text(path)
     out: Dict[str, Any] = {"packages": []}
@@ -454,12 +609,20 @@ def collect(root: str, max_files: int) -> Dict[str, Any]:
             entry["detail"] = scan_web(path, ext)
             for fn in entry["detail"].get("functions", []):
                 func_owner[fn].append(entry["path"])
-        elif base in ("package.json", "requirements.txt", "Pipfile", "pyproject.toml"):
+        elif base == "package.json":
+            entry["kind"] = "JS 프로젝트"
+            entry["detail"] = scan_deps(path, base)
+            entry["detail"]["project"] = scan_js_project(path)
+        elif base in ("requirements.txt", "Pipfile", "pyproject.toml"):
             entry["kind"] = "의존성"
             entry["detail"] = scan_deps(path, base)
+        elif base in LOCKFILES:
+            entry["kind"] = "잠금 파일"
+            entry["detail"] = {}
         elif ext in TEXT_EXT:
             text, enc = read_text(path)
-            entry["detail"] = {"encoding": enc, "remote_urls": find_remote_urls(text)}
+            entry["detail"] = {"encoding": enc,
+                               "remote_urls": find_remote_urls(text) if ext in URL_SCAN_EXT else []}
         else:
             entry["detail"] = {}
 
@@ -496,10 +659,30 @@ def collect(root: str, max_files: int) -> Dict[str, Any]:
         result["warnings"].append(
             "매크로가 든 엑셀(xlsm)이 있습니다. 매크로 로직은 이 도구로 보이지 않습니다."
         )
-    if any((e.get("detail") or {}).get("uses_es_module") for e in result["entries"]):
+    # 빌드 도구가 있는 프로젝트의 소스는 빌드를 거치므로 ES 모듈이어도 문제가 아닙니다.
+    built_roots = []
+    for e in result["entries"]:
+        pj = (e.get("detail") or {}).get("project") or {}
+        if e["kind"] == "JS 프로젝트" and (pj.get("build_tool") or pj.get("framework")):
+            folder = e["path"].rsplit("/", 1)[0] if "/" in e["path"] else ""
+            built_roots.append(folder + "/" if folder else "")
+    def _in_built_project(p: str) -> bool:
+        return any(root == "" or p.startswith(root) for root in built_roots)
+    if any((e.get("detail") or {}).get("uses_es_module") and not _in_built_project(e["path"])
+           for e in result["entries"]):
         result["warnings"].append(
             "ES 모듈을 쓰는 웹 파일이 있습니다. file:// 로 열면 CORS 로 막힙니다."
         )
+    projects = [e for e in result["entries"] if e["kind"] == "JS 프로젝트"]
+    if any(any("다른 OS" in n for n in e["detail"]["project"].get("notes", [])) for e in projects):
+        result["warnings"].append(
+            "다른 OS 에서 설치된 node_modules 가 있습니다. 그대로 옮긴 폴더는 빌드가 실패합니다."
+        )
+    if any(e["detail"]["project"].get("verdict", "").startswith("앱 모듈") for e in projects):
+        result["warnings"].append(
+            "빌드가 필요한 앱이 있습니다. 포탈에 붙이려면 docs/app-integration.md 의 절차를 따르세요."
+        )
+    result["platform"] = current_platform()
     if len(files) >= max_files:
         result["warnings"].append(
             "파일 수 상한(%d)에 걸렸습니다. --max-files 를 올리거나 --root 를 좁히세요." % max_files
@@ -645,6 +828,39 @@ def to_markdown(data: Dict[str, Any]) -> str:
             if any(d["headers"]):
                 w("  - 머리글: %s" % ", ".join(h or "(빈칸)" for h in d["headers"]))
         w("")
+
+    projects = [e for e in data["entries"] if e["kind"] == "JS 프로젝트"]
+    if projects:
+        w("## JS 앱 프로젝트 (%d개)" % len(projects))
+        w("")
+        w("조사한 PC: %s" % data.get("platform", "?"))
+        w("")
+        w("| 프로젝트 | 빌드 도구 | 프레임워크 | 포탈 연결 방식 |")
+        w("| --- | --- | --- | --- |")
+        for e in projects:
+            pj = e["detail"]["project"]
+            w("| `%s` | %s | %s | %s |" % (
+                e["path"].rsplit("/", 1)[0] if "/" in e["path"] else ".",
+                pj.get("build_tool") or "-", pj.get("framework") or "-", pj.get("verdict", "-")))
+        w("")
+        for e in projects:
+            pj = e["detail"]["project"]
+            w("### `%s`" % e["path"])
+            w("")
+            facts = []
+            if pj.get("installed"):
+                facts.append("설치 버전 " + ", ".join("%s %s" % kv for kv in pj["installed"].items()))
+            facts.append("의존성 %d개" % pj.get("dep_count", 0))
+            facts.append("node_modules " + ("있음" if pj.get("node_modules") else "없음"))
+            if pj.get("native_platforms"):
+                facts.append("바이너리 플랫폼 " + ", ".join(pj["native_platforms"]))
+            if pj.get("scripts"):
+                facts.append("scripts: " + ", ".join(pj["scripts"]))
+            for f in facts:
+                w("- %s" % f)
+            for n in pj.get("notes", []):
+                w("- **%s**" % n)
+            w("")
 
     deps = [e for e in data["entries"] if e["kind"] == "의존성"]
     if deps:

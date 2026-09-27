@@ -70,13 +70,24 @@ window.__PORTAL__["my_module"] = { "title": "...", "kpis": [], "charts": [] };
 
 그리고 `data/modules.js` 의 목록에 `"my_module"` 을 넣습니다.
 
+### 사내에서 만든 앱을 붙일 때
+
+React, Vite 등으로 만든 앱은 빌드한 뒤 한 파일로 합쳐서 `apps/<이름>/` 에 넣고
+`export_module(..., app_entry="apps/<이름>/index.html")` 로 등록합니다.
+node_modules 는 옮기지 않습니다. 자세한 절차는 저장소의 `docs/app-integration.md` 에 있습니다.
+
+```
+npm run build
+node C:\portal\tools\inline-build.cjs dist C:\portal\apps\psi
+```
+
 ## 5. 자체 점검
 
 ```
 python tools\test_portal_export.py
 ```
 
-16건이 전부 통과하면 내보내기 도구가 정상입니다.
+21건이 전부 통과하면 내보내기 도구가 정상입니다.
 
 ## 문제가 생기면
 

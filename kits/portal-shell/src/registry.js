@@ -43,6 +43,16 @@
         problems.push(where + ' 의 계열이 8개를 넘습니다. 색을 더 만들지 말고 "기타"로 묶거나 차트를 나누세요.');
       }
     });
+    if (mod.app !== undefined) {
+      var entry = mod.app && mod.app.entry;
+      if (typeof entry !== 'string' || !entry) {
+        problems.push('app.entry 가 없습니다. 예: "apps/' + id + '/index.html"');
+      } else if (/^[a-z][a-z0-9+.-]*:/i.test(entry)) {
+        if (!/^https?:\/\//i.test(entry)) problems.push('app.entry 는 상대 경로 또는 http(s) 주소여야 합니다.');
+      } else if (entry.charAt(0) === '/' || /(^|[\/\\])\.\.([\/\\]|$)/.test(entry)) {
+        problems.push('app.entry 는 포탈 폴더 안의 상대 경로여야 합니다. 예: "apps/' + id + '/index.html"');
+      }
+    }
     if (mod.table) {
       if (!Array.isArray(mod.table.columns)) problems.push('table.columns 가 배열이 아닙니다.');
       if (!Array.isArray(mod.table.rows)) problems.push('table.rows 가 배열이 아닙니다.');

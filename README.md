@@ -42,6 +42,7 @@
 
 - 망 구조와 자료 흐름: `docs/topology.md`
 - 1차 프로젝트 설계안: `docs/portal-architecture.md`
+- 사내 앱을 포탈에 붙이는 법: `docs/app-integration.md`
 - 작업 절차: `docs/playbook.md`
 - 반입 전 확인: `docs/intake-checklist.md`
 - 반입용 압축: `scripts/pack.sh <킷이름>`

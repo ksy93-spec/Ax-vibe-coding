@@ -45,6 +45,7 @@ python inventory.py --root C:\작업폴더 --redact
 | CSV | 인코딩, 구분자, 머리글, 행 수 |
 | HTML/JS | 스크립트 참조, 외부 URL, 함수 이름, ES 모듈 사용 여부 |
 | 의존성 | requirements.txt, package.json 의 패키지 목록 |
+| JS 앱 | 빌드 도구, 프레임워크, 설치된 버전, node_modules 가 어느 OS 용인지, 빌드 결과가 `file://` 에서 열리는지, 포탈에 붙이는 방식 판정 |
 | 전체 | 중복으로 보이는 함수와 파일 |
 
 ## 뽑지 않는 것
@@ -65,6 +66,9 @@ python inventory.py --root C:\작업폴더 --redact
 - **구형 오피스 형식**: xls, doc, mdb 는 구조를 읽지 못합니다. 직접 확인이 필요합니다.
 - **매크로**: xlsm 안의 VBA 로직은 이 도구로 보이지 않습니다. 별도로 확인하세요.
 - **중복 함수**: 여러 사람이 같은 일을 각자 만든 자리입니다. 통합할 때 하나로 합칠 후보입니다.
+- **다른 OS 에서 설치된 node_modules**: 옮겨 온 폴더에서는 빌드가 실패합니다. 설치한 PC 에서 빌드하세요.
+- **JS 앱 프로젝트 표의 "포탈 연결 방식"**: 앱 모듈, 데이터 모듈, 링크 연결 중 무엇이 맞는지
+  판정합니다. 앱 모듈이면 `docs/app-integration.md` 절차를 따르면 됩니다.
 
 ## 검증 기록
 
@@ -72,3 +76,7 @@ python inventory.py --root C:\작업폴더 --redact
 CP949/UTF-8 CSV, 68만 자 CSV, HTML, JS, 구형 xls, requirements.txt 를 섞은 폴더로 확인.
 외부 URL 5개 호스트, 중복 함수, 매크로, 외부연결, 수식, 빈 열 위치까지 정확히 잡았습니다.
 `--redact` 로 이름을 가려도 중복 탐지가 유지되는 것을 확인했습니다.
+
+2026-09-27 JS 앱 판정 추가. 이 PC 에서 설치한 Vite 8 앱, 윈도에서 설치해 옮겨 온 Vite 5 앱,
+express 서버 앱, node_modules 없는 CRA 앱 네 가지를 각각 맞게 판정했습니다.
+package-lock.json 의 레지스트리 주소와 빌드 전 소스의 ES 모듈 문법을 문제로 잘못 잡던 것도 고쳤습니다.

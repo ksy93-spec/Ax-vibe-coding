@@ -88,6 +88,22 @@ def main():
             portal_dir=tmp, module_id="bad4", title="x",
             table={"columns": ["a", "b"], "rows": [["1"]]}), "맞지 않습니다")
         check("위반 시 파일 안 생김", os.path.exists(os.path.join(tmp, "data", "bad1")), False)
+
+        print("앱 모듈")
+        p5 = export_module(portal_dir=tmp, module_id="psi", title="PSI",
+                           app_entry="apps\\psi\\index.html",
+                           kpis=[{"label": "미달 품목", "value": 3, "unit": "개"}])
+        raw5 = open(p5, encoding="utf-8").read()
+        check("앱 entry 기록", '"entry": "apps/psi/index.html"' in raw5, True)
+        check("사내 URL 허용", os.path.exists(export_module(
+            portal_dir=tmp, module_id="psi_web", title="PSI",
+            app_entry="http://intra.local/psi/")), True)
+        expect_error("앱 절대 경로", lambda: export_module(
+            portal_dir=tmp, module_id="bad5", title="x", app_entry="/apps/x/index.html"), "상대 경로")
+        expect_error("앱 상위 폴더", lambda: export_module(
+            portal_dir=tmp, module_id="bad6", title="x", app_entry="../x/index.html"), "상대 경로")
+        expect_error("앱 file 스킴", lambda: export_module(
+            portal_dir=tmp, module_id="bad7", title="x", app_entry="file:///C:/x.html"), "http(s)")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

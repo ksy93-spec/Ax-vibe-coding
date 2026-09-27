@@ -107,13 +107,15 @@
 
     state.modules.forEach(function (m) {
       var card = h('div', { class: 'panel' });
+      var isApp = !!(m.data.app && m.data.app.entry);
       card.appendChild(h('div', { class: 'row' }, [
         h('h2', { class: 'panel__title', text: m.data.title || m.id }),
-        freshnessBadge(m.data),
+        isApp ? h('span', { class: 'badge badge--app', text: '앱' }) : freshnessBadge(m.data),
         m.data.owner ? h('span', { class: 'badge', text: m.data.owner }) : null,
         h('div', { class: 'app__spacer' }),
         h('button', {
-          class: 'btn btn--sm', type: 'button', text: '자세히',
+          class: 'btn btn--sm' + (isApp ? ' btn--primary' : ''), type: 'button',
+          text: isApp ? '열기' : '자세히',
           onclick: function () { state.current = m.id; render(); },
         }),
       ]));
@@ -143,7 +145,9 @@
         ]),
       ]),
       h('div', { class: 'app__spacer' }),
-      freshnessBadge(d),
+      d.app && d.app.entry
+        ? h('a', { class: 'btn btn--sm', href: d.app.entry, target: '_blank', rel: 'noopener', text: '새 창으로 열기' })
+        : freshnessBadge(d),
       themeToggle(),
     ]));
 
@@ -163,6 +167,19 @@
       var kpiRow = h('div', { class: 'kpi-row' });
       App.renderKpis(kpiRow, d.kpis, d.format);
       wrap.appendChild(kpiRow);
+    }
+
+    if (d.app && typeof d.app.entry === 'string' && d.app.entry && !m.problems.length) {
+      // 앱은 자기 폴더에서 그대로 돕니다. 포탈은 창만 빌려줍니다.
+      // 앱 안의 코드와 node_modules 는 포탈과 섞이지 않으므로 라이브러리 버전이 달라도 충돌하지 않습니다.
+      wrap.appendChild(h('div', { class: 'appframe' }, [
+        h('iframe', {
+          class: 'appframe__frame',
+          src: d.app.entry,
+          title: d.title || m.id,
+          loading: 'lazy',
+        }),
+      ]));
     }
 
     (d.charts || []).forEach(function (c) {

@@ -326,3 +326,22 @@ h1, h2, h3 { line-height: var(--leading-tight); margin: 0; font-weight: var(--we
   .side__item { width: auto; }
   .main { padding: var(--sp-4); max-width: none; }
 }
+
+/* 앱 모듈 */
+.badge--app { background: var(--c-accent-bg); color: var(--c-accent); }
+.appframe {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-bg-raised);
+  margin-bottom: var(--sp-5);
+}
+.appframe__frame {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 200px);
+  min-height: 560px;
+  border: 0;
+  background: var(--c-bg-raised);
+}
+a.btn { text-decoration: none; display: inline-block; }

@@ -39,6 +39,7 @@ rm -f "$ARCHIVE"
 # 작업 중 생긴 폴더는 빼고 압축합니다.
 ( cd "$ROOT/kits" && zip -qr "$ARCHIVE" "$KIT" \
     -x "$KIT/.venv/*" "$KIT/input/*" "$KIT/output/*" \
+       "$KIT/examples/*/node_modules/*" "$KIT/examples/*/dist/*" \
        '*/__pycache__/*' '*/node_modules/.cache/*' '*/.DS_Store' )
 
 echo

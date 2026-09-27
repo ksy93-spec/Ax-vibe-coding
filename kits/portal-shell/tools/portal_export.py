@@ -70,6 +70,16 @@ def _check(data: Dict[str, Any]) -> List[str]:
                     % (where, j, len(values), len(x)))
         if c.get("type") not in (None, "line", "bar"):
             problems.append("%s.type 은 line 또는 bar 여야 합니다." % where)
+    app = data.get("app")
+    if app is not None:
+        entry = (app or {}).get("entry")
+        if not isinstance(entry, str) or not entry:
+            problems.append("app.entry 가 비었습니다.")
+        elif re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", entry):
+            if not re.match(r"^https?://", entry, re.I):
+                problems.append("app.entry 는 상대 경로 또는 http(s) 주소여야 합니다: %r" % entry)
+        elif entry.startswith(("/", "\\")) or re.search(r"(^|[/\\])\.\.([/\\]|$)", entry):
+            problems.append("app.entry 는 포탈 폴더 안의 상대 경로여야 합니다: %r" % entry)
     table = data.get("table")
     if table:
         cols = table.get("columns")
@@ -110,8 +120,13 @@ def export_module(portal_dir: str, module_id: str, title: str,
                   owner: str = "", description: str = "", notes: str = "",
                   format: str = "number",
                   updated_at: Optional[str] = None,
+                  app_entry: Optional[str] = None,
                   register: bool = True) -> str:
     """모듈 하나를 data/<module_id>/data.js 로 내보냅니다.
+
+    app_entry 를 주면 앱 모듈이 됩니다. 포탈이 그 앱을 화면 안에 띄웁니다.
+    포탈 폴더 기준 상대 경로(예: "apps/psi/index.html")나 사내 http 주소를 씁니다.
+    지표 카드(kpis)를 같이 주면 개요 화면에 앱의 현황 숫자도 나옵니다.
 
     register 가 True 면 data/modules.js 에 이 모듈을 자동으로 등록합니다.
     계약을 어기면 파일을 쓰지 않고 ContractError 를 냅니다.
@@ -134,6 +149,8 @@ def export_module(portal_dir: str, module_id: str, title: str,
         data["table"] = table
     if notes:
         data["notes"] = notes
+    if app_entry is not None:
+        data["app"] = {"entry": str(app_entry).replace("\\", "/")}
 
     data = _jsonable(data)
     problems = _check(data)

@@ -38,6 +38,32 @@ ChatGPT Enterprise 에는 `types/portal.d.ts` 와 `MANIFEST.md` 를 프로젝트
 - index.html 을 새로 고치면 왼쪽 목록에 뜨고 느낌표가 없다
 ```
 
+## 이미 만든 앱을 붙일 때
+
+앱 코드를 포탈로 옮겨 다시 짜게 하면 안 됩니다. 앱 폴더의 빌드 설정만 고치게 하세요.
+
+```
+작업: 기존 Vite 앱을 포탈에 붙이기 위한 빌드 설정 변경
+파일: vite.config.js (이 파일만)
+
+할 일:
+- base: './' 추가
+- build.assetsInlineLimit: 100_000_000
+- build.cssCodeSplit: false
+- build.rollupOptions.output.inlineDynamicImports: true
+
+금지:
+- 새 패키지 설치 (vite-plugin-singlefile 등 플러그인 포함)
+- src/ 아래 앱 코드 수정
+- 기존 plugins, resolve, server 설정 변경
+
+완료 기준:
+- npm run build 후 dist/assets 에 .js 파일이 하나다
+```
+
+빌드 뒤 한 파일로 합치는 것과 등록은 사람이 직접 하는 게 빠릅니다.
+명령 두 줄이라 모델에게 시킬 이유가 없습니다. `docs/app-integration.md` 3~4번을 보세요.
+
 ## 포탈 화면 자체를 손볼 때
 
 ```

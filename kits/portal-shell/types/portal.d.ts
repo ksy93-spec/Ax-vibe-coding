@@ -46,6 +46,12 @@ declare namespace Portal {
     rows: Array<Array<string | number | null>>;
   }
 
+  /** 앱 모듈. 포탈이 이 주소를 화면 안에 띄웁니다. */
+  interface App {
+    /** 포탈 폴더 기준 상대 경로(예: "apps/psi/index.html") 또는 사내 http(s) 주소. */
+    entry: string;
+  }
+
   /** data/<id>/data.js 가 window.__PORTAL__[id] 에 넣는 객체. */
   interface Module {
     title: string;
@@ -58,6 +64,8 @@ declare namespace Portal {
     charts?: Chart[];
     table?: Table;
     notes?: string;
+    /** 있으면 앱 모듈. kpis 와 같이 쓰면 개요 화면에 앱의 현황 숫자가 나옵니다. */
+    app?: App;
   }
 }
 

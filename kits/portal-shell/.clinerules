@@ -16,6 +16,9 @@
 지켜야 할 것:
 - 한 번에 한 파일만 수정한다.
 - 기능을 추가할 때는 포탈 코드가 아니라 data/ 아래 모듈을 추가한다.
+- 이미 만든 앱은 포탈 코드로 다시 짜지 않는다. 빌드해서 tools/inline-build.cjs 로 합친 뒤
+  apps/<id>/ 에 넣고 export_module(app_entry=...) 로 등록한다.
+- 앱의 node_modules 를 포탈 폴더로 복사하지 않는다.
 - 모듈 데이터는 tools/portal_export.py 의 export_module 로 만든다. 손으로 쓰지 않는다.
 - 색과 간격은 tokens.css 의 CSS 변수만 쓴다. 필요한 변수가 없으면 물어본다.
 - 새 스크립트 파일은 index.html 의 </body> 앞에 클래식 <script> 로 추가하고
