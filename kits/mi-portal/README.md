@@ -44,10 +44,25 @@ Market Intelligence 통합 포탈 템플릿입니다. GitHub 에서 많이 쓰�
 
 자세한 설치와 문제 해결은 [OFFLINE.md](OFFLINE.md), 사내 모델 사용법은 [prompts/README.md](prompts/README.md) 에 있습니다.
 
+## 업데이트 받기
+
+처음 한 번만 폴더를 통째로 옮기고, 그 뒤에는 바뀐 파일만 담은 zip 을 받습니다.
+zip 과 목록은 저장소의 `updates/mi-portal/` 에 있습니다.
+
+1. 킷 폴더의 `VERSION` 을 열어 지금 판을 확인합니다. 파일이 없으면 처음 판입니다.
+2. `updates/mi-portal/README.md` 목록에서 "적용 전 판" 이 지금 판인 zip 을 받습니다.
+   GitHub 에서 파일을 누르고 다운로드 단추(Download raw file)를 쓰면 저장소 전체를 받지 않아도 됩니다.
+3. zip 을 킷 폴더 안에 풀고(덮어쓰기) `_update\finish.bat` 을 실행합니다.
+   지워진 파일을 정리하고 `VERSION` 을 올립니다. 판이 안 맞으면 멈추고 알려 줍니다.
+4. `_update\UPDATE.md` 에 적힌 대로 `build.bat` 또는 `install.bat` 을 실행합니다.
+
+여러 판을 건너뛰었으면 목록 순서대로 하나씩 적용합니다. `npm-cache` 는 패키지가 바뀔 때만 zip 에 들어갑니다.
+
 ## 구조
 
 ```
 mi-portal/
+  VERSION                           지금 판 번호. 업데이트 zip 을 고를 때 봅니다
   install.bat, dev.bat, build.bat   더블클릭용
   npm-cache/                        오프라인 설치용 패키지 (윈도 x64, 리눅스 x64)
   demo/index.html                   빌드된 결과 미리보기
