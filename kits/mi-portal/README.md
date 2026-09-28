@@ -37,7 +37,7 @@ Market Intelligence 통합 포탈 템플릿입니다. GitHub 에서 많이 쓰�
 ## 사내에서 시작하는 순서
 
 1. `mi-portal` 폴더를 통째로 한글과 공백이 없는 경로에 둡니다. 예: `C:\work\mi-portal`
-2. `install.bat` 실행. 인터넷 없이 `npm-cache` 에서 설치하고 검사, 테스트, 빌드까지 한 번 돌립니다.
+2. `install.bat` 실행. 인터넷 없이 `vendor` 의 패키지로 설치하고 검사, 테스트, 빌드까지 한 번 돌립니다.
 3. `dev.bat` 실행 후 브라우저에서 `http://localhost:5173` 을 엽니다. 코드를 고치면 바로 바뀝니다.
 4. 사내 모델(ChatGPT Enterprise 또는 Cline)에 `prompts/` 의 프롬프트를 주고 화면을 하나씩 만듭니다.
 5. `build.bat` 실행. `dist-single\index.html` 한 파일이 나오고, 이걸 배포합니다.
@@ -52,11 +52,13 @@ zip 과 목록은 저장소의 `updates/mi-portal/` 에 있습니다.
 1. 킷 폴더의 `VERSION` 을 열어 지금 판을 확인합니다. 파일이 없으면 처음 판입니다.
 2. `updates/mi-portal/README.md` 목록에서 "적용 전 판" 이 지금 판인 zip 을 받습니다.
    GitHub 에서 파일을 누르고 다운로드 단추(Download raw file)를 쓰면 저장소 전체를 받지 않아도 됩니다.
-3. zip 을 킷 폴더 안에 풀고(덮어쓰기) `_update\finish.bat` 을 실행합니다.
-   지워진 파일을 정리하고 `VERSION` 을 올립니다. 판이 안 맞으면 멈추고 알려 줍니다.
-4. `_update\UPDATE.md` 에 적힌 대로 `build.bat` 또는 `install.bat` 을 실행합니다.
+3. zip 을 아무 곳에나 풀고 안의 `apply.bat` 을 실행합니다. 킷 폴더 안에 풀 필요는 없습니다.
+   `mi-portal` 폴더를 자동으로 못 찾으면 탐색기에서 그 폴더를 검은 창으로 끌어다 놓으라고 묻습니다.
+   판이 맞으면 파일을 복사하고, 지워진 파일을 정리하고, `VERSION` 을 올립니다. 판이 안 맞으면 아무것도 바꾸지 않습니다.
+4. 창에 나온 대로 `build.bat` 또는 `install.bat` 을 실행합니다. 바뀐 파일 목록은 zip 안의 `UPDATE.md` 에 있습니다.
 
-여러 판을 건너뛰었으면 목록 순서대로 하나씩 적용합니다. `npm-cache` 는 패키지가 바뀔 때만 zip 에 들어갑니다.
+여러 판을 건너뛰었으면 목록 순서대로 하나씩 적용합니다. 바뀐 파일이 40MB 를 넘는 업데이트는 zip 대신
+목록에 "통째로 다시 받기" 로 적습니다.
 
 ## 구조
 
@@ -64,7 +66,8 @@ zip 과 목록은 저장소의 `updates/mi-portal/` 에 있습니다.
 mi-portal/
   VERSION                           지금 판 번호. 업데이트 zip 을 고를 때 봅니다
   install.bat, dev.bat, build.bat   더블클릭용
-  npm-cache/                        오프라인 설치용 패키지 (윈도 x64, 리눅스 x64)
+  vendor/                           오프라인 설치용 패키지 tarball (윈도 x64, 리눅스 x64)
+  tools/install-offline.cjs         vendor 로 설치 (install.bat 이 부름)
   demo/index.html                   빌드된 결과 미리보기
   prompts/                          사내 모델에 붙여 넣을 프롬프트
   tools/check.cjs                   빌드 전 검사 (없는 패키지, 외부 주소, 금지 import)

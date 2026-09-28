@@ -6,8 +6,8 @@
 | --- | --- |
 | 원본 템플릿 | satnaing/shadcn-admin 2.2.1, 커밋 e16c87f (2026-06-11), MIT. 바꾼 내용은 NOTICE.md |
 | 실행 환경 | Node 20.19 이상 또는 22.12 이상, npm 10 이상 |
-| 지원 OS | 윈도 x64, 리눅스 x64 (npm-cache 에 두 OS 의 네이티브 바이너리가 들어 있음) |
-| 반입 방식 | B. `npm-cache/` (약 100MB) 로 `npm ci --offline` 설치 |
+| 지원 OS | 윈도 x64, 리눅스 x64 (vendor 에 두 OS 의 네이티브 바이너리가 들어 있음) |
+| 반입 방식 | B. `vendor/` 의 tarball 290개 (약 95MB, 파일 이름 48자 이하) 를 `tools/install-offline.cjs` 가 npm 캐시에 넣고 `npm ci --offline` 설치 |
 | 설치 패키지 | 윈도 296개, 리눅스 300개 (package-lock.json 고정, 범위 버전 없음) |
 | 보안 점검 | `npm audit` 취약점 0건 (2026-09-28 기준) |
 | 결과물 | `dist-single/index.html` 한 파일 약 3.5MB + `apps/` 폴더. 외부 요청 없음 |
@@ -77,7 +77,7 @@
 
 ## 전체 패키지 목록
 
-`npm-cache` 에 들어 있는 모든 패키지입니다. "원문 위치" 는 npm tarball 을 풀었을 때의 경로이고,
+`vendor/` 에 들어 있는 모든 패키지입니다. "원문 위치" 는 tarball 을 풀었을 때의 경로이고,
 설치 후에는 `node_modules/<패키지>/` 아래 같은 이름으로 있습니다.
 구분의 "런타임" 은 dependencies 를 따라 설치되는 것, "빌드 도구" 는 devDependencies 를 따라 설치되는 것입니다.
 

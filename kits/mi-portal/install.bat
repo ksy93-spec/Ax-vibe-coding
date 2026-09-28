@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-REM 인터넷 없이 npm-cache 폴더에서 설치합니다.
+REM 인터넷 없이 vendor 폴더의 패키지로 설치합니다.
 cd /d "%~dp0"
 
 where node >nul 2>nul
@@ -10,19 +10,10 @@ if errorlevel 1 (
   exit /b 1
 )
 
-node -e "const [a,b]=process.versions.node.split('.').map(Number);process.exit(a>=23||(a===22&&b>=12)||(a===20&&b>=19)?0:1)"
+REM vendor 폴더의 패키지로 설치합니다. Node 버전 확인도 이 스크립트가 합니다.
+node tools\install-offline.cjs
 if errorlevel 1 (
-  echo 지금 Node 버전으로는 Vite 8 이 돌지 않습니다.
-  node -v
-  echo Node 20.19 이상 또는 22.12 이상이 필요합니다. OFFLINE.md 의 "Node 버전이 낮을 때" 를 보세요.
-  pause
-  exit /b 1
-)
-
-echo 설치 중입니다. 인터넷에 접속하지 않습니다.
-call npm ci --offline --no-audit --no-fund --cache "%~dp0npm-cache"
-if errorlevel 1 (
-  echo 설치에 실패했습니다. npm-cache 폴더가 통째로 들어왔는지 확인하세요.
+  echo 설치에 실패했습니다. 위 메시지를 확인하세요. vendor 폴더가 통째로 들어왔는지도 보세요.
   pause
   exit /b 1
 )
