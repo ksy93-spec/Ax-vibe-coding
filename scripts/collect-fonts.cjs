@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* 한글 웹 글꼴을 npm 에서 받아 킷의 public/fonts/<id>/ 에 모읍니다. 인터넷이 되는 곳에서만 실행합니다.
  *
- *   node scripts/collect-fonts.cjs kits/mi-portal
+ *   node scripts/collect-fonts.cjs kits/mi-portal                       → kits/mi-portal/public/fonts/ 에 전부
+ *   node scripts/collect-fonts.cjs --out shared/fonts --only pretendard → 지정 폴더에 고른 글꼴만
  *
  * 글꼴 파일은 배포처가 준 그대로 복사합니다. 직접 서브셋하거나 형식을 바꾸지 않습니다.
  * OFL 의 "Reserved Font Name" 이 걸린 글꼴(Pretendard, SUIT, 나눔, Spoqa, Plex)은 고치면
@@ -12,7 +13,7 @@
  *   public/fonts/<id>/font.css    @font-face 모음 (경로는 같은 폴더 기준)
  *   public/fonts/<id>/*.woff2     글꼴 파일
  *   public/fonts/<id>/LICENSE.txt 배포처 라이선스 원문
- *   public/fonts/fonts.json       글꼴별 패키지, 버전, 파일 수, 용량 (MANIFEST 작성용)
+ *   public/fonts/fonts.json       글꼴별 패키지, 버전, 파일 수, 용량 (MANIFEST 작성용, 전부 받을 때만)
  */
 'use strict';
 const fs = require('fs');
@@ -47,18 +48,35 @@ const FONTS = [
     })) },
 ];
 
-const kitDir = path.resolve(process.argv[2] || '');
-if (!fs.existsSync(path.join(kitDir, 'package.json'))) {
-  console.error('사용법: node scripts/collect-fonts.cjs kits/<킷이름>');
+const args = process.argv.slice(2);
+const opt = (name) => {
+  const i = args.indexOf(name);
+  return i >= 0 ? args.splice(i, 2)[1] : undefined;
+};
+const outArg = opt('--out');
+const only = (opt('--only') || '').split(',').filter(Boolean);
+let outRoot;
+if (outArg) {
+  outRoot = path.resolve(outArg);
+} else {
+  const kitDir = path.resolve(args[0] || '');
+  if (!fs.existsSync(path.join(kitDir, 'package.json'))) {
+    console.error('사용법: node scripts/collect-fonts.cjs kits/<킷이름>  또는  --out <폴더> [--only id,id]');
+    process.exit(1);
+  }
+  outRoot = path.join(kitDir, 'public', 'fonts');
+}
+const unknown = only.filter((id) => !FONTS.some((f) => f.id === id));
+if (unknown.length) {
+  console.error('모르는 글꼴: ' + unknown.join(', '));
   process.exit(1);
 }
-const outRoot = path.join(kitDir, 'public', 'fonts');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fonts-'));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const summary = [];
 
 try {
-  for (const f of FONTS) {
+  for (const f of FONTS.filter((x) => !only.length || only.includes(x.id))) {
     const tgz = execFileSync(npm, ['pack', f.pkg, '--silent'], { cwd: tmp, shell: process.platform === 'win32' })
       .toString().trim().split('\n').pop();
     const pkgDir = path.join(tmp, f.id);
@@ -100,11 +118,11 @@ try {
 
     const files = fs.readdirSync(out).filter((n) => /\.(woff2|otf)$/.test(n));
     const bytes = files.reduce((s, n) => s + fs.statSync(path.join(out, n)).size, 0);
-    const longest = Math.max(...fs.readdirSync(out).map((n) => `public/fonts/${f.id}/${n}`.length));
+    const longest = Math.max(...fs.readdirSync(out).map((n) => `${f.id}/${n}`.length));
     summary.push({ id: f.id, family: f.family, package: f.pkg, files: files.length, bytes, longestPath: longest });
-    console.log(`${f.id.padEnd(20)} 파일 ${String(files.length).padStart(3)}개  ${(bytes / 1048576).toFixed(1)}MB  가장 긴 경로 ${longest}자`);
+    console.log(`${f.id.padEnd(20)} 파일 ${String(files.length).padStart(3)}개  ${(bytes / 1048576).toFixed(1)}MB  글꼴 폴더 기준 가장 긴 경로 ${longest}자`);
   }
-  fs.writeFileSync(path.join(outRoot, 'fonts.json'), JSON.stringify(summary, null, 2) + '\n');
+  if (!only.length) fs.writeFileSync(path.join(outRoot, 'fonts.json'), JSON.stringify(summary, null, 2) + '\n');
   const total = summary.reduce((s, f) => s + f.bytes, 0);
   console.log(`합계 ${(total / 1048576).toFixed(1)}MB`);
 } finally {
