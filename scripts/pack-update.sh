@@ -74,8 +74,21 @@ GitHub 에서 zip 파일을 누르고 다운로드 단추(Download raw file)로 
 EOF
 fi
 
+# 목록 표의 마지막 줄 바로 뒤에 넣습니다. 표 아래에 안내 문단이 있어도 표가 깨지지 않습니다.
+# 둘째 인자가 든 줄은 먼저 지웁니다 (같은 판을 다시 만들 때).
+add_row() {
+  python3 - "$INDEX" "$1" "$2" <<'PY'
+import sys
+p, row, key = sys.argv[1:]
+lines = [l for l in open(p, encoding="utf-8").read().splitlines() if key not in l]
+last = max(i for i, l in enumerate(lines) if l.startswith("|"))
+lines.insert(last + 1, row)
+open(p, "w", encoding="utf-8", newline="\n").write("\n".join(lines) + "\n")
+PY
+}
+
 if [ "$BYTES" -gt 41943040 ]; then
-  echo "| ${FROM_VER:-없음 (처음 판)} | $TO_VER | 통째로 다시 받기 ($((BYTES / 1048576))MB 가 바뀌어 zip 을 만들지 않음) | - | 필요 | - |" >> "$INDEX"
+  add_row "| ${FROM_VER:-없음 (처음 판)} | $TO_VER | 통째로 다시 받기 ($((BYTES / 1048576))MB 가 바뀌어 zip 을 만들지 않음) | - | 필요 | - |" "| $TO_VER | 통째로"
   echo "바뀐 파일이 $((BYTES / 1048576))MB 라 zip 을 만들지 않았습니다. 목록에 '통째로 다시 받기' 로 적었습니다."
   exit 0
 fi
@@ -243,14 +256,7 @@ SIZE="$(numfmt --to=iec --suffix=B "$(stat -c%s "$ARCHIVE")")"
 SHA="$(sha256sum "$ARCHIVE" | cut -d' ' -f1)"
 REINSTALL="$(grep -q '다시 실행 | 필요 (' "$WORK/pkg/UPDATE.md" && echo 필요 || echo -)"
 
-python3 - "$INDEX" "$NAME" <<'PY'
-import sys
-p, name = sys.argv[1], sys.argv[2]
-lines = open(p, encoding="utf-8").read().splitlines()
-lines = [l for l in lines if f"[{name}]" not in l]
-open(p, "w", encoding="utf-8", newline="\n").write("\n".join(lines) + "\n")
-PY
-echo "| ${FROM_VER:-없음 (처음 판)} | $TO_VER | [$NAME]($NAME) | $SIZE | $REINSTALL | \`${SHA:0:16}\` |" >> "$INDEX"
+add_row "| ${FROM_VER:-없음 (처음 판)} | $TO_VER | [$NAME]($NAME) | $SIZE | $REINSTALL | \`${SHA:0:16}\` |" "[$NAME]"
 
 echo "생성: $ARCHIVE"
 echo "크기: $SIZE, SHA256: $SHA"
