@@ -11,7 +11,7 @@
 
 ## 반입 방식
 
-C. npm 의존성이 0개입니다. 반입되는 것은 소스 텍스트와 폰트 파일 하나뿐입니다.
+C. npm 의존성이 0개입니다. 반입되는 것은 소스 텍스트와 글꼴 파일뿐입니다.
 
 ## 포함된 의존성
 
@@ -19,10 +19,11 @@ npm 패키지 없음. 아래는 코드가 아닌 자산입니다.
 
 | 파일 | 출처 | 버전 | 라이선스(SPDX) | 원문 |
 | --- | --- | --- | --- | --- |
-| `assets/fonts/PretendardVariable.subset.woff2` | Pretendard (Kil Hyung-jin) | 1.3.9 서브셋 | OFL-1.1 | `assets/fonts/Pretendard-OFL.txt` |
+| `assets/fonts/pretendard/` (woff2 92개, font.css) | Pretendard (Kil Hyung-jin), npm `pretendard@1.3.9` 의 공식 가변 분할 파일 | 1.3.9 원본 그대로 | OFL-1.1 | `assets/fonts/pretendard/LICENSE.txt` (tarball 의 `package/dist/LICENSE.txt`) |
 
-폰트는 587KB 가변 woff2 입니다. 한글 음절 2,780자와 라틴, 문장부호, 원문자, 도형 기호를 담았고
-한자는 빠져 있습니다. 굵기는 45~930 연속입니다.
+글꼴은 배포처가 글자 범위별로 나눠 둔 공식 파일 92개(2.8MB)를 고치지 않고 넣었습니다. 화면에 나온 글자가 든 파일만 읽힙니다.
+Pretendard 라이선스는 고친 글꼴에 "Pretendard" 이름을 쓰지 못하게 하므로(예약 글꼴 이름), 직접 서브셋한 파일은 쓰지 않습니다.
+굵기는 45~930 연속입니다.
 
 ## 구성
 

@@ -32,7 +32,7 @@ Python 이 없으면 `file://` 로 쓰세요. 이 킷의 기능은 전부 `file:
 ## 문제가 생기면
 
 **글꼴이 기본 고딕으로 보인다**
-`assets/fonts/PretendardVariable.subset.woff2` 가 있는지 확인하세요.
+`assets/fonts/pretendard/` 폴더(파일 94개)가 통째로 있는지 확인하세요.
 압축을 풀 때 빠지거나, 전송 중 바이너리가 깨졌을 가능성이 큽니다.
 
 **표가 안 뜨고 콘솔에 `App is not defined`**
