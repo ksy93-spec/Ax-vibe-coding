@@ -107,7 +107,7 @@ python tools\test_portal_export.py
 같은 기준으로 지수화하거나 차트를 나누세요. MANIFEST.md 를 보세요.
 
 **글꼴이 기본 고딕으로 보인다**
-`assets/fonts/PretendardVariable.subset.woff2` 가 있는지 확인하세요.
+`assets/fonts/pretendard/` 폴더(파일 94개)가 통째로 있는지 확인하세요.
 전송 중 바이너리가 깨졌을 수 있습니다.
 
 **`Cross origin requests are only supported for HTTP` 에러**

@@ -3,13 +3,9 @@
  * 폰트 경로는 이 파일 기준 상대경로입니다. 킷으로 복사할 때 확인하세요.
  */
 
-@font-face {
-  font-family: 'Pretendard Variable';
-  font-weight: 45 930;
-  font-style: normal;
-  font-display: swap;
-  src: url('../fonts/PretendardVariable.subset.woff2') format('woff2-variations');
-}
+/* Pretendard 배포처의 공식 분할 파일(글자 범위별 92개). 화면에 나온 글자가 든 파일만 읽힙니다.
+   파일을 고치지 않았으므로 OFL 예약 글꼴 이름 조항에 걸리지 않습니다. 라이선스: ../fonts/pretendard/LICENSE.txt */
+@import url('../fonts/pretendard/font.css');
 
 :root {
   color-scheme: light;
