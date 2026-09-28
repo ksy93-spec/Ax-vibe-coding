@@ -1,33 +1,30 @@
-# 폰트
+# 글꼴
 
-## PretendardVariable.subset.woff2
+## pretendard/
 
-- 587KB, 가변 폰트 하나로 굵기 45~930 전부 커버
-- 한글 음절 2,780자 + 한글 자모 + 라틴 + 문장부호 + 원문자/도형 + 전각 기호
-- 한자는 빠져 있습니다. 한자가 나오면 시스템 글꼴로 대체됩니다.
-- 라이선스: SIL Open Font License 1.1 (`Pretendard-OFL.txt`). 임베딩과 사내 배포 모두 허용됩니다.
-- 원본: Pretendard 1.3.9 (npm `pretendard@1.3.9`), Kil Hyung-jin
-- 포함 코드포인트 목록: `subset-codepoints.txt`
+- Pretendard 1.3.9 (npm `pretendard@1.3.9`, Kil Hyung-jin) 의 공식 가변 분할 파일 92개와 `font.css`
+- 배포처 파일을 고치지 않았습니다. 글자 범위(`unicode-range`)별로 나뉘어 있어 화면에 나온 글자가 든 파일만 읽힙니다.
+  전체 2.8MB 이지만 보통 화면 하나에 수백 KB 만 읽습니다.
+- font-family 이름: `'Pretendard Variable'`, 굵기 45~930
+- 라이선스: SIL Open Font License 1.1, 원문 `pretendard/LICENSE.txt`
 
-원본 가변 폰트는 2,057KB입니다. 서브셋으로 3.5배 줄였습니다. 반입 용량 제한이 있으면 이게 유리합니다.
+### 직접 서브셋하지 않는 이유
 
-### 재생성 방법 (외부에서만 가능)
+Pretendard 라이선스에는 "Reserved Font Name Pretendard" 가 붙어 있습니다. OFL 에서 글자를 줄이는 것(서브셋)도
+글꼴을 고치는 것에 해당하고, 고친 글꼴은 예약된 이름을 쓸 수 없습니다. 예전에 넣었던 직접 만든 서브셋
+(`PretendardVariable.subset.woff2`)은 이 조항에 걸려서 공식 분할 파일로 바꿨습니다.
+SUIT, 나눔, Spoqa, IBM Plex 도 같은 조항이 있으니 서브셋하지 말고 배포처 파일을 그대로 씁니다.
+
+### 다시 받는 방법 (외부에서만 가능)
 
 ```
-npm pack pretendard@1.3.9
-tar xzf pretendard-1.3.9.tgz
-pip install fonttools==4.60.1 brotli==1.1.0
-python -m fontTools.subset package/dist/public/variable/PretendardVariable.ttf \
-  --unicodes-file=codepoints.txt \
-  --layout-features='kern,liga,calt,ccmp,locl' \
-  --flavor=woff2 --output-file=PretendardVariable.subset.woff2
+node scripts/collect-fonts.cjs --out shared/fonts --only pretendard
 ```
 
-한자가 필요하면 `--unicodes` 에 `U+4E00-9FFF` 를 더합니다. 용량이 크게 늘어나니 정말 필요할 때만 하세요.
+다른 글꼴 9종은 `kits/mi-portal/public/fonts/` 에 있고 같은 스크립트로 받습니다. 목록과 라이선스는 `kits/mi-portal/MANIFEST.md`.
 
 ## 사용
 
-`@font-face` 는 `shared/design-tokens/tokens.css` 안에 이미 들어 있습니다. 킷에서는 폰트 파일을
-`assets/fonts/` 로 복사하고 tokens.css 의 경로만 맞추면 됩니다.
-
-`font-weight` 는 100에서 900 사이 아무 값이나 쓸 수 있습니다. 가변 폰트라 중간값도 나옵니다.
+`shared/design-tokens/tokens.css` 첫머리가 `@import url('../fonts/pretendard/font.css');` 입니다.
+킷에서는 `pretendard/` 폴더를 통째로 `assets/fonts/` 로 복사하고 tokens.css 의 경로만 맞추면 됩니다.
+더블클릭(file://)으로 연 화면에서도 옆 폴더의 글꼴을 읽는 것을 확인했습니다.
