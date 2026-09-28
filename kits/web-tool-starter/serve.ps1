@@ -1,4 +1,4 @@
-# 로컬 서버로 열기. Python 이 설치되어 있을 때만 됩니다.
+﻿# 로컬 서버로 열기. Python 이 설치되어 있을 때만 됩니다.
 # file:// 로 충분하면 이 파일은 쓰지 않아도 됩니다.
 Set-Location -Path $PSScriptRoot
 if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
