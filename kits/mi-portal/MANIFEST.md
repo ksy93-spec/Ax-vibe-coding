@@ -59,6 +59,20 @@
 원본 템플릿의 Clerk(로그인), Recharts, Vitest, Playwright, ESLint, Prettier, knip, shadcn CLI 는 뺐습니다.
 로그인은 사내 인증이 없는 file:// 환경에서 쓸 수 없고, 나머지는 사내에서 설치 부담만 늘립니다.
 
+## exe 실행기 (public/launcher)
+
+외부 패키지 없이 직접 작성한 파일 4개입니다. 윈도에 들어 있는 `powershell.exe`(Windows PowerShell 5.1)와 `reg.exe` 만 씁니다.
+
+| 파일 | 하는 일 | 보안 심사용 요점 |
+| --- | --- | --- |
+| `register.bat` | 실행기를 `%LOCALAPPDATA%\mi-portal-launcher` 로 복사하고 `HKCU\Software\Classes\miportal` 등록 | 관리자 권한 불필요, 현재 사용자 영역만 씀 |
+| `launcher.ps1` | `miportal:launch/<id>` 를 받아 `apps.ini` 의 exe 실행 | id 형식 제한(영문 소문자, 숫자, -), 목록에 있는 것만, `.exe .lnk .bat .cmd` 만, 로그 기록 |
+| `apps.ini` | 실행할 수 있는 프로그램 목록 | 담당자가 관리. 웹 페이지는 이 목록을 바꿀 수 없음 |
+| `unregister.bat` | 등록과 복사본 삭제 | |
+
+등록 명령에 `-ExecutionPolicy Bypass` 가 들어갑니다. 이 스크립트 하나에만 적용되고 PC 의 실행 정책은 바꾸지 않습니다.
+그룹 정책으로 실행 정책을 강제한 PC 에서는 이 옵션이 무시되어 실행기가 돌지 않을 수 있습니다.
+
 ## 라이선스에서 설명이 필요한 것
 
 - lightningcss (MPL-2.0): Tailwind 가 빌드할 때만 씁니다. 결과물에 코드가 들어가지 않습니다.

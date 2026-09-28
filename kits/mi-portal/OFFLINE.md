@@ -54,7 +54,8 @@ node tools/install-offline.cjs
 dist-single\
   index.html                  포탈 전체 (약 2.7MB)
   fonts\                      글꼴 9종 (약 21MB, 파일 630개 정도)
-  apps\nesting_calc\index.html  연결된 앱
+  apps\nesting_calc\index.html  연결된 HTML 도구
+  launcher\                   exe 실행기 (PC 마다 register.bat 한 번)
 ```
 
 이 폴더를 통째로 공유 폴더에 올리거나 각자 PC 로 복사합니다. `index.html` 을 더블클릭하면 열립니다.
@@ -87,7 +88,8 @@ dist-single\
 - [ ] 왼쪽 메뉴로 수주 관리에 가서 새 수주를 추가하고, 새로고침해도 남아 있다
 - [ ] "엑셀 내려받기" 한 파일이 엑셀에서 한글이 깨지지 않고 열린다
 - [ ] 오른쪽 위 해 모양 단추로 어둡게 바꾸면 차트 색도 바뀐다
-- [ ] 연결된 앱 > 면취수 계산기가 포탈 안에서 열린다
+- [ ] 연결된 앱 > 면취수 계산기 (HTML 예시) 가 포탈 안에서 열린다
+- [ ] `launcher\apps.ini` 의 경로를 실제 exe 로 고치고 `register.bat` 을 실행한 뒤, 연결된 앱 > 면취수 계산기 의 실행 단추로 프로그램이 뜬다
 
 ## 문제가 생기면
 

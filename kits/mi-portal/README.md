@@ -36,10 +36,21 @@ Market Intelligence 통합 포탈 템플릿입니다. GitHub 에서 많이 쓰�
 | | OEM별 전략 | 자리만 | |
 | 수주/잔고분석 | 수주 관리 | 완성 | 정렬, 필터, 검색, 쪽 넘김, 여러 줄 선택, 추가/수정/삭제, 엑셀 가져오기와 내려받기 |
 | | 수주 잔고 | 자리만 | 수주 관리의 목록을 그대로 쓰도록 안내해 두었습니다 |
-| 연결된 앱 | 전체 앱, 앱별 화면 | 완성 | 다른 사람이 만든 앱을 포탈 안에 띄움. 면취수 계산기 예시 포함 |
+| 연결된 앱 | 전체 앱, 앱별 화면 | 완성 | HTML 도구는 포탈 안에 띄우고, exe 프로그램은 실행 단추로 PC 에서 띄움. 면취수 계산기 예시(exe, HTML 각 하나) |
 | 설정 | 글자 크기와 글꼴 | 완성 | 글자 크기 5단계, 글꼴 10종, 밝게/어둡게 |
 
 메뉴 묶음과 순서는 `src/components/layout/data/sidebar-data.ts` 한 파일에서 바꿉니다.
+
+## exe 프로그램 실행
+
+면취수 계산기처럼 PC 에 설치된 exe 는 포탈 화면 안에 띄울 수 없어서, "실행" 단추로 따로 띄웁니다.
+브라우저는 보안상 exe 를 직접 실행하지 못하므로 PC 마다 실행기를 한 번 등록합니다.
+
+1. 배포 폴더의 `launcher\apps.ini` 에 `id = exe 경로` 를 적습니다.
+2. 각 PC 에서 `launcher\register.bat` 을 한 번 실행합니다. 관리자 권한은 필요 없습니다.
+3. 포탈의 실행 단추를 누르면 브라우저가 처음 한 번 열지 묻고, 그 뒤 프로그램이 뜹니다.
+
+실행기는 `apps.ini` 에 적힌 프로그램만 띄웁니다. 자세한 동작과 문제 해결은 `public/launcher/README.md`.
 
 ## 글자 크기와 글꼴
 
@@ -93,7 +104,8 @@ mi-portal/
   prompts/                          사내 모델에 붙여 넣을 프롬프트
   tools/check.cjs                   빌드 전 검사 (없는 패키지, 외부 주소, 금지 import)
   tools/inline-build.cjs            빌드 결과를 HTML 한 파일로 합침
-  public/apps/                      연결된 앱 파일 (포탈과 함께 배포)
+  public/apps/                      연결된 HTML 도구 (포탈과 함께 배포)
+  public/launcher/                  exe 실행기와 등록 파일 (PC 마다 register.bat 한 번)
   public/fonts/                     글꼴 9종 (포탈과 함께 배포)
   src/
     routes/_app/<메뉴>/index.tsx    주소와 화면 연결. 파일을 만들면 주소가 생깁니다

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { AppWindow, ArrowRight, BatteryCharging, Car, ClipboardList, Factory } from 'lucide-react'
+import { AppWindow, ArrowRight, MonitorPlay, BatteryCharging, Car, ClipboardList, Factory } from 'lucide-react'
 import { compact, num, pct } from '@/lib/mi/format'
 import { LAST, MONTHS, PRODUCTION, SALES_BY_MODEL, TOTAL_SALES, deltaOf, shortMonth, yoy } from '@/lib/mi/sales'
 import { OEM_SHARE } from '@/data/mi-sample'
@@ -154,7 +154,7 @@ export function Dashboard() {
         <Card className='min-w-0 lg:col-span-3'>
           <CardHeader>
             <CardTitle>연결된 앱</CardTitle>
-            <CardDescription>다른 사람이 만든 도구를 포탈 안에서 엽니다.</CardDescription>
+            <CardDescription>HTML 도구는 포탈 안에서, exe 프로그램은 PC 에서 따로 엽니다.</CardDescription>
           </CardHeader>
           <CardContent className='space-y-2'>
             {portalApps.map((a) => (
@@ -164,9 +164,16 @@ export function Dashboard() {
                 params={{ appId: a.id }}
                 className='flex items-center gap-3 rounded-md border p-3 text-sm transition-colors hover:bg-accent'
               >
-                <AppWindow className='size-5 shrink-0 text-muted-foreground' />
+                {a.kind === 'exe' ? (
+                  <MonitorPlay className='size-5 shrink-0 text-muted-foreground' />
+                ) : (
+                  <AppWindow className='size-5 shrink-0 text-muted-foreground' />
+                )}
                 <div className='min-w-0 flex-1'>
-                  <p className='font-medium'>{a.title}</p>
+                  <p className='font-medium'>
+                    {a.title}
+                    {a.kind === 'exe' && <span className='ms-2 text-xs font-normal text-muted-foreground'>exe</span>}
+                  </p>
                   <p className='truncate text-muted-foreground'>{a.description}</p>
                 </div>
               </Link>

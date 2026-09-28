@@ -143,6 +143,21 @@ for (const [, id, family] of fontsTs.matchAll(/\{\s*id:\s*'([^']+)',[^}]*?family
   }
 }
 
+// exe 앱의 launchId 가 실행기 목록(public/launcher/apps.ini)에 있는지 봅니다.
+const appsTs = fs.readFileSync(path.join(SRC, 'config/apps.ts'), 'utf8');
+const iniPath = path.join(ROOT, 'public/launcher/apps.ini');
+const iniIds = fs.existsSync(iniPath)
+  ? fs.readFileSync(iniPath, 'utf8').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !/^[#;]/.test(l) && l.includes('='))
+      .map((l) => l.slice(0, l.indexOf('=')).trim().toLowerCase())
+  : [];
+for (const [, id] of stripComments(appsTs).matchAll(/launchId:\s*'([^']+)'/g)) {
+  if (!/^[a-z0-9][a-z0-9-]{0,40}$/.test(id)) {
+    errors.push(`src/config/apps.ts  launchId '${id}' 는 영문 소문자, 숫자, - 만 쓸 수 있습니다 (실행기가 거부합니다).`);
+  } else if (!iniIds.includes(id)) {
+    warns.push(`src/config/apps.ts  launchId '${id}' 가 public/launcher/apps.ini 에 없습니다. 실행 단추를 눌러도 "목록에 없습니다" 가 뜹니다.`);
+  }
+}
+
 // 사이드바 메뉴의 주소마다 화면 파일이 있는지 봅니다.
 const sidebar = fs.readFileSync(path.join(SRC, 'components/layout/data/sidebar-data.ts'), 'utf8');
 for (const [, url] of sidebar.matchAll(/url:\s*'([^']+)'/g)) {

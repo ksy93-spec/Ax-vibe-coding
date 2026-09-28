@@ -1,5 +1,5 @@
 /**
- * 연결된 앱 하나를 포탈 안에 띄웁니다.
+ * HTML 앱 하나를 포탈 안에 띄웁니다. exe 앱은 exe-app-page.tsx 가 맡습니다.
  * 앱은 iframe 안에서 따로 돌기 때문에 React 버전이나 라이브러리가 포탈과 달라도 됩니다.
  * 포탈 테마가 바뀌면 앱에 postMessage({ type: 'portal-theme', theme }) 를,
  * 글자 크기가 바뀌면 postMessage({ type: 'portal-font-scale', scale }) 를 보냅니다 (scale 1 이 보통).
@@ -8,13 +8,13 @@
 import { useEffect, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-import { type PortalApp } from '@/config/apps'
+import { type HtmlApp } from '@/config/apps'
 import { useFont } from '@/context/font-provider'
 import { useTheme } from '@/context/theme-provider'
 import { Button } from '@/components/ui/button'
 import { PageShell } from '@/components/mi/page-shell'
 
-export function AppViewer({ app }: { app: PortalApp }) {
+export function AppViewer({ app }: { app: HtmlApp }) {
   const frame = useRef<HTMLIFrameElement>(null)
   const { resolvedTheme } = useTheme()
 

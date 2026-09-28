@@ -30,11 +30,34 @@ src/config/apps.ts 의 portalApps 배열에 앱 하나를 추가한다. 다른 �
 - title: 〈예: 자동차 부품 PSI〉
 - description: 〈한두 문장. 무엇을 계산하는지〉
 - owner: 〈담당 부서나 이름〉
+- kind: 'html'
 - entry: 'apps/〈영문이름〉/index.html'
 파일 전체를 준다.
 ```
 
 사이드바와 앱 목록, 대시보드의 "연결된 앱" 에 자동으로 나타납니다.
+
+## exe 프로그램 붙이기
+
+HTML 이 아니라 PC 에 설치된 exe 라면 빌드할 것이 없습니다. 두 곳에 한 줄씩 적습니다.
+
+1. `public\launcher\apps.ini` 에 `〈id〉 = 〈exe 경로〉` 를 추가합니다. 공유 폴더 경로도 됩니다.
+2. 아래 프롬프트로 `src/config/apps.ts` 에 항목을 추가합니다.
+
+```
+src/config/apps.ts 의 portalApps 배열에 exe 앱 하나를 추가한다. 다른 파일은 고치지 않는다.
+- id: 〈영문 소문자와 - 만〉
+- kind: 'exe'
+- title: 〈예: 면취수 계산기〉
+- description: 〈한두 문장〉
+- owner: 〈담당 부서나 이름〉
+- launchId: 〈apps.ini 에 적은 id 와 같게〉
+- location: 〈화면에 보여 줄 설치 위치 안내. 예: 'C:\\Tools\\Nesting\\Nesting.exe'〉
+파일 전체를 준다.
+```
+
+빌드해서 배포한 뒤, 각 PC 에서 `launcher\register.bat` 을 다시 실행하면 새 목록이 적용됩니다.
+`npm run check` 는 launchId 가 apps.ini 에 없으면 경고합니다.
 
 ## 앱이 포탈 테마를 따르게 하려면 (선택)
 

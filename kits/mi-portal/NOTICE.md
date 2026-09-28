@@ -16,6 +16,7 @@ MIT 조건에 따라 `LICENSE` 파일을 그대로 둡니다. 킷을 복사하�
 - 설정 저장을 쿠키에서 localStorage 로 바꿈 (`src/lib/cookies.ts`)
 - Google Fonts(Inter, Manrope)를 빼고 한글 글꼴 9종 파일을 넣음 (`public/fonts/`, `src/config/fonts.ts`, `src/context/font-provider.tsx`)
 - 글자 크기 5단계 설정 추가 (`src/components/text-size-switch.tsx`, 설정 화면)
+- exe 프로그램 실행기 추가 (`public/launcher/`, `src/features/apps/exe-app-page.tsx`)
 - 빌드 결과를 HTML 한 파일로 합치는 설정과 도구 추가 (`vite.config.ts`, `tools/inline-build.cjs`)
 - 파비콘 경로를 상대 경로로 바꿈 (`index.html`)
 

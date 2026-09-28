@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
 import { portalApps } from '@/config/apps'
 import { AppViewer } from '@/features/apps/app-viewer'
+import { ExeAppPage } from '@/features/apps/exe-app-page'
 
 export const Route = createFileRoute('/_app/apps/$appId')({
   loader: ({ params }) => {
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/_app/apps/$appId')({
     return app
   },
   component: function AppRoute() {
-    return <AppViewer app={Route.useLoaderData()} />
+    const app = Route.useLoaderData()
+    return app.kind === 'exe' ? <ExeAppPage app={app} /> : <AppViewer app={app} />
   },
 })
