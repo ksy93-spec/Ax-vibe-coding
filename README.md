@@ -31,16 +31,22 @@
 
 | 킷 | 형태 | 반입 방식 | 크기 |
 | --- | --- | --- | --- |
+| `kits/mi-portal` | MI 통합 포탈 템플릿. shadcn-admin 기반 React + TypeScript (1차 프로젝트 권장 시작점) | B. npm 캐시 동봉 | 105MB |
 | `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
 | `kits/portal-shell` | Market Intelligence 통합 포탈 셸 (1차 프로젝트) | C. npm 의존성 0개 | 640KB |
 | `kits/mi-starter` | MI 기능을 ChatGPT 로 만들 때의 시작 템플릿과 오프라인 패키지 | B. npm 캐시 동봉 | 91MB |
 | `kits/web-tool-starter` | 브라우저 도구. `index.html` 더블클릭으로 실행 | C. npm 의존성 0개 | 616KB |
 | `kits/xlsx-automation` | 엑셀/CSV 가공과 보고서 생성 (Python) | B. 휠 동봉, 오프라인 설치 | 280KB |
 
-둘 다 이 저장소에서 실제로 실행해 확인했습니다. 검증 내용은 각 킷의 `MANIFEST.md` 아래쪽에 있습니다.
+모두 이 저장소에서 실제로 실행해 확인했습니다. 검증 내용은 각 킷의 `MANIFEST.md` 아래쪽에 있습니다.
+
+포탈 관련 킷이 셋인데 역할이 다릅니다. `mi-portal` 은 사이드바, 표, 폼, 다크 모드를 갖춘 포탈 본체이고
+여기에 MI 화면을 채웁니다. `mi-starter` 는 포탈과 별개로 도구 하나를 만들어 연결된 앱으로 붙일 때 씁니다.
+`portal-shell` 은 npm 없이 도는 가벼운 포탈로, Node 를 쓸 수 없는 PC 를 위한 대안입니다.
 
 ## 시작점
 
+- 포탈을 바로 시작하려면: `kits/mi-portal/README.md` (`demo/index.html` 을 더블클릭하면 완성된 모습)
 - 망 구조와 자료 흐름: `docs/topology.md`
 - 1차 프로젝트 설계안: `docs/portal-architecture.md`
 - 사내 앱을 포탈에 붙이는 법: `docs/app-integration.md`
