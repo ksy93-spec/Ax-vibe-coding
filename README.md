@@ -21,6 +21,7 @@
 | 경로 | 용도 |
 | --- | --- |
 | `kits/` | 반입 단위. 디렉터리 하나가 곧 압축 파일 하나입니다. |
+| `updates/` | 킷별 업데이트 zip. 처음 한 번 킷을 통째로 옮긴 뒤에는 바뀐 파일만 여기서 받습니다. |
 | `shared/` | 여러 킷이 공유하는 폰트, 디자인 토큰, 검증된 UI 조각 |
 | `prompts/` | 사내 모델(Qwen-Cline, ChatGPT Enterprise)에 그대로 붙여넣는 프롬프트 팩 |
 | `specs/` | 기능 명세, 타입 정의, 합격 기준 |
@@ -53,5 +54,5 @@
 - MI 기능용 패키지 목록과 ChatGPT 지침: `kits/mi-starter/MANIFEST.md`, `kits/mi-starter/PROMPT.md`
 - 작업 절차: `docs/playbook.md`
 - 반입 전 확인: `docs/intake-checklist.md`
-- 반입용 압축: `scripts/pack.sh <킷이름>`
+- 반입용 압축: `scripts/pack.sh <킷이름>` (처음), `scripts/pack-update.sh <킷이름> <이전 커밋>` (업데이트)
 - 새 킷 만들기: `kits/_template/` 복사
