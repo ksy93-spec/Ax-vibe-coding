@@ -5,13 +5,7 @@
    다크 모드가 깨지고 포탈과 색이 어긋나기 때문입니다.
    bg-surface, text-muted 처럼 여기 정의한 이름만 쓰세요. */
 
-@font-face {
-  font-family: 'Pretendard Variable';
-  font-weight: 45 930;
-  font-style: normal;
-  font-display: swap;
-  src: url('./assets/PretendardVariable.subset.woff2') format('woff2-variations');
-}
+/* 글꼴 파일은 src/lib/font.js 가 불러옵니다. */
 
 :root {
   color-scheme: light;

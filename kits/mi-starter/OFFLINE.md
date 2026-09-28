@@ -48,7 +48,8 @@ node tools/install-offline.cjs
 
 ## 4. 빌드
 
-`build.bat` 을 실행합니다. 검사, 테스트, 빌드를 차례로 하고 `dist-single\index.html` 한 파일을 만듭니다.
+`build.bat` 을 실행합니다. 검사, 테스트, 빌드를 차례로 하고 `dist-single\index.html` 과 글꼴 폴더 `dist-single\fonts` 를 만듭니다.
+`fonts` 폴더가 없으면 맑은 고딕으로 보입니다. 포탈에 붙일 때는 `index.html` 만 옮기면 포탈의 글꼴을 씁니다.
 이 파일은 더블클릭으로 열리고, 포탈의 `apps\<이름>\index.html` 로 복사하면 포탈 안에 붙습니다.
 포탈 등록 방법은 저장소의 `docs/app-integration.md` 4번을 보세요.
 

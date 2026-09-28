@@ -13,7 +13,7 @@ Market Intelligence 기능을 ChatGPT Enterprise 로 만들 때 쓰는 시작 �
 
 - Node: 20.19 이상 또는 22.12 이상. Vite 8 의 요구 사항입니다. `node -v` 로 확인하세요.
 - OS: 윈도 x64, 리눅스 x64. macOS 와 ARM 용 바이너리는 캐시에 없습니다.
-- 결과물: `dist-single/index.html` 한 파일 (약 4.3MB). 더블클릭으로 열리고 포탈에 앱 모듈로 붙습니다. 미리보기는 `demo/index.html`.
+- 결과물: `dist-single/index.html` (약 3.5MB) 과 `dist-single/fonts/` (글꼴 2.8MB). 더블클릭으로 열리고 포탈에 앱 모듈로 붙습니다. 미리보기는 `demo/index.html`.
 
 ## 반입 방식
 
@@ -91,6 +91,8 @@ ml-regression-multivariate-linear 로 합니다.
   - lightningcss (MPL-2.0): 빌드 도구에만 쓰입니다. 결과물에 보이는 `--lightningcss-light` 는 코드가 아니라 CSS 변수 이름입니다.
   - jszip (MIT 또는 GPL-3.0 중 선택): MIT 로 씁니다.
   - buffers: package.json 에 라이선스 표기가 없습니다. ExcelJS 의 Node 전용 경로에 딸린 패키지이고 브라우저 결과물에는 들어가지 않습니다.
+- 글꼴: Pretendard 1.3.9 (OFL-1.1), npm `pretendard@1.3.9` 의 공식 가변 분할 파일 92개를 고치지 않고 `public/fonts/pretendard/` 에 넣었습니다.
+  라이선스 원문은 `public/fonts/pretendard/LICENSE.txt` (tarball 의 `package/dist/LICENSE.txt`). 직접 서브셋하지 않는 이유는 `shared/fonts/README.md`.
   - big-integer (Unlicense), chainsaw 와 traverse (MIT/X11), pako (MIT AND Zlib), tslib (0BSD).
 
 ## 템플릿이 대신 해결해 둔 함정
@@ -118,8 +120,9 @@ ChatGPT 에게 맨땅에서 시키면 거의 확실히 부딪힐 것들입니다
 
 ## 결과물 크기
 
-`dist-single/index.html` 약 4.3MB. JS 3.6MB 의 대부분은 ECharts, AG Grid, ExcelJS 이고,
-CSS 0.8MB 는 대부분 한글 폰트입니다. 로컬 파일로 여는 데는 문제없는 크기입니다.
+`dist-single/index.html` 약 3.5MB. 대부분 ECharts, AG Grid, ExcelJS 입니다.
+글꼴은 옆 `fonts/` 폴더(2.8MB)에서 화면에 나온 글자가 든 파일만 읽습니다. 로컬 파일로 여는 데는 문제없는 크기입니다.
+포탈의 `apps/<이름>/index.html` 로 붙이면 포탈의 `fonts` 폴더를 쓰므로 `fonts` 는 복사하지 않아도 됩니다.
 쓰지 않는 기능이 많으면 `src/lib/echarts.js` 의 차트 등록을 줄여 용량을 줄일 수 있습니다.
 
 ## 검증 기록
