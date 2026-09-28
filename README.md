@@ -32,10 +32,10 @@
 
 | 킷 | 형태 | 반입 방식 | 크기 |
 | --- | --- | --- | --- |
-| `kits/mi-portal` | MI 통합 포탈 템플릿. shadcn-admin 기반 React + TypeScript (1차 프로젝트 권장 시작점) | B. npm 캐시 동봉 | 105MB |
+| `kits/mi-portal` | MI 통합 포탈 템플릿. shadcn-admin 기반 React + TypeScript (1차 프로젝트 권장 시작점) | B. 패키지 tarball 동봉 | 101MB |
 | `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
 | `kits/portal-shell` | Market Intelligence 통합 포탈 셸 (1차 프로젝트) | C. npm 의존성 0개 | 640KB |
-| `kits/mi-starter` | MI 기능을 ChatGPT 로 만들 때의 시작 템플릿과 오프라인 패키지 | B. npm 캐시 동봉 | 91MB |
+| `kits/mi-starter` | MI 기능을 ChatGPT 로 만들 때의 시작 템플릿과 오프라인 패키지 | B. 패키지 tarball 동봉 | 87MB |
 | `kits/web-tool-starter` | 브라우저 도구. `index.html` 더블클릭으로 실행 | C. npm 의존성 0개 | 616KB |
 | `kits/xlsx-automation` | 엑셀/CSV 가공과 보고서 생성 (Python) | B. 휠 동봉, 오프라인 설치 | 280KB |
 
@@ -47,6 +47,7 @@
 
 ## 시작점
 
+- 저장소 zip 은 `C:\work` 처럼 짧은 경로에 푸세요. 다운로드 폴더에 풀면 폴더가 두 겹으로 생겨 윈도 경로 길이 제한에 가까워집니다.
 - 포탈을 바로 시작하려면: `kits/mi-portal/README.md` (`demo/index.html` 을 더블클릭하면 완성된 모습)
 - 망 구조와 자료 흐름: `docs/topology.md`
 - 1차 프로젝트 설계안: `docs/portal-architecture.md`

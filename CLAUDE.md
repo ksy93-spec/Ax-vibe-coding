@@ -16,6 +16,7 @@
 - 의존성은 `package-lock.json` 또는 `requirements.txt` + 해시로 고정하고, tarball/wheel까지 킷 안에 담습니다.
 - 모든 킷은 이 저장소에서 실제로 실행해 보고 커밋합니다. "아마 될 것"은 커밋하지 않습니다.
 - 인코딩은 UTF-8, 줄바꿈은 LF. 한글 경로명은 쓰지 않습니다. 사내 PC가 Windows일 가능성이 높아 전송 중 깨지기 쉽습니다.
+- 킷 안의 경로는 킷 폴더 기준 100자 이하로 둡니다. 저장소 zip 의 긴 최상위 폴더명과 합쳐 윈도 260자 제한에 걸립니다.
 - 셸 스크립트를 넣으면 `.ps1` 또는 `.bat` 대응본을 같이 넣습니다.
 - 라이선스는 `MANIFEST.md`에 SPDX 식별자와 원문 위치까지 적습니다. 반입 심사에서 가장 먼저 걸리는 항목입니다.
 - Node/Python 버전을 명시합니다. 사내 런타임 버전과 다르면 킷이 통째로 못 씁니다.
@@ -27,8 +28,9 @@
 - A. 사내 npm 미러(Nexus/Artifactory/Verdaccio)가 있는 경우
   `package.json` + `package-lock.json`만 보내고, 미러에 해당 버전이 실제로 있는지 목록을 같이 넘깁니다.
 - B. 파일 반입이 되고 미러가 없는 경우
-  바깥에서 `npm ci` 후 각 의존성을 `npm pack`으로 tarball화해 `vendor/`에 담고,
-  `npm ci --offline --cache ./vendor` 로 설치되게 만듭니다. Python은 `pip download`로 wheelhouse를 만들고
+  `node scripts/vendor-npm.cjs kits/<킷>` 으로 lock 의 tarball 을 `vendor/` 에 짧은 이름으로 담고,
+  사내에서는 킷의 `tools/install-offline.cjs` (install.bat) 가 캐시를 만든 뒤 `npm ci --offline` 합니다.
+  npm 캐시 폴더(`_cacache`)를 그대로 넣지 않습니다. 파일 이름이 128자라 윈도 압축 풀기에서 실패합니다. Python은 `pip download`로 wheelhouse를 만들고
   `pip install --no-index --find-links ./vendor` 로 설치합니다.
 - C. 소스 텍스트만 반입되는 경우
   빌드 단계를 없앱니다. 단일 HTML + 인라인/로컬 ESM + 로컬 woff2 폰트. node_modules 자체가 필요 없습니다.
@@ -48,6 +50,7 @@
 
 - 킷 파일을 바꾸면 그 킷의 `VERSION` 을 올립니다. 형식은 `YYYY.MM.DD.N` (같은 날 N 번째).
 - 킷 커밋을 한 뒤 `scripts/pack-update.sh <킷> <직전 판 커밋>` 으로 zip 을 만들고 `updates/<킷>/` 를 커밋합니다.
+  zip 은 어디에 풀든 안의 `apply.bat` 이 킷 폴더를 찾아 적용합니다. 바뀐 파일이 40MB 를 넘으면 zip 대신 "통째로 다시 받기" 로 적힙니다.
   직전 판 커밋은 `updates/<킷>/README.md` 마지막 줄의 적용 후 판이 들어간 커밋입니다.
 - 사용자에게 알릴 때 zip 경로와 install.bat 재실행 필요 여부를 같이 적습니다.
 
