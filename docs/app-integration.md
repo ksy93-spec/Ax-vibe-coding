@@ -169,6 +169,20 @@ window.addEventListener('message', (e) => {
 
 앱의 CSS 가 `[data-theme='dark']` 를 보고 색을 바꾸도록 되어 있어야 효과가 있습니다.
 
+## 포탈의 글자 크기를 앱에도 적용하기
+
+mi-portal 은 글자 크기를 바꾸면 `postMessage({ type: 'portal-font-scale', scale: 1.25 })` 를 보냅니다.
+scale 은 1 이 보통이고 0.9 ~ 1.5 입니다. 앱의 CSS 단위가 px 이든 rem 이든 아래처럼 `zoom` 을 쓰면 전체가 같이 커집니다.
+`kits/mi-starter` 의 `src/lib/theme.js` 에는 들어 있습니다.
+
+```js
+window.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'portal-font-scale') {
+    document.documentElement.style.zoom = String(e.data.scale);
+  }
+});
+```
+
 ## 서버가 필요한 앱
 
 express, Next.js 처럼 서버가 도는 앱은 `file://` 로 열리지 않습니다. 사내 서버에 띄워 둔 주소가 있다면
