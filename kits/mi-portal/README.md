@@ -16,6 +16,10 @@ Market Intelligence 통합 포탈 템플릿입니다. GitHub 에서 많이 쓰�
 `demo/index.html` 을 더블클릭하면 빌드된 포탈이 열립니다. 설치가 필요 없습니다.
 `demo` 폴더는 이 커밋 시점의 빌드 결과이고, 코드를 고친 뒤에는 `build.bat` 으로 새로 만듭니다.
 
+킷 폴더 맨 위의 `index.html` 은 개발용 원본입니다. 더블클릭하면 이 안내만 나오고 화면은 뜨지 않습니다.
+화면을 보려면 `demo\index.html`, 직접 고친 뒤에는 `build.bat` 으로 만든 `dist-single\index.html` 을 엽니다.
+빌드된 파일이 몇 초 안에 뜨지 않으면 화면에 오류 문구와 브라우저 정보가 나옵니다. Chrome 또는 Edge 111 이상이 필요합니다.
+
 ## 들어 있는 화면
 
 | 메뉴 | 상태 | 내용 |
