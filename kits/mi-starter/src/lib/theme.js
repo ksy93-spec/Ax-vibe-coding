@@ -1,7 +1,7 @@
 // 지금 화면이 라이트인지 다크인지. 캔버스에 그리는 차트는 CSS 변수를 못 읽어서
 // 이 값을 보고 테마를 고릅니다.
 //
-// 포탈 안(iframe)에서 열리면 포탈의 "화면 전환" 버튼이 postMessage 로 테마를 알려 줍니다.
+// 포탈 안(iframe)에서 열리면 포탈이 postMessage 로 테마와 글자 크기를 알려 줍니다.
 
 import { useSyncExternalStore } from 'react';
 
@@ -25,6 +25,10 @@ if (typeof window !== 'undefined') {
     const d = e.data;
     if (d && d.type === 'portal-theme' && (d.theme === 'dark' || d.theme === 'light')) {
       document.documentElement.setAttribute('data-theme', d.theme);
+    }
+    // 포탈에서 글자 크기를 바꾸면 앱 전체를 같은 비율로 키웁니다 (1 이 보통).
+    if (d && d.type === 'portal-font-scale' && d.scale >= 0.5 && d.scale <= 3) {
+      document.documentElement.style.zoom = String(d.scale);
     }
   });
 }
