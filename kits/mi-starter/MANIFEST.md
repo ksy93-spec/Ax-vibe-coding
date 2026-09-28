@@ -17,7 +17,7 @@ Market Intelligence 기능을 ChatGPT Enterprise 로 만들 때 쓰는 시작 �
 
 ## 반입 방식
 
-B. `npm-cache/` 폴더(90MB)에 모든 tarball 이 들어 있고 `npm ci --offline` 으로 설치합니다.
+B. `vendor/` 폴더(86MB, tarball 165개, 파일 이름 43자 이하)를 `tools/install-offline.cjs` 가 npm 캐시에 넣고 `npm ci --offline` 으로 설치합니다.
 
 ## 기능별로 무엇을 쓰나
 

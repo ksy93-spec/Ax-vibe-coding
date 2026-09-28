@@ -14,7 +14,12 @@ node -v
 
 `mi-starter` 폴더를 통째로 한글과 공백이 없는 경로에 둡니다. 예: `C:\work\mi-starter`
 
-`npm-cache` 폴더가 빠지면 설치가 안 됩니다. 압축을 풀 때 함께 들어왔는지 확인하세요 (약 90MB, 파일 330개 정도).
+`vendor` 폴더가 빠지면 설치가 안 됩니다. 압축을 풀 때 함께 들어왔는지 확인하세요
+(약 86MB, 파일 165개).
+
+GitHub 에서 저장소 zip 을 받았다면 `C:\work` 처럼 짧은 경로에 푸세요. 다운로드 폴더에 그대로 풀면
+저장소 이름 폴더가 두 겹으로 생겨 경로가 길어집니다. 폴더를 다른 곳으로 옮길 때 `node_modules` 는 빼고
+옮긴 뒤 `install.bat` 을 다시 실행합니다. `node_modules` 안은 경로가 길어서 탐색기 복사가 실패합니다.
 
 ## 2. 설치
 
@@ -24,10 +29,12 @@ node -v
 직접 하려면:
 
 ```
-npm ci --offline --cache ./npm-cache
+node tools/install-offline.cjs
 ```
 
-`--offline` 과 `--cache` 둘 다 있어야 합니다. 빠지면 인터넷에 접속하려다 멈춥니다.
+`vendor/` 의 패키지를 이 PC 의 npm 캐시(`%LOCALAPPDATA%\npm-offline-cache`)에 넣고
+`npm ci --offline` 으로 설치합니다. 캐시를 킷 폴더 밖에 두는 이유는 캐시 파일 이름이 길어서입니다.
+그냥 `npm install` 이나 `npm ci` 를 치면 인터넷에 접속하려다 멈춥니다.
 
 ## 3. 개발
 
@@ -49,8 +56,9 @@ npm ci --offline --cache ./npm-cache
 
 ## 문제가 생기면
 
-**`npm ci` 가 `ENOTCACHED` 로 실패한다**
-`npm-cache` 폴더가 일부만 들어왔거나 `package-lock.json` 이 바뀌었습니다. 킷 폴더를 다시 통째로 옮기세요.
+**`install.bat` 이 "vendor 에 없는 패키지가 있습니다" 로 멈춘다**
+`vendor` 폴더가 일부만 들어왔거나 `package-lock.json` 이 바뀌었습니다. 메시지에 나온 패키지 이름을 확인하고
+킷 폴더를 다시 옮기세요.
 `package-lock.json` 은 손대지 마세요.
 
 **`Cannot find module @rolldown/binding-win32-x64-msvc` 같은 오류**
