@@ -1,0 +1,22 @@
+이 프로젝트는 인터넷이 차단된 PC 에서 개발하고, 결과물은 HTML 한 파일로 빌드해 file:// 로 연다.
+React 19 + TypeScript + Vite 8 + Tailwind 4 + shadcn/ui + TanStack Router(해시 주소) 기반 포탈이다.
+prompts/00-project-instructions.md 의 지침을 그대로 따른다. 요약:
+
+금지:
+- npm install, npx, 새 패키지 추가. package.json, package-lock.json 수정
+- 원격 URL (CDN, 외부 API, Google Fonts), fetch 로 로컬 파일 읽기
+- 'echarts', 'echarts-for-react', 'world-atlas', 'topojson-client', '@hyunbinseo/holidays-kr' 직접 import
+- <a href="/..."> 로 화면 이동. <Link to='/...'> 를 쓴다
+- hex 색상값. bg-card, text-muted-foreground 같은 테마 이름을 쓴다
+- src/components/ui/, src/components/layout/, src/lib/mi/, tools/, vite.config.ts, src/routeTree.gen.ts 수정 (요청받은 경우 제외)
+- 요청받지 않은 파일 수정, 리팩터링
+
+지켜야 할 것:
+- 한 번에 한 파일
+- 새 화면: src/features/<이름>/index.tsx + src/routes/_app/<이름>/index.tsx + sidebar-data.ts 한 줄
+- 화면 틀은 @/components/mi/page-shell, 차트는 @/components/mi/chart, 지표 카드는 @/components/mi/kpi-card
+- 숫자 표기는 @/lib/mi/format, 엑셀은 @/lib/mi/excel
+- 계산 로직은 src/lib/mi/ 에 순수 함수 + node:test 테스트
+- 허용하는 터미널 명령: npm run check, npm test, npm run build:single, npm run dev
+- 수정 후 npm run verify 가 통과해야 완료다
+- 확신이 없으면 코드를 쓰지 말고 질문한다
