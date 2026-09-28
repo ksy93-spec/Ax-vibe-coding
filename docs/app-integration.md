@@ -35,6 +35,7 @@
 | 정해진 숫자를 모아 보여주는 화면 | 데이터 모듈 또는 앱 모듈 | 판매/생산 대시보드 |
 | 서버가 도는 앱 (express, Next.js 등) | 링크 연결 | DB 를 직접 읽는 대시보드 |
 | 파이썬이나 엑셀로 숫자를 뽑는 작업 | 데이터 모듈 | 월간 실적 집계 |
+| PC 에 설치된 exe 프로그램 | 실행기 (mi-portal 만) | 면취수 계산기 |
 
 대시보드는 둘 다 됩니다. 이미 React 로 만든 화면이 있으면 앱 모듈로 붙이는 게 빠르고,
 숫자만 있으면 데이터 모듈로 내보내는 게 가볍습니다. 데이터 모듈은 포탈의 개요 화면에
@@ -183,6 +184,16 @@ window.addEventListener('message', (e) => {
 });
 ```
 
+## exe 프로그램 연결 (mi-portal)
+
+exe 는 포탈 화면 안에 띄울 수 없고, 브라우저가 보안상 직접 실행하지도 못합니다. mi-portal 은 PC 마다 한 번 등록하는
+실행기로 해결합니다. 포탈의 실행 단추가 `miportal:launch/<id>` 주소를 열면, 등록해 둔 `launcher.ps1` 이
+`apps.ini` 에서 id 를 찾아 exe 를 실행합니다. 주소로는 id 만 넘어가고, apps.ini 에 없는 것은 실행하지 않습니다.
+
+- 등록: 배포 폴더 `launcher\register.bat` (관리자 권한 불필요, 현재 사용자 레지스트리에만 씀)
+- 프로그램 추가: `launcher\apps.ini` 와 `src/config/apps.ts` 에 한 줄씩. 절차는 `kits/mi-portal/prompts/30-connect-app.md`
+- 동작, 안전장치, 문제 해결: `kits/mi-portal/public/launcher/README.md`
+
 ## 서버가 필요한 앱
 
 express, Next.js 처럼 서버가 도는 앱은 `file://` 로 열리지 않습니다. 사내 서버에 띄워 둔 주소가 있다면
@@ -204,6 +215,9 @@ Vite 5~8 과 React 조합은 실제로 빌드해서 확인했습니다. 다음�
   확인하고, 안 되면 `inline-build.cjs` 를 거치세요.
 - **Webpack 직접 설정, Vue CLI, Angular**: 결과물에 `type="module"` 이 있으면 `inline-build.cjs`
   로 처리됩니다. 조각이 여러 개면 각 도구의 "한 번들로 합치기" 설정이 필요합니다.
+
+- **exe 실행기(`launcher.ps1`, `register.bat`)**: 주소 해석, 목록 대조, 거부 규칙은 PowerShell 7 에서 시험했습니다.
+  실제 윈도의 레지스트리 등록, Windows PowerShell 5.1, 브라우저의 "열까요?" 확인 창은 시험하지 못했습니다.
 
 사내 앱이 이 중 하나로 나오면 조사 결과를 가져와 주세요. 설정을 맞춰 드리겠습니다.
 

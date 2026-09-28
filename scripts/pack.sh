@@ -39,6 +39,20 @@ if [ -f "$SRC/requirements.txt" ] && grep -nE '^[A-Za-z0-9._-]+ *([><~!]=|[<>])'
   exit 1
 fi
 
+echo "== PowerShell 인코딩 검사 =="
+# Windows PowerShell 5.1 은 BOM 없는 UTF-8 을 CP949 로 읽습니다. 한글이 든 .ps1 은 BOM 이 있어야 합니다.
+BAD_PS1=""
+while IFS= read -r -d '' f; do
+  if LC_ALL=C grep -q '[^ -~[:space:]]' "$f" && [ "$(head -c3 "$f" | od -An -tx1 | tr -d ' \n')" != "efbbbf" ]; then
+    BAD_PS1="$BAD_PS1 $f"
+  fi
+done < <(find "$SRC" -name '*.ps1' -not -path '*/node_modules/*' -print0)
+if [ -n "$BAD_PS1" ]; then
+  echo "BOM 없이 한글이 든 .ps1:$BAD_PS1" >&2
+  echo "UTF-8 BOM 으로 다시 저장하세요." >&2
+  exit 1
+fi
+
 echo "== 의존성 동봉 검사 =="
 if [ -f "$SRC/requirements.txt" ] && [ -z "$(ls "$SRC/vendor"/*.whl 2>/dev/null)" ]; then
   echo "requirements.txt 는 있는데 vendor/ 에 휠이 없습니다. pip download 를 먼저 하세요." >&2
