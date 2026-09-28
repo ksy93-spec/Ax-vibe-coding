@@ -13,7 +13,7 @@ Market Intelligence 기능을 ChatGPT Enterprise 로 만들 때 쓰는 시작 �
 
 - Node: 20.19 이상 또는 22.12 이상. Vite 8 의 요구 사항입니다. `node -v` 로 확인하세요.
 - OS: 윈도 x64, 리눅스 x64. macOS 와 ARM 용 바이너리는 캐시에 없습니다.
-- 결과물: `dist-single/index.html` 한 파일 (약 4.3MB). 더블클릭으로 열리고 포탈에 앱 모듈로 붙습니다.
+- 결과물: `dist-single/index.html` 한 파일 (약 4.3MB). 더블클릭으로 열리고 포탈에 앱 모듈로 붙습니다. 미리보기는 `demo/index.html`.
 
 ## 반입 방식
 
