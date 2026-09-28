@@ -1,0 +1,8 @@
+/* @sun-typeface/suit@2.0.5 의 원본 파일. 수정하지 않았습니다. 라이선스는 LICENSE.txt */
+@font-face {
+  font-family: 'SUIT Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./SUIT-Variable.woff2') format('woff2-variations');
+}

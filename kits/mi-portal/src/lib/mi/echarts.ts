@@ -75,26 +75,27 @@ const INK = {
   dark: { text: '#f8fafc', muted: '#90a1b9', grid: '#1d293d', axis: '#314158', surface: '#0f172b', land: '#1d293d', border: '#314158' },
 }
 
-function makeTheme(mode: 'light' | 'dark') {
+function makeTheme(mode: 'light' | 'dark', scale: number) {
   const ink = INK[mode]
+  const px = (n: number) => Math.round(n * scale)
   const axis = {
     axisLine: { lineStyle: { color: ink.axis } },
     axisTick: { show: false },
-    axisLabel: { color: ink.muted, fontSize: 11 },
+    axisLabel: { color: ink.muted, fontSize: px(11) },
     splitLine: { lineStyle: { color: ink.grid, type: 'solid' } },
-    nameTextStyle: { color: ink.muted },
+    nameTextStyle: { color: ink.muted, fontSize: px(11) },
   }
   return {
     color: SERIES_COLORS[mode],
     backgroundColor: 'transparent',
-    textStyle: { fontFamily: 'inherit', color: ink.text },
-    title: { textStyle: { color: ink.text, fontWeight: 600, fontSize: 14 }, subtextStyle: { color: ink.muted } },
-    legend: { textStyle: { color: ink.muted }, icon: 'roundRect', itemWidth: 14, itemHeight: 3 },
+    textStyle: { color: ink.text, fontSize: px(12) },
+    title: { textStyle: { color: ink.text, fontWeight: 600, fontSize: px(14) }, subtextStyle: { color: ink.muted, fontSize: px(12) } },
+    legend: { textStyle: { color: ink.muted, fontSize: px(12) }, icon: 'roundRect', itemWidth: px(14), itemHeight: 3 },
     tooltip: {
       backgroundColor: ink.surface,
       borderColor: ink.border,
       borderWidth: 1,
-      textStyle: { color: ink.text, fontSize: 12 },
+      textStyle: { color: ink.text, fontSize: px(12) },
       axisPointer: { lineStyle: { color: ink.axis }, crossStyle: { color: ink.axis } },
     },
     categoryAxis: { ...axis, splitLine: { show: false } },
@@ -105,13 +106,22 @@ function makeTheme(mode: 'light' | 'dark') {
     geo: {
       itemStyle: { areaColor: ink.land, borderColor: ink.surface, borderWidth: 0.5 },
       emphasis: { itemStyle: { areaColor: ink.grid }, label: { show: false } },
-      label: { color: ink.muted },
+      label: { color: ink.muted, fontSize: px(11) },
     },
-    dataZoom: { textStyle: { color: ink.muted }, borderColor: ink.border },
+    dataZoom: { textStyle: { color: ink.muted, fontSize: px(11) }, borderColor: ink.border },
   }
 }
 
-echarts.registerTheme('mi-light', makeTheme('light'))
-echarts.registerTheme('mi-dark', makeTheme('dark'))
+const registered = new Set<string>()
+
+/** 밝게/어둡게와 글자 크기에 맞는 차트 테마 이름. 처음 쓰는 조합이면 그때 등록합니다. */
+export function chartTheme(mode: 'light' | 'dark', scale = 1): string {
+  const name = `mi-${mode}-${scale}`
+  if (!registered.has(name)) {
+    echarts.registerTheme(name, makeTheme(mode, scale))
+    registered.add(name)
+  }
+  return name
+}
 
 export { echarts }

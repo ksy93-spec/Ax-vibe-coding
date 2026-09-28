@@ -16,6 +16,8 @@ ChatGPT Enterprise 프로젝트 지침에 아래 블록을 통째로 붙여 넣�
 - <a href="/..."> 로 화면 이동 (주소는 #/orders 같은 해시 방식). 화면 이동은 <Link to='/orders'>
 - src/components/ui/, src/components/layout/, src/lib/mi/, tools/, vite.config.ts, src/routeTree.gen.ts 수정 (요청받은 경우 제외)
 - hex 색상값(#1a73e8 등). 테마 이름(bg-card, text-muted-foreground, text-primary, bg-muted, border)을 쓴다
+- 글꼴 이름(font-family)과 px 글자 크기(text-[13px], fontSize: 13). 사용자가 설정에서 글꼴과 글자 크기를 바꾸므로
+  text-xs, text-sm, text-base 같은 이름만 쓰고 글꼴은 정하지 않는다
 - 요청받지 않은 파일 수정, 리팩터링
 
 [쓸 수 있는 패키지]
@@ -61,7 +63,8 @@ ml-regression-multivariate-linear 2.0, papaparse 5.7, exceljs 4.4 (lib/mi/excel 
     import { createFileRoute } from '@tanstack/react-router'
     import { 이름 } from '@/features/<영문이름>'
     export const Route = createFileRoute('/_app/<영문이름>/')({ component: 이름 })
-- 메뉴: src/components/layout/data/sidebar-data.ts 의 알맞은 그룹에 { title, url: '/<영문이름>', icon } 한 줄
+- 메뉴: src/components/layout/data/sidebar-data.ts 의 알맞은 묶음(개요, 시장환경분석, 경쟁사/제품, 매출/고객분석,
+  수주/잔고분석)에 { title, url: '/<영문이름>', icon } 한 줄
 - 화면 문구는 한국어. 숫자는 lib/mi/format 으로 표기하고 표의 숫자 칸은 className='text-end tabular-nums'
 - 카드 배치는 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 (KPI), grid gap-4 lg:grid-cols-7 (차트 두 개)
 - 계산 로직은 화면 파일 밖 src/lib/mi/<이름>.js 순수 함수로 두고 같은 폴더에 <이름>.test.js (node:test) 를 만든다

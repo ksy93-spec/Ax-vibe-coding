@@ -1,19 +1,20 @@
 import { Outlet } from '@tanstack/react-router'
-import { Palette } from 'lucide-react'
+import { ALargeSmall } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
+import { TextSizeSwitch } from '@/components/text-size-switch'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { SidebarNav } from './components/sidebar-nav'
 
 const sidebarNavItems = [
   {
-    title: '글꼴과 테마',
+    title: '글자 크기와 글꼴',
     href: '/settings/appearance',
-    icon: <Palette size={18} />,
+    icon: <ALargeSmall size={18} />,
   },
 ]
 
@@ -23,8 +24,11 @@ export function Settings() {
       {/* ===== Top Heading ===== */}
       <Header>
         <Search className='me-auto' />
+        <TextSizeSwitch />
         <ThemeSwitch />
-        <ConfigDrawer />
+        <div className='max-sm:hidden'>
+          <ConfigDrawer />
+        </div>
         <ProfileDropdown />
       </Header>
 

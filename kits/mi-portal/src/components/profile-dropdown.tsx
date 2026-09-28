@@ -33,7 +33,7 @@ export function ProfileDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link to='/settings/appearance'>글꼴과 테마</Link>
+            <Link to='/settings/appearance'>글자 크기와 글꼴</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

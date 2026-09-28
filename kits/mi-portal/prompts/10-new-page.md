@@ -8,7 +8,7 @@
 [화면]
 - 메뉴 이름: 〈예: 매출 관리〉
 - 영문 이름(폴더명): 〈예: revenue〉 (지금 src/routes/_app/〈revenue〉/index.tsx 는 PlannedPage 자리다)
-- 메뉴 그룹: 〈예: 영업 관리〉
+- 메뉴 묶음: 〈개요 / 시장환경분석 / 경쟁사/제품 / 매출/고객분석 / 수주/잔고분석 중 하나〉
 
 [데이터]
 - 모양: 〈예: { month: '2026-01', customer: string, item: string, amount: number, plan: number }[]〉

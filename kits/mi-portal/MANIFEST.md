@@ -11,7 +11,7 @@
 | 설치 패키지 | 윈도 296개, 리눅스 300개 (package-lock.json 고정, 범위 버전 없음) |
 | 보안 점검 | `npm audit` 취약점 0건 (2026-09-28 기준) |
 | 결과물 | `dist-single/index.html` 한 파일 약 3.5MB + `apps/` 폴더. 외부 요청 없음 |
-| 글꼴 | Pretendard Variable 한글 부분집합 (OFL-1.1), `src/assets/fonts/` |
+| 글꼴 | 한글 글꼴 9종 (모두 OFL-1.1), `public/fonts/` 약 21MB. 아래 "글꼴" 참고 |
 
 ## 직접 쓰는 패키지
 
@@ -73,7 +73,29 @@
 - @rolldown/binding-*, binary, isarray, react-remove-scroll-bar, saxes, size-sensor, chainsaw:
   tarball 에 라이선스 파일이 없고 package.json 의 license 필드에만 표기되어 있습니다.
 - 원본 템플릿 shadcn-admin: MIT. 원문은 이 폴더의 `LICENSE`.
-- Pretendard: OFL-1.1. 원문은 `src/assets/fonts/Pretendard-OFL.txt`. 글꼴 파일만 따로 판매하지 않는 한 제약이 없습니다.
+- 글꼴 9종: 모두 OFL-1.1. 아래 "글꼴" 표에 원문 위치가 있습니다.
+
+## 글꼴
+
+`node scripts/collect-fonts.cjs kits/mi-portal` 로 npm 에서 받아 `public/fonts/<id>/` 에 넣었습니다.
+글꼴 파일은 배포처가 준 그대로이고 서브셋, 형식 변환, 이름 변경을 하지 않았습니다.
+OFL 은 글꼴을 고쳐서 배포할 때 "예약 글꼴 이름(Reserved Font Name)" 을 쓰지 못하게 하는데,
+고치지 않고 그대로 배포하므로 이 제한에 해당하지 않습니다. 용량이 큰 글꼴은 배포처가 글자 범위별로 나눠 둔
+파일을 그대로 썼습니다(`unicode-range`). OFL 은 글꼴 파일만 따로 판매하는 것을 금지하고, 사내 배포와 문서 포함은 허용합니다.
+
+| id | 글꼴 이름 | npm 패키지 | SPDX | 예약 글꼴 이름 | 라이선스 원문 | 파일 |
+| --- | --- | --- | --- | --- | --- | --- |
+| pretendard | Pretendard Variable | pretendard@1.3.9 | OFL-1.1 | Pretendard | `public/fonts/pretendard/LICENSE.txt` (tarball 의 `package/dist/LICENSE.txt`) | 92개, 2.8MB |
+| noto-sans-kr | Noto Sans KR Variable | @fontsource-variable/noto-sans-kr@5.3.0 | OFL-1.1 | Source | `public/fonts/noto-sans-kr/LICENSE.txt` (tarball 의 `package/LICENSE`) | 124개, 3.4MB |
+| nanum-gothic | Nanum Gothic | @fontsource/nanum-gothic@5.3.0 | OFL-1.1 | Nanum, NanumGothic 등 | `public/fonts/nanum-gothic/LICENSE.txt` (tarball 의 `package/LICENSE`) | 184개, 2.9MB |
+| gowun-dodum | Gowun Dodum | @fontsource/gowun-dodum@5.3.0 | OFL-1.1 | 없음 | `public/fonts/gowun-dodum/LICENSE.txt` (tarball 의 `package/LICENSE`) | 95개, 1.3MB |
+| noto-serif-kr | Noto Serif KR Variable | @fontsource-variable/noto-serif-kr@5.3.0 | OFL-1.1 | 없음 | `public/fonts/noto-serif-kr/LICENSE.txt` (tarball 의 `package/LICENSE`) | 124개, 6.0MB |
+| suit | SUIT Variable | @sun-typeface/suit@2.0.5 | OFL-1.1 | SUIT | `public/fonts/suit/LICENSE.txt` (tarball 의 `package/LICENSE`) | 1개, 0.6MB |
+| wanted-sans | Wanted Sans Variable | wanted-sans@1.0.3 | OFL-1.1 | 없음 | `public/fonts/wanted-sans/LICENSE.txt` (tarball 의 `package/fonts/OFL.txt`) | 1개, 1.2MB |
+| ibm-plex-sans-kr | IBM Plex Sans KR | @ibm/plex-sans-kr@1.1.0 | OFL-1.1 | Plex | `public/fonts/ibm-plex-sans-kr/LICENSE.txt` (tarball 의 `package/LICENSE.txt`) | 4개, 1.6MB |
+| spoqa-han-sans-neo | Spoqa Han Sans Neo | spoqa-han-sans@3.3.0 | OFL-1.1 | Spoqa Han Sans Neo | `public/fonts/spoqa-han-sans-neo/LICENSE.txt` (tarball 의 `package/LICENSE`) | 3개, 1.0MB |
+
+맑은 고딕은 윈도에 들어 있는 글꼴이라 킷에 넣지 않았습니다.
 
 ## 전체 패키지 목록
 

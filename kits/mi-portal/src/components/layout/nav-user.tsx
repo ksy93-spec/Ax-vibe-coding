@@ -65,7 +65,7 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuItem asChild>
                 <Link to='/settings/appearance'>
                   <Palette />
-                  글꼴과 테마
+                  글자 크기와 글꼴
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>

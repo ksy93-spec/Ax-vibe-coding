@@ -2,10 +2,6 @@
 @import 'tw-animate-css';
 @import './theme.css';
 
-/* font-provider 가 <html> 에 붙이는 글꼴 클래스. 코드에 글자로 나오지 않아 Tailwind 가 못 찾으니 직접 알려 줍니다.
-   src/config/fonts.ts 에 글꼴을 추가하면 여기에도 추가하세요. */
-@source inline('font-pretendard font-system');
-
 @custom-variant dark (&:is(.dark *));
 
 @layer base {

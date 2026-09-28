@@ -1,12 +1,14 @@
 import {
+  ALargeSmall,
   AppWindow,
+  Boxes,
   Building2,
   ChartColumnBig,
   ClipboardList,
   Factory,
   Globe2,
+  Layers,
   LayoutDashboard,
-  Palette,
   Receipt,
   TrendingUp,
 } from 'lucide-react'
@@ -27,25 +29,32 @@ export const sidebarData: SidebarData = {
       items: [{ title: '대시보드', url: '/', icon: LayoutDashboard }],
     },
     {
-      title: '시장과 경쟁',
+      title: '시장환경분석',
       items: [
-        { title: '시장환경분석', url: '/market', icon: Globe2 },
+        { title: '시장 지표', url: '/market', icon: Globe2 },
+        { title: '차종별 판매·생산', url: '/sales', icon: ChartColumnBig },
+        { title: '자동차 수요예측', url: '/forecast', icon: TrendingUp },
+      ],
+    },
+    {
+      title: '경쟁사/제품',
+      items: [
         { title: '경쟁사 Fab 현황', url: '/fabs', icon: Factory },
+        { title: '제품 비교', url: '/products', icon: Boxes },
+      ],
+    },
+    {
+      title: '매출/고객분석',
+      items: [
+        { title: '매출 관리', url: '/revenue', icon: Receipt },
         { title: 'OEM별 전략', url: '/oem', icon: Building2 },
       ],
     },
     {
-      title: '판매와 생산',
-      items: [
-        { title: '차종별 판매·생산', url: '/sales', icon: ChartColumnBig },
-        { title: '수요예측', url: '/forecast', icon: TrendingUp },
-      ],
-    },
-    {
-      title: '영업 관리',
+      title: '수주/잔고분석',
       items: [
         { title: '수주 관리', url: '/orders', icon: ClipboardList },
-        { title: '매출 관리', url: '/revenue', icon: Receipt },
+        { title: '수주 잔고', url: '/backlog', icon: Layers },
       ],
     },
     {
@@ -64,7 +73,7 @@ export const sidebarData: SidebarData = {
     {
       title: '설정',
       items: [
-        { title: '글꼴과 테마', url: '/settings/appearance', icon: Palette },
+        { title: '글자 크기와 글꼴', url: '/settings/appearance', icon: ALargeSmall },
       ],
     },
   ],

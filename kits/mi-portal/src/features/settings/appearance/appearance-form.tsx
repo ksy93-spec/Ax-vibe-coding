@@ -1,162 +1,123 @@
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { ChevronDownIcon } from '@radix-ui/react-icons'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { fonts } from '@/config/fonts'
-import { toast } from 'sonner'
+/**
+ * 글자 크기, 글꼴, 테마 설정. 누르는 즉시 바뀌고 이 PC 브라우저에 저장됩니다.
+ */
+import { useEffect } from 'react'
+import { Check } from 'lucide-react'
+import { fontList, fontSizes, fontStack } from '@/config/fonts'
 import { cn } from '@/lib/utils'
-import { useFont } from '@/context/font-provider'
+import { loadFontCss, useFont } from '@/context/font-provider'
 import { useTheme } from '@/context/theme-provider'
-import { Button, buttonVariants } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
-const appearanceFormSchema = z.object({
-  theme: z.enum(['light', 'dark']),
-  font: z.enum(fonts),
-})
+const SAMPLE = '시장 점유율 12.3% 증가, 판매 1,234,567대'
 
-type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
+function Section({ title, desc, children }: { title: string; desc: string; children: React.ReactNode }) {
+  return (
+    <section className='space-y-3'>
+      <div>
+        <h3 className='font-medium'>{title}</h3>
+        <p className='text-sm text-muted-foreground'>{desc}</p>
+      </div>
+      {children}
+    </section>
+  )
+}
 
 export function AppearanceForm() {
-  const { font, setFont } = useFont()
+  const { font, setFont, fontSize, setFontSize, resetFont } = useFont()
   const { theme, setTheme } = useTheme()
 
-  // This can come from your database or API.
-  const defaultValues: Partial<AppearanceFormValues> = {
-    theme: theme as 'light' | 'dark',
-    font,
-  }
-
-  const form = useForm<AppearanceFormValues>({
-    resolver: zodResolver(appearanceFormSchema),
-    defaultValues,
-  })
-
-  function onSubmit(data: AppearanceFormValues) {
-    if (data.font != font) setFont(data.font)
-    if (data.theme != theme) setTheme(data.theme)
-
-    toast.success('화면 설정을 저장했습니다.')
-  }
+  // 미리보기를 위해 모든 글꼴의 font.css 를 불러옵니다. 실제 파일은 미리보기 글자가 든 것만 읽힙니다.
+  useEffect(() => {
+    fontList.forEach((f) => void loadFontCss(f.id))
+  }, [])
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
-        <FormField
-          control={form.control}
-          name='font'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>글꼴</FormLabel>
-              <div className='relative w-max'>
-                <FormControl>
-                  <select
-                    className={cn(
-                      buttonVariants({ variant: 'outline' }),
-                      'w-50 appearance-none font-normal capitalize',
-                      'dark:bg-background dark:hover:bg-background'
-                    )}
-                    {...field}
-                  >
-                    {fonts.map((font) => (
-                      <option key={font} value={font}>
-                        {font}
-                      </option>
-                    ))}
-                  </select>
-                </FormControl>
-                <ChevronDownIcon className='absolute inset-e-3 top-2.5 h-4 w-4 opacity-50' />
-              </div>
-              <FormDescription>
-                포탈 전체에 쓸 글꼴입니다.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='theme'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>테마</FormLabel>
-              <FormDescription>
-                밝은 화면과 어두운 화면 중에서 고릅니다.
-              </FormDescription>
-              <FormMessage />
-              <RadioGroup
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                className='grid max-w-md grid-cols-2 gap-8 pt-2'
-              >
-                <FormItem>
-                  <FormLabel className='[&:has([data-state=checked])>div]:border-primary'>
-                    <FormControl>
-                      <RadioGroupItem value='light' className='sr-only' />
-                    </FormControl>
-                    <div className='items-center rounded-md border-2 border-muted p-1 hover:border-accent'>
-                      <div className='space-y-2 rounded-sm bg-[#ecedef] p-2'>
-                        <div className='space-y-2 rounded-md bg-white p-2 shadow-xs'>
-                          <div className='h-2 w-20 rounded-lg bg-[#ecedef]' />
-                          <div className='h-2 w-25 rounded-lg bg-[#ecedef]' />
-                        </div>
-                        <div className='flex items-center space-x-2 rounded-md bg-white p-2 shadow-xs'>
-                          <div className='h-4 w-4 rounded-full bg-[#ecedef]' />
-                          <div className='h-2 w-25 rounded-lg bg-[#ecedef]' />
-                        </div>
-                        <div className='flex items-center space-x-2 rounded-md bg-white p-2 shadow-xs'>
-                          <div className='h-4 w-4 rounded-full bg-[#ecedef]' />
-                          <div className='h-2 w-25 rounded-lg bg-[#ecedef]' />
-                        </div>
-                      </div>
-                    </div>
-                    <span className='block w-full p-2 text-center font-normal'>
-                      밝게
-                    </span>
-                  </FormLabel>
-                </FormItem>
-                <FormItem>
-                  <FormLabel className='[&:has([data-state=checked])>div]:border-primary'>
-                    <FormControl>
-                      <RadioGroupItem value='dark' className='sr-only' />
-                    </FormControl>
-                    <div className='items-center rounded-md border-2 border-muted bg-popover p-1 hover:bg-accent hover:text-accent-foreground'>
-                      <div className='space-y-2 rounded-sm bg-slate-950 p-2'>
-                        <div className='space-y-2 rounded-md bg-slate-800 p-2 shadow-xs'>
-                          <div className='h-2 w-20 rounded-lg bg-slate-400' />
-                          <div className='h-2 w-25 rounded-lg bg-slate-400' />
-                        </div>
-                        <div className='flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-xs'>
-                          <div className='h-4 w-4 rounded-full bg-slate-400' />
-                          <div className='h-2 w-25 rounded-lg bg-slate-400' />
-                        </div>
-                        <div className='flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-xs'>
-                          <div className='h-4 w-4 rounded-full bg-slate-400' />
-                          <div className='h-2 w-25 rounded-lg bg-slate-400' />
-                        </div>
-                      </div>
-                    </div>
-                    <span className='block w-full p-2 text-center font-normal'>
-                      어둡게
-                    </span>
-                  </FormLabel>
-                </FormItem>
-              </RadioGroup>
-            </FormItem>
-          )}
-        />
+    <div className='space-y-10'>
+      <Section title='글자 크기' desc='메뉴, 표, 차트 글자가 모두 같은 비율로 바뀝니다. 윗줄의 가 단추로도 바꿀 수 있습니다.'>
+        <div className='flex flex-wrap gap-2' role='radiogroup' aria-label='글자 크기'>
+          {fontSizes.map((s) => (
+            <Button
+              key={s.id}
+              type='button'
+              role='radio'
+              aria-checked={fontSize === s.id}
+              variant={fontSize === s.id ? 'default' : 'outline'}
+              className='h-auto flex-col gap-1 px-4 py-2'
+              onClick={() => setFontSize(s.id)}
+            >
+              <span className='leading-none' style={{ fontSize: `${1.25 * s.scale}rem` }}>
+                가
+              </span>
+              <span className='text-xs font-normal'>
+                {s.label} {Math.round(s.scale * 100)}%
+              </span>
+            </Button>
+          ))}
+        </div>
+      </Section>
 
-        <Button type='submit'>저장</Button>
-      </form>
-    </Form>
+      <Section title='글꼴' desc='모두 무료 공개 글꼴(OFL)이고 사내 배포가 허용됩니다. 미리보기 글자는 각 글꼴로 그렸습니다.'>
+        <div className='grid gap-3 sm:grid-cols-2' role='radiogroup' aria-label='글꼴'>
+          {fontList.map((f) => {
+            const selected = font === f.id
+            return (
+              <button
+                key={f.id}
+                type='button'
+                role='radio'
+                aria-checked={selected}
+                onClick={() => setFont(f.id)}
+                className={cn(
+                  'relative rounded-lg border p-4 text-start transition-colors hover:bg-accent',
+                  selected && 'border-primary ring-1 ring-primary'
+                )}
+              >
+                <div className='mb-2 flex items-center gap-2 text-sm'>
+                  <span className='font-medium'>{f.label}</span>
+                  <Badge variant='outline' className='font-normal'>
+                    {f.kind}
+                  </Badge>
+                  {selected && <Check className='ms-auto size-4 text-primary' />}
+                </div>
+                <p className='text-lg leading-snug' style={{ fontFamily: fontStack(f.id) }}>
+                  {SAMPLE}
+                </p>
+                <p className='mt-1 text-lg font-bold leading-snug' style={{ fontFamily: fontStack(f.id) }}>
+                  굵은 글자 ABC 890
+                </p>
+                <p className='mt-2 text-xs text-muted-foreground'>{f.note}</p>
+              </button>
+            )
+          })}
+        </div>
+      </Section>
+
+      <Section title='테마' desc='밝은 화면과 어두운 화면 중에서 고릅니다. "시스템" 은 윈도 설정을 따릅니다.'>
+        <div className='flex flex-wrap gap-2'>
+          {(
+            [
+              ['light', '밝게'],
+              ['dark', '어둡게'],
+              ['system', '시스템'],
+            ] as const
+          ).map(([value, label]) => (
+            <Button
+              key={value}
+              type='button'
+              variant={theme === value ? 'default' : 'outline'}
+              onClick={() => setTheme(value)}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      </Section>
+
+      <Button type='button' variant='ghost' className='px-0 text-muted-foreground' onClick={resetFont}>
+        글꼴과 글자 크기를 처음 상태로
+      </Button>
+    </div>
   )
 }

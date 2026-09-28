@@ -19,12 +19,14 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as AppAppsIndexRouteImport } from './routes/_app/apps/index'
 import { Route as AppAppsAppIdRouteImport } from './routes/_app/apps/$appId'
+import { Route as AppBacklogIndexRouteImport } from './routes/_app/backlog/index'
 import { Route as AppErrorsErrorRouteImport } from './routes/_app/errors/$error'
 import { Route as AppFabsIndexRouteImport } from './routes/_app/fabs/index'
 import { Route as AppForecastIndexRouteImport } from './routes/_app/forecast/index'
 import { Route as AppMarketIndexRouteImport } from './routes/_app/market/index'
 import { Route as AppOemIndexRouteImport } from './routes/_app/oem/index'
 import { Route as AppOrdersIndexRouteImport } from './routes/_app/orders/index'
+import { Route as AppProductsIndexRouteImport } from './routes/_app/products/index'
 import { Route as AppRevenueIndexRouteImport } from './routes/_app/revenue/index'
 import { Route as AppSalesIndexRouteImport } from './routes/_app/sales/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
@@ -79,6 +81,11 @@ const AppAppsAppIdRoute = AppAppsAppIdRouteImport.update({
   path: '/apps/$appId',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppBacklogIndexRoute = AppBacklogIndexRouteImport.update({
+  id: '/backlog/',
+  path: '/backlog/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppErrorsErrorRoute = AppErrorsErrorRouteImport.update({
   id: '/errors/$error',
   path: '/errors/$error',
@@ -107,6 +114,11 @@ const AppOemIndexRoute = AppOemIndexRouteImport.update({
 const AppOrdersIndexRoute = AppOrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppRevenueIndexRoute = AppRevenueIndexRouteImport.update({
@@ -142,11 +154,13 @@ export interface FileRoutesByFullPath {
   '/errors/$error': typeof AppErrorsErrorRoute
   '/settings/appearance': typeof AppSettingsAppearanceRoute
   '/apps/': typeof AppAppsIndexRoute
+  '/backlog/': typeof AppBacklogIndexRoute
   '/fabs/': typeof AppFabsIndexRoute
   '/forecast/': typeof AppForecastIndexRoute
   '/market/': typeof AppMarketIndexRoute
   '/oem/': typeof AppOemIndexRoute
   '/orders/': typeof AppOrdersIndexRoute
+  '/products/': typeof AppProductsIndexRoute
   '/revenue/': typeof AppRevenueIndexRoute
   '/sales/': typeof AppSalesIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
@@ -162,11 +176,13 @@ export interface FileRoutesByTo {
   '/errors/$error': typeof AppErrorsErrorRoute
   '/settings/appearance': typeof AppSettingsAppearanceRoute
   '/apps': typeof AppAppsIndexRoute
+  '/backlog': typeof AppBacklogIndexRoute
   '/fabs': typeof AppFabsIndexRoute
   '/forecast': typeof AppForecastIndexRoute
   '/market': typeof AppMarketIndexRoute
   '/oem': typeof AppOemIndexRoute
   '/orders': typeof AppOrdersIndexRoute
+  '/products': typeof AppProductsIndexRoute
   '/revenue': typeof AppRevenueIndexRoute
   '/sales': typeof AppSalesIndexRoute
   '/settings': typeof AppSettingsIndexRoute
@@ -185,11 +201,13 @@ export interface FileRoutesById {
   '/_app/errors/$error': typeof AppErrorsErrorRoute
   '/_app/settings/appearance': typeof AppSettingsAppearanceRoute
   '/_app/apps/': typeof AppAppsIndexRoute
+  '/_app/backlog/': typeof AppBacklogIndexRoute
   '/_app/fabs/': typeof AppFabsIndexRoute
   '/_app/forecast/': typeof AppForecastIndexRoute
   '/_app/market/': typeof AppMarketIndexRoute
   '/_app/oem/': typeof AppOemIndexRoute
   '/_app/orders/': typeof AppOrdersIndexRoute
+  '/_app/products/': typeof AppProductsIndexRoute
   '/_app/revenue/': typeof AppRevenueIndexRoute
   '/_app/sales/': typeof AppSalesIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
@@ -208,11 +226,13 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/settings/appearance'
     | '/apps/'
+    | '/backlog/'
     | '/fabs/'
     | '/forecast/'
     | '/market/'
     | '/oem/'
     | '/orders/'
+    | '/products/'
     | '/revenue/'
     | '/sales/'
     | '/settings/'
@@ -228,11 +248,13 @@ export interface FileRouteTypes {
     | '/errors/$error'
     | '/settings/appearance'
     | '/apps'
+    | '/backlog'
     | '/fabs'
     | '/forecast'
     | '/market'
     | '/oem'
     | '/orders'
+    | '/products'
     | '/revenue'
     | '/sales'
     | '/settings'
@@ -250,11 +272,13 @@ export interface FileRouteTypes {
     | '/_app/errors/$error'
     | '/_app/settings/appearance'
     | '/_app/apps/'
+    | '/_app/backlog/'
     | '/_app/fabs/'
     | '/_app/forecast/'
     | '/_app/market/'
     | '/_app/oem/'
     | '/_app/orders/'
+    | '/_app/products/'
     | '/_app/revenue/'
     | '/_app/sales/'
     | '/_app/settings/'
@@ -341,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAppsAppIdRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/backlog/': {
+      id: '/_app/backlog/'
+      path: '/backlog'
+      fullPath: '/backlog/'
+      preLoaderRoute: typeof AppBacklogIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/errors/$error': {
       id: '/_app/errors/$error'
       path: '/errors/$error'
@@ -381,6 +412,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders/'
       preLoaderRoute: typeof AppOrdersIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/products/': {
+      id: '/_app/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof AppProductsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/revenue/': {
@@ -433,11 +471,13 @@ interface AppRouteRouteChildren {
   AppAppsAppIdRoute: typeof AppAppsAppIdRoute
   AppErrorsErrorRoute: typeof AppErrorsErrorRoute
   AppAppsIndexRoute: typeof AppAppsIndexRoute
+  AppBacklogIndexRoute: typeof AppBacklogIndexRoute
   AppFabsIndexRoute: typeof AppFabsIndexRoute
   AppForecastIndexRoute: typeof AppForecastIndexRoute
   AppMarketIndexRoute: typeof AppMarketIndexRoute
   AppOemIndexRoute: typeof AppOemIndexRoute
   AppOrdersIndexRoute: typeof AppOrdersIndexRoute
+  AppProductsIndexRoute: typeof AppProductsIndexRoute
   AppRevenueIndexRoute: typeof AppRevenueIndexRoute
   AppSalesIndexRoute: typeof AppSalesIndexRoute
 }
@@ -448,11 +488,13 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAppsAppIdRoute: AppAppsAppIdRoute,
   AppErrorsErrorRoute: AppErrorsErrorRoute,
   AppAppsIndexRoute: AppAppsIndexRoute,
+  AppBacklogIndexRoute: AppBacklogIndexRoute,
   AppFabsIndexRoute: AppFabsIndexRoute,
   AppForecastIndexRoute: AppForecastIndexRoute,
   AppMarketIndexRoute: AppMarketIndexRoute,
   AppOemIndexRoute: AppOemIndexRoute,
   AppOrdersIndexRoute: AppOrdersIndexRoute,
+  AppProductsIndexRoute: AppProductsIndexRoute,
   AppRevenueIndexRoute: AppRevenueIndexRoute,
   AppSalesIndexRoute: AppSalesIndexRoute,
 }

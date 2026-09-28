@@ -14,7 +14,8 @@ MIT 조건에 따라 `LICENSE` 파일을 그대로 둡니다. 킷을 복사하�
 폐쇄망, 더블클릭(file://) 실행
 - 주소 방식을 브라우저 기록(`/orders`)에서 해시(`#/orders`)로 바꿈 (`src/main.tsx`)
 - 설정 저장을 쿠키에서 localStorage 로 바꿈 (`src/lib/cookies.ts`)
-- Google Fonts(Inter, Manrope)를 빼고 Pretendard 파일을 넣음 (`src/styles/theme.css`, `src/config/fonts.ts`)
+- Google Fonts(Inter, Manrope)를 빼고 한글 글꼴 9종 파일을 넣음 (`public/fonts/`, `src/config/fonts.ts`, `src/context/font-provider.tsx`)
+- 글자 크기 5단계 설정 추가 (`src/components/text-size-switch.tsx`, 설정 화면)
 - 빌드 결과를 HTML 한 파일로 합치는 설정과 도구 추가 (`vite.config.ts`, `tools/inline-build.cjs`)
 - 파비콘 경로를 상대 경로로 바꿈 (`index.html`)
 
@@ -35,7 +36,7 @@ MIT 조건에 따라 `LICENSE` 파일을 그대로 둡니다. 킷을 복사하�
 
 ## 함께 들어 있는 다른 저작물
 
-- Pretendard Variable (한글 부분집합): OFL-1.1, `src/assets/fonts/Pretendard-OFL.txt`
+- 한글 글꼴 9종: 모두 OFL-1.1, 배포처 원본 그대로. 목록과 원문 위치는 MANIFEST.md 의 "글꼴"
 - 세계 지도: world-atlas 2.0.2 (ISC), 원본 Natural Earth (퍼블릭 도메인)
 - 한국 공휴일: @hyunbinseo/holidays-kr 5.2027.2 (MIT)
 - 연결된 앱 예시 `public/apps/nesting_calc/`: 이 저장소 portal-shell 킷의 예시 앱 빌드 결과

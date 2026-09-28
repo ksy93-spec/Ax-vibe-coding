@@ -8,6 +8,7 @@ prompts/00-project-instructions.md 의 지침을 그대로 따른다. 요약:
 - 'echarts', 'echarts-for-react', 'world-atlas', 'topojson-client', '@hyunbinseo/holidays-kr' 직접 import
 - <a href="/..."> 로 화면 이동. <Link to='/...'> 를 쓴다
 - hex 색상값. bg-card, text-muted-foreground 같은 테마 이름을 쓴다
+- 글꼴 이름과 px 글자 크기. 사용자가 설정에서 바꾸므로 text-sm 같은 이름만 쓴다
 - src/components/ui/, src/components/layout/, src/lib/mi/, tools/, vite.config.ts, src/routeTree.gen.ts 수정 (요청받은 경우 제외)
 - 요청받지 않은 파일 수정, 리팩터링
 

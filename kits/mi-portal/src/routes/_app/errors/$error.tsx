@@ -3,6 +3,7 @@ import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
+import { TextSizeSwitch } from '@/components/text-size-switch'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { ForbiddenError } from '@/features/errors/forbidden'
 import { GeneralError } from '@/features/errors/general-error'
@@ -31,8 +32,11 @@ function RouteComponent() {
     <>
       <Header fixed className='border-b'>
         <Search className='me-auto' />
+        <TextSizeSwitch />
         <ThemeSwitch />
-        <ConfigDrawer />
+        <div className='max-sm:hidden'>
+          <ConfigDrawer />
+        </div>
         <ProfileDropdown />
       </Header>
       <div className='flex-1 [&>div]:h-full'>

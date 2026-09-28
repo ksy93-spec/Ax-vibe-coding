@@ -1,0 +1,8 @@
+/* wanted-sans@1.0.3 의 원본 파일. 수정하지 않았습니다. 라이선스는 LICENSE.txt */
+@font-face {
+  font-family: 'Wanted Sans Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 1000;
+  src: url('./WantedSansVariable.woff2') format('woff2-variations');
+}

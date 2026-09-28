@@ -9,8 +9,10 @@
  */
 import ReactEChartsCore from 'echarts-for-react/esm/core'
 import type { EChartsOption } from 'echarts'
+import { fontStack } from '@/config/fonts'
+import { useFont } from '@/context/font-provider'
 import { useTheme } from '@/context/theme-provider'
-import { echarts } from '@/lib/mi/echarts'
+import { chartTheme, echarts } from '@/lib/mi/echarts'
 
 type ChartProps = {
   option: EChartsOption
@@ -22,16 +24,23 @@ type ChartProps = {
 
 export function Chart({ option, height = 320, className, onEvents }: ChartProps) {
   const { resolvedTheme } = useTheme()
+  const { font, fontScale, fontReady } = useFont()
+  // 차트는 캔버스라 화면 글꼴을 물려받지 못합니다. 글꼴 이름을 직접 넘기고,
+  // 글꼴 파일을 다 읽은 뒤(fontReady) 다시 그립니다. 글자가 커지면 차트 높이도 같이 늘립니다.
+  const merged: EChartsOption = {
+    ...option,
+    textStyle: { fontFamily: fontStack(font), ...(option.textStyle as object) },
+  }
   return (
     <ReactEChartsCore
-      key={resolvedTheme}
+      key={`${resolvedTheme}-${fontScale}-${font}-${fontReady}`}
       echarts={echarts}
-      option={option}
-      theme={resolvedTheme === 'dark' ? 'mi-dark' : 'mi-light'}
+      option={merged}
+      theme={chartTheme(resolvedTheme === 'dark' ? 'dark' : 'light', fontScale)}
       notMerge
       lazyUpdate
       onEvents={onEvents}
-      style={{ height, width: '100%' }}
+      style={{ height: Math.round(height * Math.max(1, fontScale)), width: '100%' }}
       className={className}
     />
   )

@@ -1,13 +1,6 @@
-/* 한글 글꼴. OFL-1.1 라이선스(src/assets/fonts/Pretendard-OFL.txt). 빌드 때 HTML 안에 들어갑니다. */
-@font-face {
-  font-family: 'Pretendard Variable';
-  font-weight: 45 930;
-  font-style: normal;
-  font-display: swap;
-  src: url('../assets/fonts/PretendardVariable.subset.woff2') format('woff2-variations');
-}
-
+/* 글꼴은 src/context/font-provider.tsx 가 --app-font 로 정합니다. 파일은 public/fonts/ */
 :root {
+  --app-font: 'Pretendard Variable', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -70,8 +63,7 @@
 }
 
 @theme inline {
-  --font-pretendard: 'Pretendard Variable', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-  --font-system: system-ui, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  --font-sans: var(--app-font);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

@@ -30,6 +30,14 @@ const IMPORT = /(?:^|[\s;])(import\s+type\s+|import\s+(?:[^'"`;]*?\s+from\s+)?|i
 const REMOTE = /["'`(](https?:\/\/(?!localhost|127\.0\.0\.1|www\.w3\.org\/)[^"'`\s)]+)/g;
 const HEX = /['"`]#[0-9a-fA-F]{3,8}\b|\[#[0-9a-fA-F]{3,8}\]/g;
 const FETCH = /\bfetch\s*\(/g;
+const PX_TEXT = /\btext-\[\d+(?:\.\d+)?px\]/g;
+const FONT_FAMILY = /\bfontFamily\s*:|font-family\s*:/g;
+// 글꼴을 정하는 곳. 다른 파일에서 글꼴 이름을 박으면 사용자가 고른 글꼴이 먹지 않습니다.
+const FONT_OK = new Set([
+  'src/config/fonts.ts',
+  'src/components/mi/chart.tsx',
+  'src/features/settings/appearance/appearance-form.tsx',
+]);
 const ABS_HREF = /\bhref=\{?['"]\/(?!\/)/g;
 // 차트 테마, 브라우저 테마색 meta, 설정 화면의 밝은/어두운 미리보기 그림은 일부러 색을 박아 둡니다.
 const HEX_OK = new Set([
@@ -105,11 +113,33 @@ for (const file of walk(SRC)) {
     warns.push(`${rel}:${lineOf(text, m.index)}  '/' 로 시작하는 href. 포탈은 #/orders 같은 해시 주소를 씁니다. <Link to='/orders'> 를 쓰세요.`);
   }
 
+  PX_TEXT.lastIndex = 0;
+  while ((m = PX_TEXT.exec(text))) {
+    warns.push(`${rel}:${lineOf(text, m.index)}  ${m[0]}. px 로 정한 글자는 글자 크기 설정을 따라가지 않습니다. text-sm, text-base 같은 이름을 쓰세요.`);
+  }
+  if (!FONT_OK.has(rel) && !rel.endsWith('.css')) {
+    FONT_FAMILY.lastIndex = 0;
+    while ((m = FONT_FAMILY.exec(text))) {
+      warns.push(`${rel}:${lineOf(text, m.index)}  글꼴을 직접 정했습니다. 사용자가 고른 글꼴이 적용되지 않습니다. 지우고 기본 글꼴을 따르세요.`);
+    }
+  }
+
   if (!HEX_OK.has(rel) && !rel.startsWith('src/assets/')) {
     HEX.lastIndex = 0;
     while ((m = HEX.exec(text))) {
       warns.push(`${rel}:${lineOf(text, m.index)}  색상값 ${m[0].replace(/^['"`[]|]$/g, '')} 을 직접 썼습니다. 다크 모드에서 어긋납니다. text-primary, bg-muted 같은 테마 이름을 쓰세요.`);
     }
+  }
+}
+
+// 글꼴 목록(src/config/fonts.ts)의 글꼴마다 public/fonts/<id>/font.css 가 있고 이름이 맞는지 봅니다.
+const fontsTs = fs.readFileSync(path.join(SRC, 'config/fonts.ts'), 'utf8');
+for (const [, id, family] of fontsTs.matchAll(/\{\s*id:\s*'([^']+)',[^}]*?family:\s*'([^']+)'/g)) {
+  const css = path.join(ROOT, 'public/fonts', id, 'font.css');
+  if (!fs.existsSync(css)) {
+    errors.push(`src/config/fonts.ts  글꼴 '${id}' 의 파일이 없습니다: public/fonts/${id}/font.css. scripts/collect-fonts.cjs 로 받으세요.`);
+  } else if (!fs.readFileSync(css, 'utf8').includes(`'${family}'`)) {
+    errors.push(`src/config/fonts.ts  글꼴 '${id}' 의 family '${family}' 가 public/fonts/${id}/font.css 의 이름과 다릅니다.`);
   }
 }
 
