@@ -11,3 +11,4 @@ GitHub 에서 zip 파일을 누르고 다운로드 단추(Download raw file)로 
 | 적용 전 판 | 적용 후 판 | 파일 | 크기 | install.bat 다시 | SHA256 |
 | --- | --- | --- | --- | --- | --- |
 | 없음 (처음 판) | 2026.09.28.1 | [web-tool-starter-2026.09.28.1.zip](web-tool-starter-2026.09.28.1.zip) | 2.9MB | - | `a4ec51ae4ddf46cc` |
+| 2026.09.28.1 | 2026.09.28.2 | [web-tool-starter-2026.09.28.2.zip](web-tool-starter-2026.09.28.2.zip) | 2.5KB | - | `bdc91f6ae152dfc3` |
