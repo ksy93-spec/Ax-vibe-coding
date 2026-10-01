@@ -11,6 +11,10 @@
 
   var HISTORY_SHOWN = 24;
 
+  function rname(r) {
+    return r === sim.TOTAL ? '전체 지역' : sim.geo.regionShort(r);
+  }
+
   /** 실적 월별 브랜드 판매와 지역 총수요 (TOTAL 포함) */
   function history(ds) {
     var T = ds.months.length;
@@ -69,35 +73,36 @@
       format: format || 'units',
       series: [
         { name: '실적', values: j.actual, kind: 'actual' },
-        { name: '기준선', values: j.future(base), kind: 'baseline' },
+        { name: '기본 전망', values: j.future(base), kind: 'baseline' },
         { name: '시나리오', values: j.future(scen), kind: 'scenario' },
       ],
     };
-    if (band) spec.band = { name: 'P10~P90', lo: nulls(hist.length).concat(band.p10), hi: nulls(hist.length).concat(band.p90) };
+    if (band) spec.band = { name: '가능 범위 (10~90%)', lo: nulls(hist.length).concat(band.p10), hi: nulls(hist.length).concat(band.p90) };
     App.fcChart(mount, spec);
   }
 
   function controls(scn) {
-    var regions = [{ value: sim.TOTAL, label: '전체 (TAM)' }].concat(st.ds.regions);
+    var regions = [{ value: sim.TOTAL, label: '전체 지역' }].concat(st.ds.regions.map(function (r) { return { value: r, label: sim.geo.regionLabel(r) }; }));
     var mc = act.mcResult(scn);
-    var btn = h('button', { class: 'btn btn--sm btn--primary', type: 'button', text: mc ? '구간 다시 계산' : '불확실성 구간 계산' });
+    var btn = h('button', { class: 'btn btn--sm btn--primary', type: 'button', text: mc ? '다시 계산' : '가능 범위 계산' });
     btn.addEventListener('click', function () {
       btn.disabled = true;
       btn.textContent = '계산 중...';
       setTimeout(function () {
         var t0 = Date.now();
         act.runMc(scn);
-        App.ui.toast(st.view.mcDraws + '회 표본 계산 (' + ((Date.now() - t0) / 1000).toFixed(1) + '초)', 'ok');
+        App.ui.toast('카드 강도와 가능성을 바꿔 가며 ' + st.view.mcDraws + '번 계산했습니다 (' + ((Date.now() - t0) / 1000).toFixed(1) + '초)', 'ok');
         App.render();
       }, 30);
     });
-    return h('section', { class: 'panel panel--bar no-print' }, h('div', { class: 'row' }, [
+    return h('section', { class: 'panel panel--bar no-print' }, h('div', { class: 'row row--end' }, [
       w.field('시나리오', w.select(st.scenarios.map(function (s) { return { value: s.id, label: s.name }; }), scn.id, function (v) { st.activeId = v; act.persist(); App.render(); })),
       w.field('지역', w.select(regions, st.view.region, function (v) { st.view.region = v; App.render(); })),
       w.field('브랜드', w.select(st.ds.brands, st.view.brand, function (v) { st.view.brand = v; App.render(); })),
       h('div', { class: 'app__spacer' }),
-      w.field('표본 수', w.select([200, 500, 1000, 2000], st.view.mcDraws, function (v) { st.view.mcDraws = Number(v); App.render(); })),
-      h('div', { class: 'field' }, [h('span', { class: 'field__label', text: mc ? '구간 계산됨 (시드 42)' : '구간 미계산' }), btn]),
+      w.field('계산 횟수', w.select([200, 500, 1000, 2000].map(function (n) { return { value: n, label: n + '번' }; }), st.view.mcDraws, function (v) { st.view.mcDraws = Number(v); App.render(); })),
+      h('div', { class: 'field' }, [h('span', { class: 'field__label', text: mc ? '가능 범위 계산됨' : '가능 범위: 아직 계산 안 함' }), btn]),
+      w.help('가능 범위란?', '카드마다 넣은 "일어날 가능성" 과 "작게 보면 ~ 크게 보면" 범위를 무작위로 뽑아 여러 번 계산합니다. 차트의 옅은 띠는 그 결과 중 아래 10% 와 위 10% 를 뺀 가운데 80% 입니다. 같은 카드면 누가 계산해도 같은 띠가 나옵니다.'),
     ]));
   }
 
@@ -114,12 +119,17 @@
     var t12 = sumRange(base.tiv[r], 0, 12);
     var ts12 = sumRange(res.tiv[r], 0, 12);
     var items = [
-      w.kpi('향후 12개월 판매 (시나리오)', fmt.units(s12) + ' 대', '기준선 대비 ' + fmt.signedUnits(s12 - b12) + ' (' + fmt.signedPct(b12 ? s12 / b12 - 1 : 0) + ')', w.tone(s12 - b12)),
-      w.kpi('최근 12개월 실적', fmt.units(last12) + ' 대', '시나리오 연간 변화 ' + fmt.signedPct(last12 ? s12 / last12 - 1 : 0), w.tone(s12 - last12)),
+      w.kpi('앞으로 1년 판매 (시나리오)', fmt.units(s12) + ' 대', '기본 전망 대비 ' + fmt.signedUnits(s12 - b12) + ' (' + fmt.signedPct(b12 ? s12 / b12 - 1 : 0) + ')', w.tone(s12 - b12)),
+      w.kpi('최근 1년 실적', fmt.units(last12) + ' 대', '앞으로 1년은 ' + fmt.signedPct(last12 ? s12 / last12 - 1 : 0), w.tone(s12 - last12)),
     ];
-    if (H >= 24) items.push(w.kpi('13~24개월 판매 (시나리오)', fmt.units(s24) + ' 대', '기준선 대비 ' + fmt.signedUnits(s24 - b24) + ' (' + fmt.signedPct(b24 ? s24 / b24 - 1 : 0) + ')', w.tone(s24 - b24)));
-    items.push(w.kpi(res.months[hEnd] + ' 점유율', fmt.pct(res.share[r][b][hEnd], 2), '기준선 ' + fmt.pct(base.share[r][b][hEnd], 2) + ', ' + fmt.signedPp(res.share[r][b][hEnd] - base.share[r][b][hEnd]), w.tone(res.share[r][b][hEnd] - base.share[r][b][hEnd])));
-    items.push(w.kpi((r === sim.TOTAL ? '전체' : r) + ' 총수요 향후 12개월', fmt.units(ts12) + ' 대', '기준선 대비 ' + fmt.signedPct(t12 ? ts12 / t12 - 1 : 0), w.tone(ts12 - t12)));
+    if (H >= 24) items.push(w.kpi('2년째 판매 (시나리오)', fmt.units(s24) + ' 대', '기본 전망 대비 ' + fmt.signedUnits(s24 - b24) + ' (' + fmt.signedPct(b24 ? s24 / b24 - 1 : 0) + ')', w.tone(s24 - b24)));
+    items.push(w.kpi(res.months[hEnd] + ' 점유율', fmt.pct(res.share[r][b][hEnd], 2), '기본 전망 ' + fmt.pct(base.share[r][b][hEnd], 2) + ', ' + fmt.signedPp(res.share[r][b][hEnd] - base.share[r][b][hEnd]), w.tone(res.share[r][b][hEnd] - base.share[r][b][hEnd])));
+    items.push(w.kpi(rname(r) + ' 시장 전체 (앞으로 1년)', fmt.units(ts12) + ' 대', '기본 전망 대비 ' + fmt.signedPct(t12 ? ts12 / t12 - 1 : 0), w.tone(ts12 - t12)));
+    if (act.hasDisplay()) {
+      var db = sim.display.compute(st.ds, sim.display.sumVehicles(st.ds, base.brandUnits, 0, 12), st.display)[r];
+      var dsn = sim.display.compute(st.ds, sim.display.sumVehicles(st.ds, res.brandUnits, 0, 12), st.display)[r];
+      items.push(w.kpi(st.display.companyName + ' 디스플레이 (앞으로 1년)', fmt.units(dsn.ours) + ' 장', '점유율 ' + fmt.pct(dsn.share) + ', 기본 전망 대비 ' + fmt.signedUnits(dsn.ours - db.ours), w.tone(dsn.ours - db.ours)));
+    }
     return h('div', { class: 'kpis' }, items);
   }
 
@@ -142,13 +152,13 @@
         fmt.pct(base.share[r][b][hB], 2) + ' → ' + fmt.pct(res.share[r][b][hB], 2),
       ];
     });
-    var totals = ['합계 (TAM)',
+    var totals = ['시장 전체',
       fmt.units(sumRange(hist.tiv[r], hist.months.length - 12, hist.months.length)),
       fmt.units(sumRange(base.tiv[r], 0, 12)), fmt.units(sumRange(res.tiv[r], 0, 12)),
       fmt.signedUnits(sumRange(res.tiv[r], 0, 12) - sumRange(base.tiv[r], 0, 12)), '', ''];
     rows.push(totals);
-    var cols = ['브랜드', { label: '최근 12개월 실적', num: true }, { label: '향후 12개월 기준선', num: true }, { label: '시나리오', num: true }, { label: '차이', num: true },
-      { label: res.months[hA] + ' 점유율 기준선 → 시나리오', num: true }, { label: res.months[hB] + ' 점유율', num: true }];
+    var cols = ['브랜드', { label: '최근 1년 실적', num: true }, { label: '앞으로 1년 기본 전망', num: true }, { label: '시나리오', num: true }, { label: '차이', num: true },
+      { label: res.months[hA] + ' 점유율 (기본 → 시나리오)', num: true }, { label: res.months[hB] + ' 점유율', num: true }];
     return w.table(cols, rows, {
       onRowClick: function (i) { if (i < st.ds.brands.length) { st.view.brand = st.ds.brands[i]; App.render(); } },
       selected: function (i) { return st.ds.brands[i] === st.view.brand; },
@@ -163,7 +173,7 @@
     var rows = cr.items.map(function (it) {
       return { name: it.name, a: sumRange(it.delta[r][b], 0, 12), b: sumRange(it.delta[r][b], 12, 24), t: sumRange(it.delta[r][b], 0, H) };
     });
-    rows.push({ name: '카드 간 상호작용', a: sumRange(cr.interaction[r][b], 0, 12), b: sumRange(cr.interaction[r][b], 12, 24), t: sumRange(cr.interaction[r][b], 0, H), muted: true });
+    rows.push({ name: '카드끼리 겹치는 효과', a: sumRange(cr.interaction[r][b], 0, 12), b: sumRange(cr.interaction[r][b], 12, 24), t: sumRange(cr.interaction[r][b], 0, H), muted: true });
     var maxAbs = 0;
     rows.forEach(function (x) { maxAbs = Math.max(maxAbs, Math.abs(x.t)); });
     var out = rows.map(function (x) {
@@ -174,11 +184,11 @@
       ]);
       return [x.name, fmt.signedUnits(x.a), H > 12 ? fmt.signedUnits(x.b) : '', fmt.signedUnits(x.t), bar];
     });
-    var cols = ['카드', { label: '1~12개월', num: true }, { label: '13~24개월', num: true }, { label: '전체 기간', num: true }, '크기'];
+    var cols = ['카드', { label: '첫 1년', num: true }, { label: '2년째', num: true }, { label: '전망 기간 합계', num: true }, '크기'];
     return h('div', null, [
-      h('h2', { class: 'panel__title', text: '카드별 영향 (' + (r === sim.TOTAL ? '전체' : r) + ' · ' + b + ', 판매 대수)' }),
-      h('p', { class: 'panel__hint', text: '카드 한 장만 켰을 때 기준선과의 차이입니다. 카드끼리 같은 시장을 건드리면 합이 정확히 맞지 않아 그 차이를 상호작용으로 따로 적었습니다.' }),
-      cr.items.length ? w.table(cols, out) : h('p', { class: 'empty', text: '켜진 카드가 없습니다.' }),
+      h('h2', { class: 'panel__title', text: '카드별 영향: ' + rname(r) + ' · ' + b + ' 판매 (대)' }),
+      h('p', { class: 'panel__hint', text: '카드 한 장만 켰을 때 기본 전망과 얼마나 달라지는지입니다. 카드 여러 장이 같은 시장을 건드리면 단순 합과 조금 달라지는데, 그 차이를 "겹치는 효과" 로 따로 적었습니다.' }),
+      cr.items.length ? w.table(cols, out) : h('p', { class: 'empty', text: '켜진 카드가 없습니다. 시나리오 탭에서 카드를 추가하세요.' }),
     ]);
   }
 
@@ -202,11 +212,11 @@
           });
         });
       });
-      return [p, fmt.pct(tot ? last / tot : 0), fmt.pct(base.ptMix[r][p][hA]) + ' → ' + fmt.pct(res.ptMix[r][p][hA]), fmt.pct(base.ptMix[r][p][H - 1]) + ' → ' + fmt.pct(res.ptMix[r][p][H - 1])];
+      return [sim.shocks.ptLabel(p), fmt.pct(tot ? last / tot : 0), fmt.pct(base.ptMix[r][p][hA]) + ' → ' + fmt.pct(res.ptMix[r][p][hA]), fmt.pct(base.ptMix[r][p][H - 1]) + ' → ' + fmt.pct(res.ptMix[r][p][H - 1])];
     });
     return h('div', null, [
-      h('h2', { class: 'panel__title', text: '파워트레인 비중 (' + (r === sim.TOTAL ? '전체' : r) + ')' }),
-      w.table(['파워트레인', { label: st.ds.months[T - 1] + ' 실적', num: true }, { label: res.months[hA] + ' 기준선 → 시나리오', num: true }, { label: res.months[H - 1], num: true }], rows),
+      h('h2', { class: 'panel__title', text: '동력원 비중: ' + rname(r) }),
+      w.table(['동력원', { label: st.ds.months[T - 1] + ' 실적', num: true }, { label: res.months[hA] + ' (기본 → 시나리오)', num: true }, { label: res.months[H - 1], num: true }], rows),
     ]);
   }
 
@@ -229,23 +239,23 @@
 
     var charts = h('div', { class: 'grid-2' });
     var c1 = h('section', { class: 'panel' });
-    unitsChart(c1, b + ' 판매 (' + (r === sim.TOTAL ? '전체' : r) + ', 월)', hist.brandUnits[r][b], hist.months, base.brandUnits[r][b], res.brandUnits[r][b], mc && mc.brandUnits[r][b]);
+    unitsChart(c1, b + ' 월 판매 · ' + rname(r), hist.brandUnits[r][b], hist.months, base.brandUnits[r][b], res.brandUnits[r][b], mc && mc.brandUnits[r][b]);
     var c2 = h('section', { class: 'panel' });
     var histShare = hist.brandUnits[r][b].map(function (v, i) { return hist.tiv[r][i] ? v / hist.tiv[r][i] : 0; });
-    unitsChart(c2, b + ' 점유율 (' + (r === sim.TOTAL ? '전체' : r) + ')', histShare, hist.months, base.share[r][b], res.share[r][b], mc && mc.share[r][b], 'percent');
+    unitsChart(c2, b + ' 점유율 · ' + rname(r), histShare, hist.months, base.share[r][b], res.share[r][b], mc && mc.share[r][b], 'percent');
     charts.appendChild(c1);
     charts.appendChild(c2);
     root.appendChild(charts);
 
     var c3 = h('section', { class: 'panel' });
-    unitsChart(c3, (r === sim.TOTAL ? '전체' : r) + ' 총수요 (월)', hist.tiv[r], hist.months, base.tiv[r], res.tiv[r], mc && mc.tiv[r]);
+    unitsChart(c3, rname(r) + ' 시장 전체 월 판매', hist.tiv[r], hist.months, base.tiv[r], res.tiv[r], mc && mc.tiv[r]);
     var pt = ptTable(base, res);
     var row2 = h('div', { class: 'grid-2' }, [c3, pt ? h('section', { class: 'panel' }, pt) : null]);
     root.appendChild(row2);
 
     root.appendChild(h('section', { class: 'panel' }, [
-      h('h2', { class: 'panel__title', text: (r === sim.TOTAL ? '전체' : r) + ' 브랜드별 요약' }),
-      h('p', { class: 'panel__hint', text: '행을 누르면 위 차트의 브랜드가 바뀝니다.' }),
+      h('h2', { class: 'panel__title', text: rname(r) + ' 브랜드별 요약' }),
+      h('p', { class: 'panel__hint', text: '줄을 누르면 위 차트가 그 브랜드로 바뀝니다.' }),
       brandTable(base, res, hist),
     ]));
     root.appendChild(h('section', { class: 'panel' }, contributionTable(scn)));

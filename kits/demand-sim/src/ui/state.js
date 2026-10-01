@@ -30,6 +30,9 @@
     view: { region: sim.TOTAL, brand: '', mcDraws: 500 },
     report: { title: '권역별 수요 시나리오 검토', focus: '', compare: [], allBrands: false },
     mc: {}, // scenarioId -> { sig, result }
+    display: sim.display.defaults(), // 디스플레이 가정 (브랜드별 대당 수, 우리 공급 비중)
+    displayMeta: null, // 디스플레이 가정 CSV 정보
+    overview: { region: '', period: 'actual' },
     pendingProject: null, // 데이터보다 먼저 불러온 작업 파일
   };
 
@@ -51,6 +54,7 @@
       if (state.ds.regions.indexOf(state.view.region) < 0) state.view.region = sim.TOTAL;
       if (state.ds.brands.indexOf(state.view.brand) < 0) state.view.brand = state.ds.brands[0];
       if (state.ds.brands.indexOf(state.report.focus) < 0) state.report.focus = state.ds.brands[0];
+      if (state.ds.regions.indexOf(state.overview.region) < 0) state.overview.region = '';
     } catch (e) {
       state.error = e.message;
       state.ds = null;
@@ -77,6 +81,8 @@
     var raw = sim.sample.make();
     state.source = 'sample';
     state.pt = { rows: raw.powertrain, fileName: '예시 데이터', notes: [] };
+    state.display = Object.assign(sim.display.defaults(), { rows: sim.sample.makeDisplay() });
+    state.displayMeta = { fileName: '예시 데이터' };
     state.brands = [];
     setSales(raw.sales, { fileName: '예시 데이터', notes: [] });
   }
@@ -118,6 +124,7 @@
       scenarios: state.scenarios,
       activeId: state.activeId,
       report: state.report,
+      display: state.display,
       dataInfo: state.ds
         ? { firstMonth: state.ds.months[0], lastMonth: state.ds.months[state.ds.months.length - 1], regions: state.ds.regions }
         : null,
@@ -135,6 +142,7 @@
       state.activeId = p.activeId && p.scenarios.some(function (s) { return s.id === p.activeId; }) ? p.activeId : p.scenarios[0].id;
     }
     if (p.report) state.report = Object.assign(state.report, p.report);
+    if (p.display) state.display = Object.assign(sim.display.defaults(), p.display);
     if (state.sales) {
       var have = {};
       state.rank.forEach(function (r) { have[r.brand] = true; });
@@ -165,6 +173,29 @@
     }
   }
 
+  /** 디스플레이 가정이 하나라도 들어 있는지 */
+  function hasDisplay() {
+    return !!(state.display && state.display.rows && state.display.rows.length);
+  }
+
+  /** 실적 월별 브랜드 판매 (지역 -> 브랜드 -> number[], 실적 전체 기간) */
+  function actualSeries() {
+    var ds = state.ds;
+    var out = {};
+    ds.regions.forEach(function (r) {
+      out[r] = {};
+      ds.brands.forEach(function (b) {
+        var a = sim.util.zeros(ds.months.length);
+        ds.powertrains.forEach(function (p) {
+          var u = ds.units[r][b][p];
+          for (var t = 0; t < a.length; t++) a[t] += u[t];
+        });
+        out[r][b] = a;
+      });
+    });
+    return out;
+  }
+
   App.state = state;
   App.actions = {
     newScenario: newScenario,
@@ -181,5 +212,7 @@
     applyProject: applyProject,
     persist: persist,
     restorable: restorable,
+    hasDisplay: hasDisplay,
+    actualSeries: actualSeries,
   };
 })(window);

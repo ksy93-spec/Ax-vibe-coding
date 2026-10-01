@@ -271,4 +271,54 @@
       eq(errs.length, 0, p.key + ': ' + (errs[0] && errs[0].message));
     });
   });
+
+  // ---------- 지도, 디스플레이 ----------
+
+  test('지역 값으로 지도 나라를 찾는다 (NA 는 나미비아가 아니라 북미)', function () {
+    var g = sim.geo;
+    eq(g.regionCountries('NA', ['NA']).join(','), 'US,CA,MX', '국가 열 없음');
+    eq(g.regionCountries('NA', ['US', 'CA', 'MX']).join(','), 'US,CA,MX', '국가 코드');
+    eq(g.regionCountries('북미', ['미국', 'Canada', 'MEX']).join(','), 'US,CA,MX', '한글, 영문, ISO3');
+    eq(g.regionCountries('EU', ['DE', 'UK']).join(','), 'DE,GB', 'UK 표기');
+    eq(g.regionCountries('China', ['China']).join(','), 'CN');
+    eq(g.regionCountries('한국', ['한국']).join(','), 'KR');
+    eq(g.regionCountries('Mars', ['Mars']).length, 0, '못 찾음');
+  });
+
+  test('디스플레이 수요 = 차량 x 대당 디스플레이 수, 우리 몫 = 수요 x 공급 비중, 지역 행이 브랜드 행보다 먼저', function () {
+    var f = fixture();
+    var settings = { companyName: '우리', defaultPanels: 2, defaultShare: 0, rows: [
+      { brand: 'Brand A', region: '', panelsPerVehicle: 3, ourShare: 0.1 },
+      { brand: 'Brand A', region: 'CN', panelsPerVehicle: 3, ourShare: 0.5 },
+    ] };
+    var veh = sim.display.sumVehicles(f.ds, f.base.brandUnits, 0, 12);
+    var d = sim.display.compute(f.ds, veh, settings);
+    near(d.CN.brands['Brand A'].tam, veh.CN['Brand A'] * 3, 1e-6, 'CN 수요');
+    near(d.CN.brands['Brand A'].ours, veh.CN['Brand A'] * 3 * 0.5, 1e-6, 'CN 지역 행');
+    near(d.NA.brands['Brand A'].ours, veh.NA['Brand A'] * 3 * 0.1, 1e-6, 'NA 브랜드 행');
+    near(d.NA.brands['Brand C'].tam, veh.NA['Brand C'] * 2, 1e-6, '기본값');
+    eq(d.NA.brands['Brand C'].ours, 0, '기본 공급 비중 0');
+    var tam = 0, ours = 0;
+    f.ds.regions.forEach(function (r) { tam += d[r].tam; ours += d[r].ours; });
+    near(d[sim.TOTAL].tam, tam, 1e-6, '전체 합');
+    near(d[sim.TOTAL].share, ours / tam, 1e-12, '전체 점유율');
+  });
+
+  test('시나리오로 차량 판매가 바뀌면 우리 디스플레이 몫도 같은 비율로 바뀐다', function () {
+    var f = fixture();
+    var settings = { companyName: '우리', defaultPanels: 2, defaultShare: 0.2, rows: [] };
+    var c = card({ layer: 'TIV', region: 'KR', magnitude: { min: 10, mode: 10, max: 10 }, rampShape: 'step', start: f.bl.months[0] });
+    var res = sim.engine.simulate(f.ds, f.bl, [c]);
+    var a = sim.display.compute(f.ds, sim.display.sumVehicles(f.ds, f.base.brandUnits, 0, 12), settings);
+    var b = sim.display.compute(f.ds, sim.display.sumVehicles(f.ds, res.brandUnits, 0, 12), settings);
+    near(b.KR.ours, a.KR.ours * 1.1, 1e-6);
+    near(b.CN.ours, a.CN.ours, 1e-6, '다른 지역 그대로');
+  });
+
+  test('공급 비중 표기: 25%, 25, 0.25 를 모두 0.25 로 읽는다', function () {
+    near(sim.prep.parseShare('25%'), 0.25, 1e-12);
+    near(sim.prep.parseShare('25'), 0.25, 1e-12);
+    near(sim.prep.parseShare('0.25'), 0.25, 1e-12);
+    ok(isNaN(sim.prep.parseShare('')), '빈 값');
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -14,11 +14,16 @@ ChatGPT 프로젝트의 지침(Instructions) 칸에 아래 블록을 통째로 �
   점유율은 효용(로그 척도)을 softmax 해서 만든다. 점유율에 직접 더하거나 곱하는 코드를 쓰지 않는다.
 - 충격 카드 단위: 총수요 %, 파워트레인 비중 %p, 브랜드 점유율 상대 %.
 - 색과 간격은 CSS 변수(var(--c-*), var(--sp-*), var(--text-*), var(--viz-*))만 쓴다.
-- 결과 CSV 열 이름(src/ui/io.js 의 RESULT_COLUMNS)은 디스플레이 연동 기준이라 바꾸지 않는다.
+- 결과 CSV 열 이름(src/ui/io.js 의 RESULT_COLUMNS)은 디스플레이 연동 기준이라 바꾸지 않는다. 새 열은 끝에만 더한다.
+- 화면 문구는 쉬운 말로 쓴다: 시장 전체 판매(TIV 대신), 동력원(파워트레인 대신), 기본 전망(기준선 대신),
+  변수 카드, 예상 영향, 일어날 가능성, 가능 범위(몬테카를로 대신). 전체 표는 SPEC.md 1절.
+- 디스플레이 수요 = 차량 판매 x 대당 디스플레이 수, 우리 몫 = 수요 x 공급 비중 (src/model/display.js).
+- 브랜드 색은 App.w.brandColor(ds, brand) 로만 정한다. 같은 브랜드는 어느 화면에서나 같은 색이다.
 
 [금지]
 - 외부 라이브러리, CDN, 원격 폰트, 패키지 설치 명령
 - src/lib/, src/model/util.js 수정
+- src/ui/worldmap-data.js, src/model/countries.js 수정 (자동 생성 파일)
 - tests/model.test.js 의 테스트 삭제나 기대값 변경
 - 요청받지 않은 파일 수정, 이름 변경, 리팩터링
 

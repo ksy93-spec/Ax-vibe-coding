@@ -23,6 +23,27 @@
 - 다른 코드는 바꾸지 않는다.
 
 완료 기준:
-- tests/index.html 19/19 통과
+- tests/index.html 23/23 통과
 - 사내 CSV 를 넣으면 "열 지정 필요" 표시 없이 바로 행 수가 나온다
+```
+
+## 지도에 지역이 안 나올 때
+
+한눈에 보기 탭 지도 아래에 "(지도에 없음)" 으로 나오는 지역은 이름을 못 알아본 것입니다.
+
+```
+파일: src/model/geo.js
+목표: REGION_ALIASES 와 REGION_NAME 에 사내 지역 이름을 더해 지도에 칠해지게 한다.
+
+이미 정해진 것 (바꾸지 말 것):
+- 키는 소문자로 바꾸고 공백, 밑줄, 하이픈, 마침표를 지운 형태다. 예: 'North America' -> 'northamerica'
+- REGION_ALIASES 값은 ISO2 국가 코드 배열, REGION_NAME 값은 화면에 쓸 한글 이름이다.
+- 함수는 고치지 않는다.
+
+사내 지역 값: 〈예: NAFTA, W.Europe, Greater China〉
+각 지역에 들어가는 나라: 〈예: Greater China = CN, HK, TW〉
+
+완료 기준:
+- tests/index.html 전부 통과
+- 한눈에 보기 지도에서 그 지역이 칠해지고 점이 깜빡인다
 ```

@@ -1,6 +1,7 @@
 # demand-sim
 
 권역별 수요 시뮬레이터. 지역 x 브랜드 x 파워트레인 24개월 예측에 외생변수 카드를 얹어 시나리오 보고서를 만듭니다.
+세계 지도에서 지역을 고르면 브랜드 구성(도넛)과 디스플레이 수요 중 우리 몫이 나옵니다.
 설계와 계산 방식은 `SPEC.md`, 타입은 `types/sim.d.ts` 에 있습니다.
 
 ## 실행 환경
@@ -22,6 +23,12 @@ npm 패키지 없음. 아래는 코드가 아닌 자산입니다.
 | --- | --- | --- | --- | --- |
 | `assets/fonts/pretendard/` (woff2 92개, font.css) | Pretendard (Kil Hyung-jin), npm `pretendard@1.3.9` 의 공식 가변 분할 파일. `kits/web-tool-starter` 와 같은 파일 | 1.3.9 원본 그대로 | OFL-1.1 | `assets/fonts/pretendard/LICENSE.txt` (tarball 의 `package/dist/LICENSE.txt`) |
 
+| `src/ui/worldmap-data.js` | Natural Earth 1:110m 행정 경계, npm `world-atlas@2.0.2` 의 `countries-110m.json` | 2.0.2 | 지도 자료: 공공 저작물(Natural Earth). 패키지: ISC | `assets/licenses/world-atlas-ISC.txt` |
+| `src/model/countries.js` | 국가 ISO 코드와 영문/한글 이름, npm `i18n-iso-countries@7.14.0` | 7.14.0 | MIT | `assets/licenses/i18n-iso-countries-MIT.txt` |
+
+지도와 국가표는 바깥에서 `scripts/build-worldmap.cjs` (저장소 루트, 킷에는 없음)로 만든 결과 파일입니다. 지도는 투영(Natural Earth 1)과 좌표 소수 1자리 반올림만 했고, 국가표는 코드와 이름만 뽑았습니다. 사내에서는 다시 만들 필요가 없습니다.
+변환에 쓴 `topojson-client@3.1.0` (ISC), `d3-geo@3.1.1` (ISC) 는 바깥에서만 썼고 킷에 코드가 들어가지 않습니다.
+
 글꼴은 고치지 않았습니다. 직접 서브셋한 파일은 OFL 예약 글꼴 이름 조항에 걸려 쓰지 않습니다.
 나머지 코드는 이 저장소에서 작성했습니다. `src/lib/` 는 `kits/web-tool-starter` 의 검증된 파일을 그대로 가져왔습니다.
 
@@ -36,13 +43,16 @@ npm 패키지 없음. 아래는 코드가 아닌 자산입니다.
 | `src/model/shocks.js` | 카드 발효 곡선, 국가 가중치, 점검, 설명 문장 | 명세를 먼저 고친 뒤 |
 | `src/model/engine.js` | 시뮬레이션, 몬테카를로, 기여도 | 명세를 먼저 고친 뒤 |
 | `src/model/presets.js` | 예시 카드 | 예 (사내 표준 카드 추가) |
-| `src/model/sample.js` | 예시 데이터. 실제 브랜드가 아닙니다 | 아니오 |
-| `src/ui/*.js` | 화면 (데이터, 시나리오, 결과, 보고서 탭, 차트) | 예 |
+| `src/model/sample.js` | 예시 데이터와 예시 디스플레이 가정. 실제 브랜드가 아닙니다 | 아니오 |
+| `src/model/geo.js` | 지역 값 -> 지도 나라, 지역 한글 이름 | `REGION_ALIASES` 에 별칭 추가만 |
+| `src/model/display.js` | 디스플레이 수요와 우리 몫 | 명세를 먼저 고친 뒤 |
+| `src/model/countries.js` `src/ui/worldmap-data.js` | 자동 생성 자료 | 아니오 |
+| `src/ui/*.js` | 화면 (데이터, 한눈에 보기, 시나리오, 상세 결과, 보고서 탭, 차트, 지도, 도넛) | 예 |
 | `src/main.js` | 머리글과 탭 | 예 |
 | `src/lib/` | DOM, CSV, 토스트/모달 | 아니오 |
 | `assets/css/sim.css` | 이 도구 스타일 (토큰만 사용) | 예 |
 | `assets/css/tokens.css` `app.css` | 디자인 토큰, 기본 컴포넌트 | 브랜드 색만 |
-| `tests/` | 계산 엔진 합격 기준 19개 | 테스트를 지우지 말 것 |
+| `tests/` | 계산 엔진 합격 기준 23개 | 테스트를 지우지 말 것 |
 | `types/sim.d.ts` `types/app.d.ts` | 타입 참조 | 아니오 |
 | `prompts/` | 사내 모델에 붙여 넣을 프롬프트 | 예 |
 
@@ -60,9 +70,18 @@ npm 패키지 없음. 아래는 코드가 아닌 자산입니다.
 - [ ] 사내 CSV 를 넣어 열 이름이 자동으로 잡히는지 확인. 안 잡히면 `prompts/10-column-names.md`
 - [ ] 실제 정책 일정으로 카드 작성. 반복해서 쓰는 카드는 `prompts/30-new-preset.md` 로 예시 카드에 추가
 - [ ] 기준선 성장률을 사내 전망과 맞출지 결정 (데이터 탭의 덮어쓰기)
-- [ ] 디스플레이 연동: 결과 CSV 형식(`SPEC.md` 5.1) 기준으로 후속 작업
+- [ ] 데이터 탭 5번에 브랜드별 대당 디스플레이 수와 우리 공급 비중 넣기 (CSV 또는 직접 입력)
+- [ ] 지도에 안 나오는 지역이 있으면 `src/model/geo.js` 의 `REGION_ALIASES` 에 별칭 추가
 
 ## 검증 기록
+
+2026-10-01 (2026.10.01.2), 이 저장소에서 확인.
+
+- `node tests/run.cjs`: 23/23 통과. 헤드리스 Chromium 에서 `tests/index.html` 을 `file://` 로 열어 23/23 통과
+- `index.html` 을 `file://` 로 열어 예시 데이터 → 한눈에 보기(지도, 북미 점 선택, 도넛 호버, 디스플레이 막대, 기간 3종) → 단계형 카드 편집(예시 카드, 새 브랜드 카드) → 상세 결과(가능 범위 500번) → 보고서(우리 디스플레이 표 포함) A4 PDF → 다크 모드 → 도움말까지 진행. 콘솔 오류와 실패한 요청 0건, 1440px 에서 가로 스크롤 없음
+- 결과 CSV 17열(끝 네 열이 디스플레이) 확인
+
+2026-10-01 (2026.10.01.1) 기록:
 
 2026-10-01, 이 저장소에서 확인.
 

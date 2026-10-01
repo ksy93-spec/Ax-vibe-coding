@@ -41,7 +41,7 @@
   sim.presets = [
     {
       key: 'subsidy-end',
-      label: '전기차 보조금 종료 (당겨쓰기 포함)',
+      label: '전기차 보조금 종료 (막차 수요 포함)',
       make: function (ds) {
         return base(ds, 'POWERTRAIN', {
           name: '(예시) 전기차 보조금 종료',
@@ -52,7 +52,7 @@
           rampShape: 'step',
           rampMonths: 1,
           pullForward: { months: 3, pct: 15 },
-          note: '예시 값. 종료 월, 감소 폭(%p), 종료 전 선구매 비율을 실제 정책과 과거 사례로 바꾸세요.',
+          note: '예시 값. 종료 월, 전기차 비중이 줄어드는 폭(%p), 종료 전 막차 수요를 실제 정책과 과거 사례로 바꾸세요.',
         });
       },
     },
@@ -86,7 +86,7 @@
           start: U.addMonths(firstForecast(ds), 9),
           rampShape: 'scurve',
           rampMonths: 6,
-          note: '예시 값. 승인 시점과 승인 후 점유율 상승(상대 %)을 넣으세요. 같은 파워트레인 안 경쟁사 몫에서 가져옵니다.',
+          note: '예시 값. 승인 시점과 승인 뒤 점유율이 지금보다 몇 % 오를지 넣으세요. 늘어난 몫은 같은 차종의 경쟁 브랜드에서 옵니다.',
         });
       },
     },
@@ -102,13 +102,13 @@
           start: U.addMonths(firstForecast(ds), 3),
           rampShape: 'linear',
           rampMonths: 3,
-          note: '예시 값. 관세율보다 가격 전가 후 점유율 변화(상대 %)로 넣습니다.',
+          note: '예시 값. 관세율이 아니라, 가격이 오른 뒤 점유율이 지금보다 몇 % 줄지로 넣습니다.',
         });
       },
     },
     {
       key: 'macro',
-      label: '경기 둔화 (총수요 일시 감소)',
+      label: '경기 둔화 (시장 판매 일시 감소)',
       make: function (ds) {
         return base(ds, 'TIV', {
           name: '(예시) 경기 둔화',
@@ -119,7 +119,7 @@
           rampMonths: 6,
           holdMonths: 6,
           halfLifeMonths: 6,
-          note: '예시 값. 총수요 감소율과 회복 속도(반감기)를 넣으세요.',
+          note: '예시 값. 시장 전체 판매 감소율과 회복 속도를 넣으세요.',
         });
       },
     },
@@ -136,7 +136,7 @@
           start: U.addMonths(firstForecast(ds), 5),
           rampShape: 'scurve',
           rampMonths: 4,
-          note: '예시 값. 출시 월과 안정기 점유율 상승(상대 %)을 넣으세요.',
+          note: '예시 값. 출시 월과, 자리 잡은 뒤 점유율이 지금보다 몇 % 오를지 넣으세요.',
         });
       },
     },
