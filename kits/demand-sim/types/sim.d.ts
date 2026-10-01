@@ -199,6 +199,40 @@ declare namespace Sim {
     interaction: ByRegion<ByBrand<number[]>>;
   }
 
+  // ---------- 디스플레이 ----------
+
+  /** 브랜드(와 지역)별 디스플레이 가정. region 이 '' 이면 모든 지역 */
+  interface DisplayRow {
+    brand: string;
+    region: string;
+    /** 대당 디스플레이 수(장). NaN 이면 기본값 */
+    panelsPerVehicle: number;
+    /** 그 브랜드 디스플레이 중 우리 공급 비중 0~1. NaN 이면 기본값 */
+    ourShare: number;
+  }
+
+  interface DisplaySettings {
+    /** 화면에 쓸 우리 회사 이름. 기본 '우리' */
+    companyName: string;
+    defaultPanels: number;
+    defaultShare: number;
+    rows: DisplayRow[];
+  }
+
+  interface DisplayCell {
+    vehicles: number;
+    /** 디스플레이 수요(장) = vehicles x panels */
+    tam: number;
+    /** 우리 몫(장) = tam x share */
+    ours: number;
+    share: number;
+    panels: number;
+    source?: 'region' | 'brand' | 'default';
+  }
+
+  /** 지역 목록 + TOTAL */
+  type DisplayResult = ByRegion<{ vehicles: number; tam: number; ours: number; share: number; brands: ByBrand<DisplayCell> }>;
+
   /** 저장 파일(.json). 판매 실적은 담지 않습니다 */
   interface ProjectFile {
     kind: 'demand-sim';
@@ -209,6 +243,7 @@ declare namespace Sim {
     scenarios: Scenario[];
     /** 불러올 때 다른 데이터에 붙이는지 확인하는 용도 */
     dataInfo: { firstMonth: Month; lastMonth: Month; regions: string[] };
+    display?: DisplaySettings;
   }
 }
 
@@ -232,11 +267,14 @@ declare namespace App {
       triangular(r: () => number, min: number, mode: number, max: number): number;
     };
     prep: {
-      detectColumns(columns: string[], kind: 'sales' | 'powertrain'): Sim.ColumnMapping;
+      detectColumns(columns: string[], kind: 'sales' | 'powertrain' | 'display'): Sim.ColumnMapping;
       normalizeSales(records: Record<string, string>[], mapping: Record<string, string | null>): { rows: Sim.SalesRow[]; notes: Sim.Note[] };
       normalizePowertrain(records: Record<string, string>[], mapping: Record<string, string | null>): { rows: Sim.PowertrainRow[]; notes: Sim.Note[] };
       /** 최근 12개월 전 지역 판매량 순 */
       rankBrands(rows: Sim.SalesRow[]): Array<{ brand: string; units: number }>;
+      normalizeDisplay(records: Record<string, string>[], mapping: Record<string, string | null>): { rows: Sim.DisplayRow[]; notes: Sim.Note[] };
+      /** '25%', '25', '0.25' -> 0.25 */
+      parseShare(v: unknown): number;
       buildDataset(sales: Sim.SalesRow[], powertrain: Sim.PowertrainRow[] | null, opts: { brands: string[] }): Sim.Dataset;
     };
     baseline: {
@@ -252,6 +290,8 @@ declare namespace App {
       validate(card: Sim.ShockCard, ds: Sim.Dataset, bl: Sim.Baseline): Sim.Note[];
       blank(layer: Sim.Layer, ds: Sim.Dataset): Sim.ShockCard;
       describe(card: Sim.ShockCard): string;
+      /** 'BEV' -> '전기차 (BEV)' */
+      ptLabel(code: string): string;
       unitOf(layer: Sim.Layer): string;
     };
     engine: {
@@ -259,10 +299,29 @@ declare namespace App {
       monteCarlo(ds: Sim.Dataset, bl: Sim.Baseline, cards: Sim.ShockCard[], opts: { draws: number; seed: number }): Sim.McResult;
       contributions(ds: Sim.Dataset, bl: Sim.Baseline, cards: Sim.ShockCard[]): Sim.ContributionResult;
     };
+    geo: {
+      /** 국가 값 하나(ISO2, ISO3, 영문, 한글) -> ISO2 */
+      country(v: string): string | null;
+      /** 지역 값과 그 지역의 국가 값들 -> 지도에 칠할 ISO2 목록 */
+      regionCountries(region: string, countryValues: string[]): string[];
+      /** 'NA' -> '북미 (NA)' */
+      regionLabel(region: string): string;
+      /** 'NA' -> '북미' */
+      regionShort(region: string): string;
+    };
+    display: {
+      defaults(): Sim.DisplaySettings;
+      lookup(s: Sim.DisplaySettings, brand: string, region: string): { panels: number; share: number; source: 'region' | 'brand' | 'default' };
+      /** vehicles: 지역 -> 브랜드 -> 차량 대수 (TOTAL 없이) */
+      compute(ds: Sim.Dataset, vehicles: Record<string, Record<string, number>>, s: Sim.DisplaySettings): Sim.DisplayResult;
+      /** 월별 배열의 [from, to) 합 */
+      sumVehicles(ds: Sim.Dataset, series: Record<string, Record<string, number[]>>, from: number, to: number): Record<string, Record<string, number>>;
+    };
     presets: Array<{ key: string; label: string; make(ds: Sim.Dataset, bl: Sim.Baseline): Sim.ShockCard }>;
     sample: {
       /** 시드 고정 예시 데이터. 실제 브랜드가 아닙니다 */
       make(): { sales: Sim.SalesRow[]; powertrain: Sim.PowertrainRow[] };
+      makeDisplay(): Sim.DisplayRow[];
     };
   }
 }

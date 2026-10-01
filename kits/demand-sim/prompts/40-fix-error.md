@@ -21,5 +21,5 @@
 - 원인이 src/lib/ 나 types/ 에 있다고 보이면 코드를 쓰지 말고 그렇게 말한다.
 
 완료 기준:
-- tests/index.html 19/19 통과, 콘솔 오류 없음
+- tests/index.html 23/23 통과, 콘솔 오류 없음
 ```

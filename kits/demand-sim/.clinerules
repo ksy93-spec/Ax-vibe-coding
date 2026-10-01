@@ -5,6 +5,7 @@
 - 원격 URL 참조 (CDN, 원격 폰트, 원격 이미지, 외부 API)
 - <script type="module"> 사용. file:// 에서 CORS 로 막힌다.
 - src/lib/ 와 src/model/util.js 수정
+- src/ui/worldmap-data.js, src/model/countries.js 수정 (자동 생성 파일)
 - tests/model.test.js 의 테스트 삭제나 기대값 변경
 - types/sim.d.ts 의 시그니처 변경
 - assets/css/ 에 새 hex 나 rgb 값 추가
@@ -19,6 +20,8 @@
 - src/model/ 를 고쳤으면 tests/index.html 을 열어 전부 통과하는지 확인한다.
 - 색과 간격은 var(--c-*), var(--sp-*), var(--text-*), var(--viz-*) 만 쓴다.
 - 새 스크립트 파일은 index.html 의 </body> 앞에 클래식 <script> 로 추가한다.
+- 화면 문구는 SPEC.md 1절 "화면에 쓰는 말" 표의 오른쪽 말을 쓴다 (TIV, 기준선, 몬테카를로 같은 말을 화면에 쓰지 않는다).
+- 브랜드 색은 App.w.brandColor(ds, brand) 로만 정한다.
 - 수정 후 무엇을 바꿨는지 세 줄 이내로 요약한다.
 - 확신이 없으면 코드를 쓰지 말고 질문한다.
 

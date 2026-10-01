@@ -31,10 +31,17 @@
       powertrain: ['powertrain', 'pt', 'xev', 'fueltype', 'fuel', 'propulsion', '파워트레인', '동력원', '연료'],
       units: ['units', 'volume', 'salesvolume', 'sales', 'qty', 'quantity', '판매량', '대수', '수량'],
     },
+    display: {
+      brand: ['brand', 'salesbrand', 'make', 'oem', 'maker', '브랜드', '제조사', '고객사'],
+      region: ['region', 'salesregion', '지역', '권역'],
+      panels: ['panelspervehicle', 'panels', 'displaypervehicle', 'displays', 'attach', '대당디스플레이', '대당디스플레이수', '디스플레이수', '탑재수'],
+      share: ['ourshare', 'share', 'mys', 'ms', 'supplyshare', '우리점유율', '점유율', '공급비중', '자사점유율', '공급점유율'],
+    },
   };
   var REQUIRED = {
     sales: ['month', 'region', 'brand', 'units'],
     powertrain: ['quarter', 'region', 'brand', 'powertrain', 'units'],
+    display: ['brand'],
   };
 
   function norm(s) {
@@ -109,7 +116,38 @@
       rows.push({ quarter: q, region: region, brand: brand, powertrain: pt, units: units });
     });
     var notes = [];
-    if (bad) notes.push({ level: 'warn', message: '파워트레인 자료에서 읽지 못한 행 ' + bad + '개를 건너뛰었습니다 (처음: ' + firstBad + ').' });
+    if (bad) notes.push({ level: 'warn', message: '동력원 자료에서 읽지 못한 행 ' + bad + '개를 건너뛰었습니다 (처음: ' + firstBad + ').' });
+    return { rows: rows, notes: notes };
+  }
+
+  /** '25%', '25', '0.25' -> 0.25. 1 보다 크면 % 로 봅니다. */
+  function parseShare(v) {
+    var str = String(v == null ? '' : v).trim();
+    if (str === '') return NaN;
+    var pct = str.indexOf('%') >= 0;
+    var n = U.parseNumber(str.replace('%', ''));
+    if (!isFinite(n)) return NaN;
+    return pct || n > 1 ? n / 100 : n;
+  }
+
+  function normalizeDisplay(records, mapping) {
+    var rows = [];
+    var bad = 0;
+    records.forEach(function (rec) {
+      var brand = cleanLabel(rec[mapping.brand]);
+      var region = mapping.region ? cleanLabel(rec[mapping.region]) : '';
+      var panels = mapping.panels ? U.parseNumber(rec[mapping.panels]) : NaN;
+      var share = mapping.share ? parseShare(rec[mapping.share]) : NaN;
+      if (!brand || (!isFinite(panels) && !isFinite(share))) {
+        bad++;
+        return;
+      }
+      rows.push({ brand: brand, region: region, panelsPerVehicle: isFinite(panels) ? panels : NaN, ourShare: isFinite(share) ? Math.max(0, Math.min(1, share)) : NaN });
+    });
+    var notes = [];
+    if (bad) notes.push({ level: 'warn', message: '디스플레이 가정에서 읽지 못한 행 ' + bad + '개를 건너뛰었습니다.' });
+    if (!mapping.panels) notes.push({ level: 'info', message: '대당 디스플레이 수 열이 없어 기본값을 씁니다.' });
+    if (!mapping.share) notes.push({ level: 'info', message: '우리 공급 비중 열이 없어 기본값을 씁니다.' });
     return { rows: rows, notes: notes };
   }
 
@@ -291,7 +329,7 @@
         notes.push({ level: 'warn', message: r + ' 지역에 판매가 0 인 달이 있습니다: ' + emptyMonths.slice(0, 6).join(', ') + (emptyMonths.length > 6 ? ' 외' : '') });
       }
     });
-    if (T < 24) notes.push({ level: 'warn', message: '실적이 ' + T + '개월입니다. 24개월 미만이면 계절 지수와 성장률을 계산하지 않습니다.' });
+    if (T < 24) notes.push({ level: 'warn', message: '실적이 ' + T + '개월입니다. 24개월이 안 되면 계절 차이와 성장률을 자동으로 잡지 못합니다.' });
 
     // 파워트레인 비중
     var pts;
@@ -308,7 +346,7 @@
           ptEstimated[r][b] = months.map(function () { return false; });
         });
       });
-      notes.push({ level: 'info', message: '파워트레인 자료가 없어 파워트레인 카드는 쓸 수 없습니다.' });
+      notes.push({ level: 'info', message: '동력원 자료가 없어 "동력원 비중" 카드는 쓸 수 없습니다.' });
     } else {
       var ptSet = {};
       powertrain.forEach(function (row) { ptSet[row.powertrain] = true; });
@@ -344,7 +382,7 @@
         w[ptPos[row.powertrain]] += row.units;
       });
       if (Object.keys(unknownRegion).length) {
-        notes.push({ level: 'warn', message: '파워트레인 자료의 지역 중 월별 판매에 없는 것은 뺐습니다: ' + Object.keys(unknownRegion).join(', ') });
+        notes.push({ level: 'warn', message: '동력원 자료의 지역 중 월별 판매에 없는 것은 뺐습니다: ' + Object.keys(unknownRegion).join(', ') });
       }
 
       var quartersNeeded = [];
@@ -395,7 +433,7 @@
           m[pts.indexOf('ICE') >= 0 ? pts.indexOf('ICE') : nPt - 1] = 1;
           return m;
         });
-        if (!qr[r]) notes.push({ level: 'warn', message: r + ' 지역에 파워트레인 자료가 없어 전부 ' + (pts.indexOf('ICE') >= 0 ? 'ICE' : pts[nPt - 1]) + ' 로 두었습니다.' });
+        if (!qr[r]) notes.push({ level: 'warn', message: r + ' 지역에 동력원 자료가 없어 전부 ' + (pts.indexOf('ICE') >= 0 ? 'ICE' : pts[nPt - 1]) + ' 로 두었습니다.' });
         brands.forEach(function (b) {
           var series = mixSeries(qb[r] && qb[r][b], function (q) { return regional.mix[q]; });
           var split = splitByMix(monthly[r][b], months, series.mix, nPt);
@@ -403,7 +441,7 @@
           pts.forEach(function (p, i) { units[r][b][p] = split[i]; });
           ptEstimated[r][b] = months.map(function (m) { return series.est[U.quarterOf(m)]; });
           if (!(qb[r] && qb[r][b]) && U.sum(monthly[r][b]) > 0) {
-            notes.push({ level: 'warn', message: r + ' / ' + b + ': 파워트레인 자료가 없어 지역 평균 비중을 썼습니다.' });
+            notes.push({ level: 'warn', message: r + ' / ' + b + ': 동력원 자료가 없어 지역 평균 비중을 썼습니다.' });
           }
           ptEstimated[r][b].forEach(function (e, t) {
             if (monthly[r][b][t] > 0) {
@@ -417,10 +455,10 @@
         return regions.some(function (r) { return !(qr[r] && qr[r][q]); });
       });
       if (estQuarters.length) {
-        notes.push({ level: 'info', message: '파워트레인 자료가 없는 분기는 가장 가까운 분기 비중으로 채웠습니다: ' + estQuarters.join(', ') });
+        notes.push({ level: 'info', message: '동력원 자료가 아직 없는 분기는 가장 가까운 분기 비중으로 채웠습니다: ' + estQuarters.join(', ') });
       }
       if (totalCells) {
-        notes.push({ level: 'info', message: '파워트레인 분해 중 추정으로 채운 비율: ' + (Math.round((totalEst / totalCells) * 1000) / 10) + '% (지역 x 브랜드 x 월 기준)' });
+        notes.push({ level: 'info', message: '월별 동력원 판매 중 추정으로 채운 비율: ' + (Math.round((totalEst / totalCells) * 1000) / 10) + '% (지역 x 브랜드 x 월 기준)' });
       }
     }
 
@@ -434,7 +472,7 @@
     });
     notes.unshift({
       level: 'info',
-      message: '실적 ' + first + ' ~ ' + last + ' (' + T + '개월), 지역 ' + regions.length + '개, 관측 브랜드 ' + (brands.length - 1) + '개, 기타로 묶은 브랜드 ' + otherCount + '개, 파워트레인 ' + pts.join('/'),
+      message: '실적 ' + first + ' ~ ' + last + ' (' + T + '개월), 지역 ' + regions.length + '개, 지켜볼 브랜드 ' + (brands.length - 1) + '개, 기타로 묶은 브랜드 ' + otherCount + '개, 동력원 ' + pts.join('/'),
     });
 
     return {
@@ -455,6 +493,8 @@
     detectColumns: detectColumns,
     normalizeSales: normalizeSales,
     normalizePowertrain: normalizePowertrain,
+    normalizeDisplay: normalizeDisplay,
+    parseShare: parseShare,
     rankBrands: rankBrands,
     splitByMix: splitByMix,
     buildDataset: buildDataset,

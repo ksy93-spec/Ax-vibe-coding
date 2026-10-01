@@ -83,6 +83,21 @@ declare const App: {
   sim: App.SimApi;
   /** 예측 차트. 실적 실선, 기준선 점선, 시나리오 굵은 선, P10~P90 띠 */
   fcChart(mount: HTMLElement, spec: App.FcChartSpec): { destroy(): void };
+  /** 세계 지도. regions 의 지역을 칠하고 점을 깜빡입니다. 지도에 못 그린 지역 이름을 돌려줍니다 */
+  worldMap(mount: HTMLElement, opts: {
+    regions: Array<{ key: string; label: string; value: string; size: number; iso2: string[]; weights?: Record<string, number> | null }>;
+    selected: string;
+    onSelect(region: string): void;
+  }): { unmapped: string[] };
+  /** 도넛. 조각은 6개까지 (나머지는 '그 외' 로 묶어서 넘김) */
+  donut(mount: HTMLElement, opts: {
+    items: Array<{ label: string; value: number; color: string; note?: string }>;
+    centerTitle: string;
+    centerValue: string;
+    format?(v: number): string;
+  }): void;
+  /** 자동 생성 지도 자료 (src/ui/worldmap-data.js). 손으로 고치지 않습니다 */
+  worldMapData: { width: number; height: number; countries: Array<{ iso2: string; name: string; d: string; cx: number; cy: number; a: number }> };
   fmt: {
     units(v: number): string;
     compact(v: number): string;

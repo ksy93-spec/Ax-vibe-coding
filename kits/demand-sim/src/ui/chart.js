@@ -16,7 +16,7 @@
   var STYLE = {
     actual: { color: 'var(--viz-1)', width: 2, dash: null },
     baseline: { color: 'var(--c-fg-muted)', width: 1.5, dash: '5 4' },
-    scenario: { color: 'var(--viz-2)', width: 2.5, dash: null },
+    scenario: { color: 'var(--viz-2)', width: 2, dash: null },
     line: { color: 'var(--viz-7)', width: 2, dash: null },
     // 보고서에서 시나리오를 둘, 셋 비교할 때. 계열 색 순서(--viz-2, 3, 7)를 지킵니다.
     line2: { color: 'var(--viz-3)', width: 2, dash: null },

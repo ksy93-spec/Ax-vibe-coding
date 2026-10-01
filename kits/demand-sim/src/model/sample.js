@@ -116,5 +116,18 @@
     return { sales: sales, powertrain: powertrain };
   }
 
-  sim.sample = { make: make, FIRST: FIRST, LAST: LAST };
+  /* 예시 디스플레이 가정: 브랜드별 대당 디스플레이 수와 우리 공급 비중. 지어낸 값입니다.
+     일부 브랜드는 지역별 값이 따로 있습니다 (지역 행이 브랜드 행보다 먼저 쓰입니다). */
+  var DISPLAY = [
+    ['Brand A', '', 3.0, 0.1], ['Brand B', '', 2.6, 0.35], ['Brand C', '', 1.8, 0.2], ['Brand D', '', 2.4, 0.55],
+    ['Brand E', '', 2.5, 0.25], ['Brand E', 'CN', 2.5, 0.4], ['Brand F', '', 1.9, 0.15], ['Brand G', '', 2.0, 0.3],
+    ['Brand H', '', 1.7, 0.18], ['Brand I', '', 1.8, 0.12], ['Brand J', '', 2.3, 0.28], ['Brand K', '', 1.6, 0.08],
+    ['Brand L', '', 2.8, 0.45], ['Brand L', 'EU', 2.8, 0.5], ['기타', '', 1.5, 0.05],
+  ];
+
+  function makeDisplay() {
+    return DISPLAY.map(function (d) { return { brand: d[0], region: d[1], panelsPerVehicle: d[2], ourShare: d[3] }; });
+  }
+
+  sim.sample = { make: make, makeDisplay: makeDisplay, FIRST: FIRST, LAST: LAST };
 })(typeof window !== 'undefined' ? window : globalThis);

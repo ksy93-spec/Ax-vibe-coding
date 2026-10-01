@@ -112,5 +112,51 @@
     return h('div', { class: 'table__scroll table__scroll--auto' }, h('table', { class: 'table' }, [thead, tbody]));
   }
 
-  App.w = { field: field, select: select, number: number, dropZone: dropZone, fileButton: fileButton, notes: notes, kpi: kpi, tone: tone, table: table };
+  /** 몇 개 중 하나를 고르는 단추 묶음. options: [{value, label}] */
+  function segmented(options, value, onchange, label) {
+    return h('div', { class: 'seg', role: 'radiogroup', 'aria-label': label || '' }, options.map(function (o) {
+      var on = String(o.value) === String(value);
+      return h('button', {
+        class: 'seg__btn' + (on ? ' is-on' : ''), type: 'button', role: 'radio', 'aria-checked': on ? 'true' : 'false',
+        text: o.label, title: o.title || null,
+        onclick: function () { if (!on) onchange(o.value); },
+      });
+    }));
+  }
+
+  /** 브랜드 고유 색. 판매량 순위 8위까지 --viz-1..8, 그 아래는 회색, 기타는 옅은 회색.
+      브랜드 순서는 데이터 탭의 관측 브랜드 순서(전 지역 판매량 순)라 지역을 바꿔도 같은 브랜드는 같은 색입니다. */
+  function brandColor(ds, brand) {
+    if (brand === App.sim.OTHER) return 'var(--c-border-strong)';
+    var i = ds.brands.indexOf(brand);
+    return i >= 0 && i < 8 ? 'var(--viz-' + (i + 1) + ')' : 'var(--c-fg-subtle)';
+  }
+
+  /** 제목 옆 작은 물음표. 누르면 설명이 열립니다. */
+  function help(title, text) {
+    return h('button', {
+      class: 'help', type: 'button', text: '?', 'aria-label': title + ' 설명',
+      onclick: function (e) {
+        e.preventDefault();
+        App.ui.modal({ title: title, body: text, actions: [{ label: '닫기', kind: 'primary' }] });
+      },
+    });
+  }
+
+  /** 패널 머리: 제목, 설명 한 줄, 오른쪽 도구 */
+  function head(title, sub, tools) {
+    return h('div', { class: 'phead' }, [
+      h('div', { class: 'phead__text' }, [
+        h('h2', { class: 'panel__title', text: title }),
+        sub ? h('p', { class: 'panel__hint', text: sub }) : null,
+      ]),
+      tools ? h('div', { class: 'phead__tools' }, tools) : null,
+    ]);
+  }
+
+  App.w = {
+    segmented: segmented,
+    brandColor: brandColor,
+    help: help,
+    head: head, field: field, select: select, number: number, dropZone: dropZone, fileButton: fileButton, notes: notes, kpi: kpi, tone: tone, table: table };
 })(window);

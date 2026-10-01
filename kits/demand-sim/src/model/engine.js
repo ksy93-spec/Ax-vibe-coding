@@ -162,7 +162,7 @@
     var from = Math.max(0, A);
     var to = Math.min(H, A + K);
     if (from >= to) {
-      if (extra) warnings.push((card.name || card.id) + ': 당겨쓰기 차감 구간이 예측 기간 뒤에 있어 앞당긴 물량만 반영됐습니다.');
+      if (extra) warnings.push((card.name || card.id) + ': 시작 후 줄어드는 구간이 전망 기간 뒤라 미리 산 물량만 반영됐습니다.');
       return;
     }
     var post = 0;
@@ -170,7 +170,7 @@
     if (post <= 0) return;
     var f = 1 - extra / post;
     if (f < 0) {
-      warnings.push((card.name || card.id) + ': 당겨쓰기 물량이 차감 구간 물량보다 커서 0 으로 잘랐습니다.');
+      warnings.push((card.name || card.id) + ': 미리 산 물량이 시작 후 판매보다 커서 시작 후 판매를 0 으로 잘랐습니다.');
       f = 0;
     }
     for (h = from; h < to; h++) cells.forEach(function (a) { a[h] *= f; });
