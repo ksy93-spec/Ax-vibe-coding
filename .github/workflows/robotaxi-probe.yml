@@ -16,5 +16,5 @@ jobs:
           node-version: 22
       - run: npm install --no-save playwright@1.55.0
         working-directory: kits/robotaxi-ax/sender
-      - run: node probe.mjs https://robotaxitracker.com/
+      - run: xvfb-run -a node probe.mjs
         working-directory: kits/robotaxi-ax/sender
