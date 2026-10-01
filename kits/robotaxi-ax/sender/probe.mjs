@@ -5,9 +5,23 @@ const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 const H = { 'user-agent': UA, accept: 'application/json,text/html,*/*', 'accept-language': 'en-US,en;q=0.9', referer: 'https://robotaxitracker.com/' };
 const get = async (p) => { const r = await fetch('https://robotaxitracker.com' + p, { headers: H }); console.log('GET', p, r.status, r.headers.get('content-type')); return r; };
 
-// 1. 차량 목록 집계
-const vr = await get('/v1/api/compat/vehicles?limit=5000');
-const vs = await vr.json();
+const r0 = await get('/v1/api/compat/vehicles?limit=5000');
+console.log('bare 403 body', (await r0.text()).slice(0, 300));
+const browser = await chromium.launch({ channel: 'chrome' });
+const page = await browser.newContext({ userAgent: UA }).then((c) => c.newPage());
+const reqs = [];
+page.on('request', (q) => { if (q.url().includes('/v1/')) reqs.push(q); });
+const loaded = new Set();
+page.on('response', (r) => { if (r.url().includes('/assets/') && r.url().endsWith('.js')) loaded.add(new URL(r.url()).pathname); });
+await page.goto('https://robotaxitracker.com/', { waitUntil: 'networkidle', timeout: 90000 });
+await page.waitForTimeout(5000);
+for (const q of reqs.filter((q) => q.url().includes('vehicles')).slice(0, 2)) console.log('REQ HEADERS', q.url(), JSON.stringify(await q.allHeaders()));
+const cookies = await page.context().cookies();
+console.log('COOKIES', cookies.map((c) => c.name + '=' + c.value.length).join(' '));
+const inPage = (p) => page.evaluate(async (p) => { const r = await fetch(p, { credentials: 'include' }); return { s: r.status, t: await r.text() }; }, p);
+const vx = await inPage('/v1/api/compat/vehicles?limit=5000');
+console.log('in-page vehicles', vx.s, vx.t.length);
+const vs = JSON.parse(vx.t);
 const tesla = vs.filter((v) => v.provider === 'tesla');
 console.log('vehicles total', vs.length, 'tesla', tesla.length);
 console.log('KEYS', [...new Set(tesla.flatMap((v) => Object.keys(v)))].join(','));
@@ -39,7 +53,7 @@ for (const k of ['isUnsupervisedPassenger', 'firstSpottedUnsupervised', 'isTestV
 console.log('VIN prefixes by model', JSON.stringify(tesla.filter((v) => v.vin).reduce((a, v) => { const k = v.vehicleModel + ':' + v.vin.slice(0, 5); a[k] = (a[k] || 0) + 1; return a; }, {})));
 
 // 2. 텍사스 DMV
-const dv = await (await get('/v1/api/texas-dmv/vins')).json();
+const dx = await inPage('/v1/api/texas-dmv/vins'); console.log('in-page dmv', dx.s); const dv = JSON.parse(dx.t);
 const vins = Object.entries(dv.vins);
 console.log('dmv schema', dv.schema_version, dv.generated_at, 'entries', vins.length, 'sample keys', JSON.stringify(vins[0]));
 const cur = vins.filter(([, x]) => x.last_seen === dv.generated_at);
@@ -50,11 +64,6 @@ console.log('dmv extra fields', JSON.stringify([...new Set(vins.flatMap(([, x]) 
 // 3. 번들에서 정의 찾기
 const html = await (await get('/')).text();
 const assets = new Set([...html.matchAll(/\/assets\/[\w.-]+\.js/g)].map((m) => m[0]));
-const page = await (await chromium.launch({ channel: 'chrome' })).newContext({ userAgent: UA }).then((c) => c.newPage());
-const loaded = new Set();
-page.on('response', (r) => { if (r.url().includes('/assets/') && r.url().endsWith('.js')) loaded.add(new URL(r.url()).pathname); });
-await page.goto('https://robotaxitracker.com/', { waitUntil: 'networkidle', timeout: 90000 });
-await page.waitForTimeout(5000);
 for (const a of loaded) assets.add(a);
 const pats = /tracked all-time|In service|no safety driver|Unsupervised|firstSpottedUnsupervised|isUnsupervisedPassenger|lastSpotted|Matched to tracked|Registered AV fleet|Tesla Cybercab|IN_SERVICE|ACTIVE_WINDOW|DAYS/g;
 for (const a of assets) {
