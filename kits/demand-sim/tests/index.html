@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>계산 엔진 테스트</title>
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/app.css">
+<style>
+  .t { font-family: var(--font-mono); font-size: var(--text-sm); margin: 0; padding: 0; list-style: none; }
+  .t li { padding: var(--sp-1) 0; border-bottom: 1px solid var(--c-border); }
+  .t .pass::before { content: '통과  '; color: var(--c-ok); font-weight: var(--weight-bold); }
+  .t .fail::before { content: '실패  '; color: var(--c-danger); font-weight: var(--weight-bold); }
+  .t .err { color: var(--c-danger); display: block; padding-left: var(--sp-8); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h1 class="panel__title">계산 엔진 테스트</h1>
+    <p class="panel__hint" id="summary">실행 중...</p>
+    <ul class="t" id="list"></ul>
+  </div>
+</div>
+<script src="../src/model/util.js"></script>
+<script src="../src/model/prep.js"></script>
+<script src="../src/model/baseline.js"></script>
+<script src="../src/model/shocks.js"></script>
+<script src="../src/model/engine.js"></script>
+<script src="../src/model/presets.js"></script>
+<script src="../src/model/sample.js"></script>
+<script src="model.test.js"></script>
+<script>
+  (function () {
+    var list = document.getElementById('list');
+    var fail = 0;
+    App.tests.forEach(function (t) {
+      var li = document.createElement('li');
+      var t0 = performance.now();
+      try {
+        t.fn();
+        li.className = 'pass';
+        li.textContent = t.name + ' (' + Math.round(performance.now() - t0) + 'ms)';
+      } catch (e) {
+        fail++;
+        li.className = 'fail';
+        li.textContent = t.name;
+        var m = document.createElement('span');
+        m.className = 'err';
+        m.textContent = e.message;
+        li.appendChild(m);
+      }
+      list.appendChild(li);
+    });
+    var s = document.getElementById('summary');
+    s.textContent = (App.tests.length - fail) + '/' + App.tests.length + ' 통과';
+    document.title = (fail ? '실패 ' : '통과 ') + s.textContent;
+    window.__TEST_RESULT__ = { total: App.tests.length, fail: fail };
+  })();
+</script>
+</body>
+</html>

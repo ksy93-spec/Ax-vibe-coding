@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>권역별 수요 시뮬레이터</title>
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/sim.css">
+</head>
+<body>
+<div id="app" class="app app--wide"></div>
+
+<!-- 클래식 스크립트로 불러옵니다. ES 모듈은 file:// 에서 CORS 로 막힙니다. 순서를 바꾸지 마세요. -->
+<script src="src/lib/dom.js"></script>
+<script src="src/lib/store.js"></script>
+<script src="src/lib/csv.js"></script>
+<script src="src/lib/ui.js"></script>
+<!-- 계산 엔진. DOM 을 쓰지 않습니다. tests/index.html 이 같은 파일을 검사합니다. -->
+<script src="src/model/util.js"></script>
+<script src="src/model/prep.js"></script>
+<script src="src/model/baseline.js"></script>
+<script src="src/model/shocks.js"></script>
+<script src="src/model/engine.js"></script>
+<script src="src/model/presets.js"></script>
+<script src="src/model/sample.js"></script>
+<!-- 화면 -->
+<script src="src/ui/format.js"></script>
+<script src="src/ui/chart.js"></script>
+<script src="src/ui/widgets.js"></script>
+<script src="src/ui/state.js"></script>
+<script src="src/ui/io.js"></script>
+<script src="src/ui/view-data.js"></script>
+<script src="src/ui/view-scenario.js"></script>
+<script src="src/ui/view-result.js"></script>
+<script src="src/ui/view-report.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

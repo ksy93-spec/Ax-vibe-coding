@@ -1,0 +1,184 @@
+/* 충격 카드: 외생변수 하나의 크기, 대상, 시점을 담습니다. 전역 App.sim.shocks.
+ * 카드 형식은 types/sim.d.ts 의 Sim.ShockCard 입니다.
+ */
+(function (global) {
+  'use strict';
+  var App = (global.App = global.App || {});
+  var sim = (App.sim = App.sim || {});
+  var U = sim.util;
+
+  var LAYER_LABEL = { TIV: '총수요', POWERTRAIN: '파워트레인 비중', BRAND: '브랜드 점유율' };
+  var SHAPE_LABEL = { step: '즉시', linear: '선형', scurve: 'S자' };
+
+  function unitOf(layer) {
+    return layer === 'POWERTRAIN' ? '%p' : '%';
+  }
+
+  /**
+   * 월별 발효 강도 0~1.
+   * 시작 월부터 rampMonths 개월에 걸쳐 1 에 도달하고 (step 이면 시작 월에 바로 1),
+   * holdMonths 개월 유지한 뒤 halfLifeMonths 반감기로 줄어듭니다. 반감기가 없으면 바로 0.
+   * holdMonths 가 null 이면 끝까지 1 입니다.
+   */
+  function curve(card, months) {
+    var S = U.monthIndex(card.start);
+    var R = card.rampShape === 'step' ? 1 : Math.max(1, Math.round(card.rampMonths || 1));
+    var fullStart = S + R - 1;
+    var hold = card.holdMonths;
+    var hl = card.halfLifeMonths;
+    return months.map(function (ym) {
+      var m = U.monthIndex(ym);
+      if (m < S) return 0;
+      if (m < fullStart) {
+        var x = (m - S + 1) / R;
+        return card.rampShape === 'scurve' ? x * x * (3 - 2 * x) : x;
+      }
+      if (hold === null || hold === undefined) return 1;
+      var k = m - fullStart;
+      var H = Math.max(1, Math.round(hold));
+      if (k < H) return 1;
+      if (hl && hl > 0) return Math.pow(0.5, (k - H + 1) / hl);
+      return 0;
+    });
+  }
+
+  /** 국가 한정 카드의 강도 배율. 최근 12개월 지역 판매 중 지정 국가 비중. */
+  function countryWeight(card, ds) {
+    var list = card.countries || [];
+    if (!list.length) return 1;
+    var byCountry = ds.countryUnits[card.region];
+    if (!byCountry) return 0;
+    var T = ds.months.length;
+    var from = Math.max(0, T - 12);
+    var sel = 0;
+    var all = 0;
+    Object.keys(byCountry).forEach(function (c) {
+      var brands = card.layer === 'BRAND' ? [card.target] : ds.brands;
+      var v = 0;
+      brands.forEach(function (b) {
+        var a = byCountry[c][b];
+        if (!a) return;
+        for (var t = from; t < T; t++) v += a[t];
+      });
+      all += v;
+      if (list.indexOf(c) >= 0) sel += v;
+    });
+    return all > 0 ? sel / all : 0;
+  }
+
+  function validate(card, ds, bl) {
+    var out = [];
+    function err(msg) { out.push({ level: 'error', message: msg }); }
+    function warn(msg) { out.push({ level: 'warn', message: msg }); }
+    if (ds.regions.indexOf(card.region) < 0) err('데이터에 없는 지역입니다: ' + card.region);
+    if (!U.parseMonth(card.start) || U.parseMonth(card.start) !== card.start) err('시작 월 형식은 YYYY-MM 입니다.');
+    var mg = card.magnitude || {};
+    if (![mg.min, mg.mode, mg.max].every(function (v) { return typeof v === 'number' && isFinite(v); })) {
+      err('강도 최소, 최빈, 최대를 숫자로 넣으세요.');
+    } else if (!(mg.min <= mg.mode && mg.mode <= mg.max)) {
+      err('강도는 최소 <= 최빈 <= 최대 순서여야 합니다.');
+    }
+    if (!(card.probability >= 0 && card.probability <= 1)) err('발생 확률은 0~100% 사이입니다.');
+    if (card.holdMonths !== null && card.holdMonths !== undefined && !(card.holdMonths >= 1)) err('유지 기간은 1개월 이상이거나 "끝까지" 여야 합니다.');
+    if (card.pullForward && !(card.pullForward.months >= 1)) err('당겨쓰기 기간은 1개월 이상입니다.');
+    if (out.length) return out;
+
+    if (card.layer === 'POWERTRAIN') {
+      var pi = ds.powertrains.indexOf(card.target);
+      if (ds.powertrains.length === 1 && ds.powertrains[0] === 'ALL') err('파워트레인 자료가 없어 이 카드를 쓸 수 없습니다.');
+      else if (pi < 0) err('데이터에 없는 파워트레인입니다: ' + card.target);
+      else if (!bl.ptActive[card.region][pi]) err(card.region + ' 에서 최근 판매가 없는 파워트레인입니다. 없는 시장을 카드로 만들 수는 없습니다.');
+    } else if (card.layer === 'BRAND') {
+      var bi = ds.brands.indexOf(card.target);
+      if (bi < 0) {
+        err('관측 브랜드가 아닙니다: ' + card.target);
+      } else {
+        var nests = card.powertrain ? [card.powertrain] : ds.powertrains;
+        if (card.powertrain && ds.powertrains.indexOf(card.powertrain) < 0) err('데이터에 없는 파워트레인입니다: ' + card.powertrain);
+        else if (!nests.some(function (p) { return bl.brandActive[card.region][p][bi]; })) {
+          err(card.region + ' 에서 ' + card.target + (card.powertrain ? ' ' + card.powertrain : '') + ' 최근 판매가 없습니다.');
+        }
+      }
+    } else if (card.layer !== 'TIV') {
+      err('알 수 없는 층입니다: ' + card.layer);
+    }
+    if (out.length) return out;
+
+    var first = bl.months[0];
+    var lastM = bl.months[bl.months.length - 1];
+    if (card.start < first) warn('시작 월이 실적 기간 안입니다. 이미 실적과 기준선 추세에 반영됐다면 이중으로 계산됩니다.');
+    if (card.start > lastM && !card.pullForward) warn('시작 월이 예측 기간 뒤라 결과에 영향이 없습니다.');
+    if ((card.countries || []).length) {
+      var w = countryWeight(card, ds);
+      if (w === 0) warn('지정한 국가의 최근 12개월 판매가 없어 효과가 0 입니다.');
+    }
+    if (card.layer === 'TIV' && mg.min <= -100) err('총수요 감소는 -100% 보다 클 수 없습니다.');
+    return out;
+  }
+
+  var seq = 0;
+  function newId() {
+    seq += 1;
+    return 'c' + Date.now().toString(36) + seq.toString(36);
+  }
+
+  function blank(layer, ds) {
+    var pts = ds.powertrains;
+    var target = '';
+    if (layer === 'POWERTRAIN') target = pts.indexOf('BEV') >= 0 ? 'BEV' : pts[0];
+    if (layer === 'BRAND') target = ds.brands[0];
+    return {
+      id: newId(),
+      name: '',
+      enabled: true,
+      region: ds.regions[0],
+      countries: [],
+      layer: layer,
+      target: target,
+      powertrain: null,
+      magnitude: { min: 0, mode: 0, max: 0 },
+      probability: 1,
+      start: U.addMonths(ds.months[ds.months.length - 1], 1),
+      rampMonths: 3,
+      rampShape: 'linear',
+      holdMonths: null,
+      halfLifeMonths: null,
+      pullForward: null,
+      note: '',
+    };
+  }
+
+  function signed(v) {
+    var r = Math.round(v * 10) / 10;
+    return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r);
+  }
+
+  function describe(card) {
+    var unit = unitOf(card.layer);
+    var what = card.layer === 'TIV' ? '총수요'
+      : card.layer === 'POWERTRAIN' ? card.target + ' 비중'
+      : card.target + (card.powertrain ? '(' + card.powertrain + ')' : '') + ' 점유율';
+    var mg = card.magnitude;
+    var range = mg.min === mg.max ? '' : ' (' + signed(mg.min) + ' ~ ' + signed(mg.max) + ')';
+    var where = card.region + ((card.countries || []).length ? '[' + card.countries.join(',') + ']' : '');
+    var timing = card.start + ' 시작';
+    if (card.rampShape !== 'step' && card.rampMonths > 1) timing += ', ' + card.rampMonths + '개월 ' + SHAPE_LABEL[card.rampShape] + ' 도달';
+    if (card.holdMonths === null || card.holdMonths === undefined) timing += ', 끝까지 유지';
+    else timing += ', ' + card.holdMonths + '개월 유지' + (card.halfLifeMonths ? ' 후 반감기 ' + card.halfLifeMonths + '개월' : ' 후 종료');
+    var parts = [where, what + ' ' + signed(mg.mode) + unit + range, timing];
+    if (card.probability < 1) parts.push('확률 ' + Math.round(card.probability * 100) + '%');
+    if (card.pullForward) parts.push('당겨쓰기 ' + card.pullForward.months + '개월 ' + signed(card.pullForward.pct) + '%');
+    return parts.join(' · ');
+  }
+
+  sim.shocks = {
+    LAYER_LABEL: LAYER_LABEL,
+    SHAPE_LABEL: SHAPE_LABEL,
+    unitOf: unitOf,
+    curve: curve,
+    countryWeight: countryWeight,
+    validate: validate,
+    blank: blank,
+    describe: describe,
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
