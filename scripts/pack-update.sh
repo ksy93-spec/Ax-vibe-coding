@@ -129,6 +129,20 @@ gone_dirs = sorted(d for d in gone_dirs if not any(d.startswith(o + "/") for o i
 log = subprocess.run(["git", "log", "--reverse", "--format=%h %s", f"{frm}..{to}", "--", kp],
                      capture_output=True, text=True, check=True).stdout.splitlines()
 reinstall = any(p in ("package.json", "package-lock.json") for p in added + modified + deleted)
+def exists_at(path):
+    return subprocess.run(["git", "cat-file", "-e", f"{to}:{kp}/{path}"], capture_output=True).returncode == 0
+if reinstall:
+    next_step = "install.bat 을 실행하세요. 패키지가 바뀌었습니다."
+    next_md = "`install.bat` 을 실행합니다. 패키지가 바뀌었습니다."
+elif exists_at("build.bat"):
+    next_step = "build.bat 으로 검사와 빌드를 확인하세요."
+    next_md = "`build.bat` 을 실행해 검사와 빌드가 통과하는지 봅니다."
+elif exists_at("index.html"):
+    next_step = "킷 폴더의 index.html 을 Chrome 이나 Edge 로 여세요. 설치할 것은 없습니다."
+    next_md = "킷 폴더의 `index.html` 을 Chrome 이나 Edge 로 엽니다. 설치 단계는 없습니다."
+else:
+    next_step = "킷 폴더의 OFFLINE.md 순서대로 확인하세요."
+    next_md = "킷 폴더의 `OFFLINE.md` 순서대로 확인합니다"
 from_label = from_ver or "없음 (VERSION 파일이 없는 처음 판)"
 
 def group(title, items):
@@ -158,10 +172,11 @@ md = [
     "",
     "1. 이 zip 을 아무 곳에나 풉니다. 바탕화면이나 다운로드 폴더도 됩니다.",
     "2. 풀린 폴더의 `apply.bat` 을 실행합니다.",
-    f"   `{kit}` 폴더를 자동으로 찾지 못하면, 탐색기에서 `{kit}` 폴더를 검은 창으로 끌어다 놓고 Enter 를 누릅니다.",
+    (f"   처음 판이라 `{kit}` 폴더가 없으면 새로 만듭니다. 압축을 푼 폴더 옆(또는 같은 폴더 안)에 생깁니다." if not from_ver else
+     f"   `{kit}` 폴더는 이 폴더 안, 옆, 한두 단계 위에서 찾습니다. 못 찾으면 탐색기에서 `{kit}` 폴더를 검은 창으로 끌어다 놓고 Enter 를 누릅니다."),
     "3. 판 번호가 맞으면 파일을 복사하고, 지워진 파일을 정리하고, `VERSION` 을 올립니다.",
     "   판이 맞지 않으면 아무것도 바꾸지 않고 멈춥니다. `updates/README.md` 목록에서 빠진 업데이트부터 순서대로 적용하세요.",
-    "4. " + ("`install.bat` 을 실행합니다. 패키지가 바뀌었습니다." if reinstall else "`build.bat` 을 실행해 검사와 빌드가 통과하는지 봅니다."),
+    "4. " + next_md,
     "",
     "적용이 끝나면 풀었던 폴더는 지워도 됩니다.",
     "",
@@ -177,6 +192,24 @@ md = [
 ]
 open(f"{out}/UPDATE.md", "w", encoding="utf-8", newline="\n").write("\n".join(md) + "\n")
 
+# 처음 판은 킷 폴더가 아직 없는 게 정상입니다. 못 찾으면 새로 만듭니다.
+# Windows "압축 풀기" 는 zip 이름(<킷>-<판>)으로 폴더를 만드므로, apply.bat 이 그런 폴더 안에 있으면
+# 그 옆에, 아니면 apply.bat 과 같은 폴더 안에 <킷> 폴더를 만듭니다.
+# 경로에 괄호가 있어도 깨지지 않도록 ( ) 블록을 쓰지 않습니다.
+first_install = [] if from_ver else [
+    'for %%I in ("%~dp0.") do set "HERE=%%~nxI"',
+    f'set "PFX=%HERE:~0,{len(kit) + 1}%"',
+    f'set "NEW=%~dp0{kit}"',
+    f'if /i "%PFX%"=="{kit}-" set "NEW=%~dp0..\\{kit}"',
+    'for %%I in ("%NEW%") do set "NEW=%%~fI"',
+    'if exist "%NEW%\\" goto newexists',
+    f"echo {kit} 폴더가 없어 새로 설치합니다: %NEW%",
+    'mkdir "%NEW%" 2>nul',
+    'if not exist "%NEW%\\" goto copyfail',
+    'set "KIT=%NEW%"',
+    "goto found",
+]
+
 check_ver = (
     [f'if not "%CUR%"=="{from_ver}" goto wrongver'] if from_ver else ['if defined CUR goto wrongver']
 )
@@ -189,12 +222,18 @@ bat = [
     f"REM 킷 폴더를 끌어다 놓아 실행해도 됩니다: apply.bat <{kit} 폴더>",
     'set "KIT="',
     'if not "%~1"=="" call :try "%~1"',
+    # apply.bat 과 같은 폴더에 킷 폴더를 둔 경우 (zip 을 킷 옆에 "여기에 풀기" 했을 때)
+    f'call :try "%~dp0{kit}"',
+    'call :try "%~dp0."',
     'call :try "%~dp0.."',
-    'call :try "%~dp0..\\.."',
     f'call :try "%~dp0..\\{kit}"',
+    'call :try "%~dp0..\\.."',
     f'call :try "%~dp0..\\..\\{kit}"',
     "if defined KIT goto found",
+    *first_install,
     f"echo {kit} 폴더를 찾지 못했습니다.",
+    f"echo 찾아본 곳: %~dp0{kit}, %~dp0..\\{kit}, %~dp0..\\..\\{kit}",
+    f'if exist "%~dp0..\\{kit}\\files\\MANIFEST.md" echo 참고: %~dp0..\\{kit} 는 킷이 아니라 업데이트 zip 을 푼 폴더로 보입니다. 처음 판 zip 의 apply.bat 을 먼저 실행하세요.',
     f"echo 탐색기에서 {kit} 폴더를 이 창으로 끌어다 놓고 Enter 를 누르세요.",
     'set /p "ASK=폴더: "',
     'if not defined ASK goto notkit',
@@ -217,7 +256,8 @@ bat = [
     "echo.",
     f"echo 적용했습니다. 판: {to_ver}",
     f"echo 바뀐 파일 {len(added) + len(modified)}개, 지운 파일 {len(deleted)}개",
-    "echo 다음: " + ("install.bat 을 실행하세요. 패키지가 바뀌었습니다." if reinstall else "build.bat 으로 검사와 빌드를 확인하세요."),
+    "echo 킷 폴더: %KIT%",
+    "echo 다음: " + next_step,
     "pause",
     "exit /b 0",
     "",
@@ -229,6 +269,12 @@ bat = [
     "",
     ":notkit",
     f"echo {kit} 킷 폴더가 아닙니다. MANIFEST.md 가 있는 {kit} 폴더를 지정하세요.",
+    "pause",
+    "exit /b 1",
+    "",
+    ":newexists",
+    f"echo %NEW% 폴더가 이미 있지만 {kit} 킷 폴더가 아닙니다 (MANIFEST.md 가 없거나 다릅니다).",
+    "echo 그 폴더 이름을 바꾸거나 지운 뒤 다시 실행하세요. 아무것도 바꾸지 않았습니다.",
     "pause",
     "exit /b 1",
     "",
