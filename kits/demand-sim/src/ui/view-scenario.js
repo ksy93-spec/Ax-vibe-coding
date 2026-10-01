@@ -1,15 +1,22 @@
-/* 시나리오 탭: 시나리오 목록과 변수 카드 편집. 전역 App.views.scenario.
- * 카드 편집 창은 "무엇이 / 어디서 / 얼마나 / 언제" 네 단계로 묻습니다.
+/* 외생변수 탭: 외생변수 카드와 Worst / Base / Best. 전역 App.views.scenario.
+ * 시나리오는 따로 만들지 않습니다. 카드의 범위 최소 / 예상 / 범위 최대에서 자동으로 나옵니다 (src/model/scenarios.js).
  */
 (function (global) {
   'use strict';
   var App = (global.App = global.App || {});
   var h = App.dom.h;
   var w = App.w;
+  var fmt = App.fmt;
   var sim = App.sim;
   var S = sim.shocks;
   var st = App.state;
   var act = App.actions;
+
+  var DIR = {
+    positive: { label: '긍정', cls: 'badge--ok' },
+    negative: { label: '부정', cls: 'badge--danger' },
+    neutral: { label: '영향 없음', cls: '' },
+  };
 
   function changed() {
     act.persist();
@@ -20,112 +27,117 @@
     return JSON.parse(JSON.stringify(o));
   }
 
-  function scenarioBar() {
-    var cur = act.scenario();
-    var chips = st.scenarios.map(function (s) {
-      return h('button', {
-        class: 'chip' + (s.id === cur.id ? ' is-on' : ''), type: 'button', text: s.name + ' · 카드 ' + s.cards.length,
-        onclick: function () { st.activeId = s.id; changed(); },
-      });
+  function signed(v) {
+    var r = Math.round(v * 10) / 10;
+    return (r > 0 ? '+' : r < 0 ? '−' : '') + Math.abs(r);
+  }
+
+  /** Worst / Base / Best 요약: 연도별 자사 물량(또는 관측 OEM 차량) */
+  function summary(set) {
+    var name = st.display.companyName;
+    var useDisp = act.hasDisplay();
+    var years = set.years;
+    var cols = ['시나리오'].concat(years.map(function (y) { return { label: y.label, num: true }; }));
+    var rows = ['Worst', 'Base', 'Best', 'Trend'].map(function (n) {
+      return [n === 'Trend' ? 'Trend (외생변수 미반영)' : n].concat(years.map(function (y, yi) {
+        var d = act.displayFor(n, yi)[sim.TOTAL];
+        return fmt.compact(useDisp ? d.ours : d.vehicles);
+      }));
     });
-    var name = h('input', { class: 'input input--sm', value: cur.name, 'aria-label': '시나리오 이름' });
-    name.addEventListener('change', function () { cur.name = name.value.trim() || cur.name; changed(); });
-    var notes = h('textarea', { class: 'input textarea', rows: '2', placeholder: '예: 미국 보조금 축소가 예정대로 가고, 유럽 규제는 1년 늦춰지는 경우' });
-    notes.value = cur.notes || '';
-    notes.addEventListener('change', function () { cur.notes = notes.value; act.persist(); });
     return h('section', { class: 'panel' }, [
-      w.head('시나리오', '"이런 일이 생기면?" 하나가 시나리오 하나입니다. 여러 개 만들어 보고서에서 나란히 비교할 수 있습니다.', [
-        h('button', { class: 'btn btn--sm', type: 'button', text: '+ 새 시나리오', onclick: function () {
-          var s = act.newScenario('시나리오 ' + (st.scenarios.length + 1));
-          st.scenarios.push(s);
-          st.activeId = s.id;
-          changed();
-        } }),
-        h('button', { class: 'btn btn--sm', type: 'button', text: '복제', onclick: function () {
-          var s = clone(cur);
-          s.id = act.newScenario('').id;
-          s.name = cur.name + ' 복사본';
-          s.cards.forEach(function (c) { c.id = S.blank(c.layer, st.ds).id; });
-          st.scenarios.push(s);
-          st.activeId = s.id;
-          changed();
-        } }),
-        h('button', { class: 'btn btn--sm', type: 'button', text: '삭제', disabled: st.scenarios.length < 2, onclick: function () {
-          App.ui.confirm('"' + cur.name + '" 시나리오와 카드 ' + cur.cards.length + '장을 지웁니다.', function (ok) {
-            if (!ok) return;
-            st.scenarios = st.scenarios.filter(function (s) { return s.id !== cur.id; });
-            st.activeId = st.scenarios[0].id;
-            changed();
-          }, { danger: true, okLabel: '지우기' });
-        } }),
+      w.head('Worst / Base / Best', '외생변수 카드에서 자동으로 만듭니다. Base 는 모든 카드를 예상값으로, Worst 는 부정 요인을 크게 · 긍정 요인을 작게, Best 는 그 반대로 반영합니다. ' +
+        '긍정·부정은 ' + (useDisp ? name + ' 디스플레이 물량' : '관측 OEM 차량 판매') + '에 주는 영향으로 판단합니다.', [
+        w.help('시나리오 계산 방식',
+          '카드마다 영향 크기를 범위 최소 / 예상 / 범위 최대로 넣습니다.\n\n' +
+          'Base: 모든 카드를 예상값으로 반영합니다.\n' +
+          'Worst: 카드마다 범위 안에서 ' + name + ' 물량을 가장 줄이는 값을 씁니다. 부정 요인은 크게, 긍정 요인은 작게 반영되는 셈입니다.\n' +
+          'Best: 카드마다 ' + name + ' 물량을 가장 늘리는 값을 씁니다.\n\n' +
+          '예를 들어 "중국 경기 둔화 TAM −3% (범위 −6 ~ −1)" 은 Worst −6%, Base −3%, Best −1% 로 들어갑니다. ' +
+          '"BYD 유럽 관세" 처럼 경쟁사를 누르는 카드는 ' + name + ' 고객사 M/S 를 올리므로 긍정 요인으로 분류됩니다.'),
       ]),
-      h('div', { class: 'row' }, chips),
-      h('div', { class: 'form-row form-row--top' }, [w.field('이름', name), h('div', { class: 'grow' }, w.field('어떤 상황인가요? (보고서 첫머리에 들어갑니다)', notes))]),
+      w.table(cols, rows),
+      h('p', { class: 'field__hint', text: '단위: ' + (useDisp ? name + ' 디스플레이 물량 (EA), 글로벌' : '관측 OEM 차량 판매 (대), 글로벌') + '. A 실적 · E 실적+전망 · F 전망.' }),
+      set.build.skipped.length ? w.notes(set.build.skipped.map(function (m) { return { level: 'warn', message: m + ' (시나리오에서 뺐습니다)' }; })) : null,
     ]);
   }
 
-  function cardTable(scn) {
-    if (!scn.cards.length) {
+  function cardTable(set) {
+    if (!st.cards.length) {
       return h('div', { class: 'empty-cta' }, [
-        h('p', { text: '아직 카드가 없습니다. 카드가 없으면 결과가 기본 전망과 같습니다.' }),
-        h('p', { class: 'muted', text: '오른쪽 위 "+ 카드 추가" 나 "예시 카드" 로 시작해 보세요.' }),
+        h('p', { text: '외생변수가 없습니다. 이 상태에서는 Worst = Base = Best = Trend 입니다.' }),
+        h('p', { class: 'muted', text: '오른쪽 위 "+ 외생변수" 나 "예시로 시작" 을 눌러 보세요.' }),
       ]);
     }
-    var rows = scn.cards.map(function (c, i) {
+    var byId = {};
+    set.build.items.forEach(function (it) { byId[it.card.id] = it; });
+    var unitName = act.hasDisplay() ? ' EA' : '대';
+    var rows = st.cards.map(function (c, i) {
       var problems = S.validate(c, st.ds, st.bl);
       var hasErr = problems.some(function (p) { return p.level === 'error'; });
-      var cb = h('input', { type: 'checkbox', 'aria-label': '이 카드 사용' });
+      var it = byId[c.id];
+      var cb = h('input', { type: 'checkbox', 'aria-label': '사용' });
       cb.checked = c.enabled;
       cb.addEventListener('change', function () { c.enabled = cb.checked; changed(); });
-      var state = problems.length
-        ? h('span', { class: 'badge ' + (hasErr ? 'badge--danger' : 'badge--warn'), text: hasErr ? '계산 안 됨' : '확인 필요', title: problems.map(function (p) { return p.message; }).join('\n') })
-        : h('span', { class: 'badge badge--ok', text: '정상' });
+      var unit = S.unitOf(c.layer);
+      var dir = it ? DIR[it.direction] : null;
       return [
         cb,
         h('div', null, [h('div', { class: 'card-name', text: c.name || '(이름 없음)' }), h('div', { class: 'card-desc', text: S.describe(c) })]),
-        S.LAYER_LABEL[c.layer],
-        state,
+        it ? h('div', null, [h('span', { class: 'badge ' + dir.cls, text: dir.label }), h('div', { class: 'card-desc', text: 'Base ' + fmt.signedUnits(it.effect.Base) + unitName })]) : (hasErr ? h('span', { class: 'badge badge--danger', text: '계산 안 됨', title: problems.map(function (p) { return p.message; }).join('\n') }) : h('span', { class: 'muted', text: c.enabled ? '-' : '꺼짐' })),
+        it ? signed(it.values.Worst) + unit : '',
+        it ? signed(it.values.Base) + unit : '',
+        it ? signed(it.values.Best) + unit : '',
+        problems.length && !hasErr ? h('span', { class: 'badge badge--warn', text: '확인', title: problems.map(function (p) { return p.message; }).join('\n') }) : '',
         h('div', { class: 'row row--tight' }, [
-          h('button', { class: 'btn btn--sm', type: 'button', text: '고치기', onclick: function (e) { e.stopPropagation(); editCard(scn, c); } }),
+          h('button', { class: 'btn btn--sm', type: 'button', text: '수정', onclick: function (e) { e.stopPropagation(); editCard(c); } }),
           h('button', { class: 'btn btn--sm btn--ghost', type: 'button', text: '복제', onclick: function (e) {
             e.stopPropagation();
             var copy = clone(c);
             copy.id = S.blank(c.layer, st.ds).id;
             copy.name = c.name + ' 복사본';
-            scn.cards.splice(i + 1, 0, copy);
+            st.cards.splice(i + 1, 0, copy);
             changed();
           } }),
           h('button', { class: 'btn btn--sm btn--ghost', type: 'button', text: '삭제', onclick: function (e) {
             e.stopPropagation();
-            scn.cards.splice(i, 1);
+            st.cards.splice(i, 1);
             changed();
           } }),
         ]),
       ];
     });
-    return w.table(['사용', '카드', '무엇이 바뀌나', '상태', ''], rows);
+    return w.table(['', '외생변수', '자사 영향', { label: 'Worst', num: true }, { label: 'Base', num: true }, { label: 'Best', num: true }, '', ''], rows);
   }
 
-  function addBar(scn) {
-    var presetSel = w.select([{ value: '', label: '예시 카드로 시작...' }].concat(sim.presets.map(function (p) { return { value: p.key, label: p.label }; })), '', function (v) {
+  function addBar() {
+    var presetSel = w.select([{ value: '', label: '예시로 시작...' }].concat(sim.presets.map(function (p) { return { value: p.key, label: p.label }; })), '', function (v) {
       var p = sim.presets.filter(function (x) { return x.key === v; })[0];
       if (!p) return;
-      editCard(scn, p.make(st.ds, st.bl), true);
+      var c = p.make(st.ds, st.bl);
+      editCard(c, true);
     });
     return [
-      h('button', { class: 'btn btn--sm btn--primary', type: 'button', text: '+ 카드 추가', onclick: function () { editCard(scn, S.blank('TIV', st.ds), true); } }),
+      h('button', { class: 'btn btn--sm btn--primary', type: 'button', text: '+ 외생변수', onclick: function () {
+        var c = S.blank('TIV', st.ds);
+        c.magnitude = { min: -4, mode: -2, max: -1 };
+        editCard(c, true);
+      } }),
       presetSel,
+      h('button', { class: 'btn btn--sm', type: 'button', text: '예시 6개 모두', onclick: function () {
+        sim.presets.forEach(function (p) { st.cards.push(p.make(st.ds, st.bl)); });
+        changed();
+      } }),
     ];
   }
 
   // ---------- 카드 편집 ----------
 
-  function editCard(scn, original, isNew) {
+  function editCard(original, isNew) {
     var c = clone(original);
+    c.probability = 1;
     var ds = st.ds;
     var bl = st.bl;
     var noPt = ds.powertrains.length === 1 && ds.powertrains[0] === 'ALL';
-    var rangeOpen = !(c.magnitude.min === c.magnitude.mode && c.magnitude.mode === c.magnitude.max);
     var form = h('div', { class: 'card-form' });
     var preview = h('div', { class: 'card-preview' });
 
@@ -141,8 +153,6 @@
 
     function build() {
       var unit = S.unitOf(c.layer);
-
-      // 1. 무엇이
       var tiles = h('div', { class: 'tiles' }, ['TIV', 'POWERTRAIN', 'BRAND'].map(function (l) {
         var disabled = l === 'POWERTRAIN' && noPt;
         return h('button', {
@@ -153,21 +163,20 @@
             c.powertrain = null;
             rerender();
           },
-        }, [h('span', { class: 'tile__title', text: S.LAYER_LABEL[l] }), h('span', { class: 'tile__sub', text: disabled ? '동력원 자료가 없어 쓸 수 없습니다' : S.LAYER_HELP[l] })]);
+        }, [h('span', { class: 'tile__title', text: S.LAYER_LABEL[l] }), h('span', { class: 'tile__sub', text: disabled ? 'Powertrain 자료가 없어 쓸 수 없습니다' : S.LAYER_HELP[l] })]);
       }));
 
-      // 2. 어디서, 누구에게
       var whereRow = [w.field('지역', w.select(ds.regions.map(function (r) { return { value: r, label: sim.geo.regionLabel(r) }; }), c.region, function (v) { c.region = v; c.countries = []; rerender(); }))];
-      if (c.layer === 'POWERTRAIN') whereRow.push(w.field('어떤 동력원?', w.select(ds.powertrains.map(function (p) { return { value: p, label: S.ptLabel(p) }; }), c.target, function (v) { c.target = v; refreshPreview(); })));
+      if (c.layer === 'POWERTRAIN') whereRow.push(w.field('Powertrain', w.select(ds.powertrains, c.target, function (v) { c.target = v; refreshPreview(); })));
       if (c.layer === 'BRAND') {
-        whereRow.push(w.field('어떤 브랜드?', w.select(ds.brands, c.target, function (v) { c.target = v; refreshPreview(); })));
-        whereRow.push(w.field('특정 동력원 차종만?', w.select([{ value: '', label: '모든 차종' }].concat(ds.powertrains.filter(function (p) { return p !== 'ALL'; }).map(function (p) { return { value: p, label: S.ptLabel(p) }; })), c.powertrain || '', function (v) { c.powertrain = v || null; refreshPreview(); })));
+        whereRow.push(w.field('OEM', w.select(ds.brands, c.target, function (v) { c.target = v; refreshPreview(); })));
+        whereRow.push(w.field('Powertrain 한정', w.select([{ value: '', label: '전체' }].concat(ds.powertrains.filter(function (p) { return p !== 'ALL'; })), c.powertrain || '', function (v) { c.powertrain = v || null; refreshPreview(); })));
       }
       var countries = ds.countries[c.region] || [];
       var countryBox = null;
       if (countries.length > 1) {
         countryBox = h('details', { class: 'more', open: (c.countries || []).length ? true : null }, [
-          h('summary', { text: '일부 국가에만 해당되나요? ' + ((c.countries || []).length ? '(' + c.countries.join(', ') + ')' : '') }),
+          h('summary', { text: '일부 국가만 해당 ' + ((c.countries || []).length ? '(' + c.countries.join(', ') + ')' : '') }),
           h('div', { class: 'country-list' }, countries.map(function (cn) {
             var cb = h('input', { type: 'checkbox' });
             cb.checked = (c.countries || []).indexOf(cn) >= 0;
@@ -178,77 +187,63 @@
             });
             return h('label', { class: 'check' }, [cb, cn]);
           })),
-          h('p', { class: 'field__hint', text: '고른 국가가 지역 판매에서 차지하는 비중만큼만 영향이 들어갑니다.' }),
+          h('p', { class: 'field__hint', text: '고른 국가가 지역 판매에서 차지하는 비중만큼만 지역에 반영됩니다.' }),
         ]);
       }
 
-      // 3. 얼마나
-      function setMode(v) {
-        var x = v === null ? 0 : v;
-        if (!rangeOpen) { c.magnitude.min = x; c.magnitude.max = x; }
-        c.magnitude.mode = x;
-        refreshPreview();
+      var amountHint = c.layer === 'TIV' ? '% 입니다. −3 이면 지역 TAM 3% 감소.'
+        : c.layer === 'POWERTRAIN' ? '%p 입니다. BEV 비중 40% 에서 −3 이면 37%.'
+        : '현재 M/S 대비 % 입니다. M/S 10% 에서 +20 이면 12%. 늘어난 몫은 같은 Powertrain 의 경쟁 OEM 에서 옵니다.';
+      function mag(k, label) {
+        return w.field(label + ' (' + unit + ')', w.number(c.magnitude[k], function (v) { c.magnitude[k] = v === null ? 0 : v; refreshPreview(); }, { step: '0.5', 'aria-label': label }));
       }
-      var amountHint = c.layer === 'TIV' ? '% 로 넣습니다. -3 이면 시장 전체 판매가 3% 줄어듭니다.'
-        : c.layer === 'POWERTRAIN' ? '%p(퍼센트포인트)로 넣습니다. 지금 40% 인 전기차 비중이 -3 이면 37% 가 됩니다.'
-        : '지금 점유율 대비 % 로 넣습니다. 지금 10% 인 점유율이 +20 이면 12% 가 됩니다. 늘어난 몫은 같은 차종의 경쟁 브랜드에서 옵니다.';
-      var amount = w.number(c.magnitude.mode, setMode, { step: '0.5', 'aria-label': '예상 영향' });
-      var prob = w.number(Math.round(c.probability * 100), function (v) { c.probability = v === null ? 1 : Math.max(0, Math.min(100, v)) / 100; refreshPreview(); }, { step: '5', min: '0', max: '100' });
-      var rangeBox = h('details', { class: 'more', open: rangeOpen ? true : null }, [
-        h('summary', { text: '확신이 없다면 범위도 넣기' }),
-        h('div', { class: 'form-row' }, [
-          w.field('작게 보면 (' + unit + ')', w.number(c.magnitude.min, function (v) { c.magnitude.min = v === null ? 0 : v; refreshPreview(); }, { step: '0.5' })),
-          w.field('크게 보면 (' + unit + ')', w.number(c.magnitude.max, function (v) { c.magnitude.max = v === null ? 0 : v; refreshPreview(); }, { step: '0.5' })),
-          w.field('일어날 가능성 (%)', prob),
-        ]),
-        h('p', { class: 'field__hint', text: '결과 탭의 "가능 범위 계산" 에만 쓰입니다. 시나리오 선 자체는 예상값으로, 일어난다고 보고 그립니다.' }),
-      ]);
-      rangeBox.addEventListener('toggle', function () { rangeOpen = rangeBox.open; });
 
-      // 4. 언제
       var start = h('input', { class: 'input input--sm', type: 'month', value: c.start });
       start.addEventListener('change', function () { if (start.value) { c.start = start.value; refreshPreview(); } });
       var speed = w.select(['step', 'linear', 'scurve'].map(function (s) { return { value: s, label: S.SHAPE_LABEL[s] }; }), c.rampShape, function (v) { c.rampShape = v; rerender(); });
-      var ramp = c.rampShape === 'step' ? null : w.field('다 반영되기까지 (개월)', w.number(c.rampMonths, function (v) { c.rampMonths = Math.max(1, Math.round(v || 1)); refreshPreview(); }, { min: '1', step: '1' }));
+      var ramp = c.rampShape === 'step' ? null : w.field('완전 반영까지 (개월)', w.number(c.rampMonths, function (v) { c.rampMonths = Math.max(1, Math.round(v || 1)); refreshPreview(); }, { min: '1', step: '1' }));
       var lastMode = c.holdMonths === null || c.holdMonths === undefined ? 'forever' : c.halfLifeMonths ? 'fade' : 'end';
       var lasting = w.select([
-        { value: 'forever', label: '계속 이어짐' },
-        { value: 'end', label: '일정 기간 뒤 사라짐' },
-        { value: 'fade', label: '일정 기간 뒤 서서히 줄어듦' },
+        { value: 'forever', label: '지속' },
+        { value: 'end', label: '일정 기간 후 종료' },
+        { value: 'fade', label: '일정 기간 후 점진 소멸' },
       ], lastMode, function (v) {
         if (v === 'forever') { c.holdMonths = null; c.halfLifeMonths = null; }
         if (v === 'end') { c.holdMonths = c.holdMonths || 12; c.halfLifeMonths = null; }
         if (v === 'fade') { c.holdMonths = c.holdMonths || 12; c.halfLifeMonths = c.halfLifeMonths || 6; }
         rerender();
       });
-      var hold = lastMode === 'forever' ? null : w.field('얼마나 이어지나요 (개월)', w.number(c.holdMonths, function (v) { c.holdMonths = Math.max(1, Math.round(v || 1)); refreshPreview(); }, { min: '1', step: '1' }));
-      var half = lastMode === 'fade' ? w.field('절반으로 줄기까지 (개월)', w.number(c.halfLifeMonths, function (v) { c.halfLifeMonths = v && v > 0 ? v : 1; refreshPreview(); }, { min: '1', step: '1' })) : null;
+      var hold = lastMode === 'forever' ? null : w.field('지속 기간 (개월)', w.number(c.holdMonths, function (v) { c.holdMonths = Math.max(1, Math.round(v || 1)); refreshPreview(); }, { min: '1', step: '1' }));
+      var half = lastMode === 'fade' ? w.field('반감기 (개월)', w.number(c.halfLifeMonths, function (v) { c.halfLifeMonths = v && v > 0 ? v : 1; refreshPreview(); }, { min: '1', step: '1' })) : null;
 
       var pfOn = h('input', { type: 'checkbox' });
       pfOn.checked = !!c.pullForward;
       pfOn.addEventListener('change', function () { c.pullForward = pfOn.checked ? { months: 3, pct: 10 } : null; rerender(); });
       var pfBox = h('details', { class: 'more', open: c.pullForward ? true : null }, [
-        h('summary', { text: '시작 전에 미리 사는 수요가 있나요? (예: 보조금 끝나기 전 막차 수요)' }),
-        h('label', { class: 'check' }, [pfOn, '있음. 시작 전 몇 달 동안 판매가 늘고, 시작 뒤 같은 양만큼 줄어듭니다']),
+        h('summary', { text: 'Pull-forward (시작 전 선구매, 예: 보조금 종료 전 막차 수요)' }),
+        h('label', { class: 'check' }, [pfOn, '시작 전 N개월 판매 증가, 시작 후 같은 물량 감소']),
         c.pullForward ? h('div', { class: 'form-row' }, [
-          w.field('몇 달 전부터?', w.number(c.pullForward.months, function (v) { c.pullForward.months = Math.max(1, Math.round(v || 1)); refreshPreview(); }, { min: '1', step: '1' })),
-          w.field('그동안 판매가 몇 % 늘까요?', w.number(c.pullForward.pct, function (v) { c.pullForward.pct = v || 0; refreshPreview(); }, { step: '1' })),
+          w.field('기간 (개월)', w.number(c.pullForward.months, function (v) { c.pullForward.months = Math.max(1, Math.round(v || 1)); refreshPreview(); }, { min: '1', step: '1' })),
+          w.field('시작 전 판매 증가 (%)', w.number(c.pullForward.pct, function (v) { c.pullForward.pct = v || 0; refreshPreview(); }, { step: '1' })),
         ]) : null,
       ]);
 
-      var name = h('input', { class: 'input input--sm', value: c.name, placeholder: '예: 2027 미국 전기차 세액공제 축소' });
+      var name = h('input', { class: 'input input--sm', value: c.name, placeholder: '예: 2027 미국 IRA 세액공제 축소' });
       name.addEventListener('input', function () { c.name = name.value; });
-      var note = h('textarea', { class: 'input textarea', rows: '2', placeholder: '근거, 출처, 가정. 보고서에 그대로 나갑니다.' });
+      var note = h('textarea', { class: 'input textarea', rows: '2', placeholder: '근거, 출처. 보고서에 나갑니다.' });
       note.value = c.note || '';
       note.addEventListener('input', function () { c.note = note.value; });
 
       [
-        w.field('카드 이름', name),
-        step('1', '무엇이 바뀌나요?', [tiles]),
-        step('2', '어디서, 누구에게?', [h('div', { class: 'form-row' }, whereRow), countryBox]),
-        step('3', '얼마나?', [h('div', { class: 'form-row' }, [w.field('예상 영향 (' + unit + ')', amount)]), h('p', { class: 'field__hint', text: amountHint }), rangeBox]),
-        step('4', '언제부터, 얼마 동안?', [
-          h('div', { class: 'form-row' }, [w.field('시작 월', start), w.field('반영 속도', speed), ramp, w.field('효과는?', lasting), hold, half]),
+        w.field('외생변수 이름', name),
+        step('1', '무엇이 바뀌나', [tiles]),
+        step('2', '어디서, 누구에게', [h('div', { class: 'form-row' }, whereRow), countryBox]),
+        step('3', '영향 크기', [
+          h('div', { class: 'form-row' }, [mag('min', '범위 최소'), mag('mode', '예상 (Base)'), mag('max', '범위 최대')]),
+          h('p', { class: 'field__hint', text: amountHint + ' 최소, 최대는 숫자 크기 순서입니다 (−6 이 −1 보다 작음). Worst 와 Best 는 이 범위 안에서 자사에 불리한 쪽, 유리한 쪽 값을 자동으로 씁니다.' }),
+        ]),
+        step('4', '시점', [
+          h('div', { class: 'form-row' }, [w.field('시작 월', start), w.field('반영 방식', speed), ramp, w.field('효과', lasting), hold, half]),
           pfBox,
         ]),
         w.field('근거 / 메모', note),
@@ -258,11 +253,10 @@
     function refreshPreview() {
       App.dom.clear(preview);
       var problems = S.validate(c, ds, bl);
-      var curve = S.curve(c, bl.months);
-      preview.appendChild(h('div', { class: 'sub-title', text: '이 카드를 한 줄로' }));
+      preview.appendChild(h('div', { class: 'sub-title', text: '요약' }));
       preview.appendChild(h('p', { class: 'card-sentence', text: S.describe(c) }));
-      preview.appendChild(h('div', { class: 'sub-title', text: '달마다 얼마나 반영되나 (전망 기간)' }));
-      preview.appendChild(sparkBars(curve, bl.months));
+      preview.appendChild(h('div', { class: 'sub-title', text: '월별 반영률 (전망 기간)' }));
+      preview.appendChild(sparkBars(S.curve(c, bl.months), bl.months));
       var errs = problems.filter(function (p) { return p.level === 'error'; });
       if (!errs.length) preview.appendChild(h('p', { class: 'card-effect', text: effectText(c) }));
       var n = w.notes(problems);
@@ -278,20 +272,20 @@
         if (mx <= 0) return '전망 기간 안에 반영되는 달이 없습니다.';
       }
       var base = sim.engine.simulate(ds, bl, []);
-      var one = sim.engine.simulate(ds, bl, [Object.assign({}, card, { enabled: true, pullForward: null })]);
+      var one = sim.engine.simulate(ds, bl, [sim.scenarios.withValue(Object.assign({}, card, { enabled: true, pullForward: null }), card.magnitude.mode)]);
       var r = card.region;
       var m = bl.months[h0];
       var where = sim.geo.regionShort(r);
-      if (card.layer === 'TIV') return m + ' 기준 ' + where + ' 월 판매 ' + App.fmt.units(base.tiv[r][h0]) + '대 → ' + App.fmt.units(one.tiv[r][h0]) + '대';
-      if (card.layer === 'POWERTRAIN') return m + ' 기준 ' + where + ' ' + S.ptLabel(card.target) + ' 비중 ' + App.fmt.pct(base.ptMix[r][card.target][h0]) + ' → ' + App.fmt.pct(one.ptMix[r][card.target][h0]);
-      return m + ' 기준 ' + where + ' ' + card.target + ' 점유율 ' + App.fmt.pct(base.share[r][card.target][h0], 2) + ' → ' + App.fmt.pct(one.share[r][card.target][h0], 2) +
-        ' (월 ' + App.fmt.signedUnits(one.brandUnits[r][card.target][h0] - base.brandUnits[r][card.target][h0]) + '대)';
+      if (card.layer === 'TIV') return '예상값 기준 ' + m + ' ' + where + ' 월 TAM ' + fmt.compact(base.tiv[r][h0]) + ' → ' + fmt.compact(one.tiv[r][h0]) + '대';
+      if (card.layer === 'POWERTRAIN') return '예상값 기준 ' + m + ' ' + where + ' ' + card.target + ' 비중 ' + fmt.pct(base.ptMix[r][card.target][h0]) + ' → ' + fmt.pct(one.ptMix[r][card.target][h0]);
+      return '예상값 기준 ' + m + ' ' + where + ' ' + card.target + ' M/S ' + fmt.pct(base.share[r][card.target][h0], 2) + ' → ' + fmt.pct(one.share[r][card.target][h0], 2) +
+        ' (월 ' + fmt.signedUnits(one.brandUnits[r][card.target][h0] - base.brandUnits[r][card.target][h0]) + '대)';
     }
 
     build();
     refreshPreview();
     App.ui.modal({
-      title: isNew ? '카드 추가' : '카드 고치기',
+      title: isNew ? '외생변수 추가' : '외생변수 수정',
       body: h('div', { class: 'card-editor' }, [form, preview]),
       actions: [
         { label: '취소' },
@@ -299,10 +293,9 @@
           label: '저장', kind: 'primary',
           onClick: function (close) {
             if (!c.name.trim()) c.name = S.LAYER_LABEL[c.layer] + ' 변화';
-            if (!rangeOpen) { c.magnitude.min = c.magnitude.mode; c.magnitude.max = c.magnitude.mode; }
-            var idx = scn.cards.map(function (x) { return x.id; }).indexOf(c.id);
-            if (idx >= 0) scn.cards[idx] = c;
-            else scn.cards.push(c);
+            var idx = st.cards.map(function (x) { return x.id; }).indexOf(c.id);
+            if (idx >= 0) st.cards[idx] = c;
+            else st.cards.push(c);
             close();
             changed();
           },
@@ -311,13 +304,12 @@
     });
   }
 
-  /** 월별 반영 정도 막대. 0~1 */
   function sparkBars(values, months) {
-    var box = h('div', { class: 'spark', role: 'img', 'aria-label': '월별 반영 정도' });
+    var box = h('div', { class: 'spark', role: 'img', 'aria-label': '월별 반영률' });
     values.forEach(function (v, i) {
       box.appendChild(h('span', { class: 'spark__bar', style: { height: Math.round(v * 100) + '%' }, title: months[i] + ' ' + Math.round(v * 100) + '%' }));
     });
-    return h('div', null, [box, h('div', { class: 'spark__axis' }, [h('span', { text: months[0] }), h('span', { text: '100% = 예상 영향이 다 반영됨' }), h('span', { text: months[months.length - 1] })])]);
+    return h('div', null, [box, h('div', { class: 'spark__axis' }, [h('span', { text: months[0] }), h('span', { text: '100% = 완전 반영' }), h('span', { text: months[months.length - 1] })])]);
   }
 
   function render(root) {
@@ -325,11 +317,11 @@
       root.appendChild(h('section', { class: 'panel' }, h('p', { class: 'empty', text: '먼저 데이터 탭에서 데이터를 불러오세요.' })));
       return;
     }
-    var scn = act.scenario();
-    root.appendChild(scenarioBar());
+    var set = act.scenarioSet();
+    root.appendChild(summary(set));
     root.appendChild(h('section', { class: 'panel' }, [
-      w.head('변수 카드: ' + scn.name, '보조금, 규제, 경기처럼 판매를 움직이는 일 하나가 카드 한 장입니다. 이미 실적에 나타난 일은 넣지 않습니다.', addBar(scn)),
-      cardTable(scn),
+      w.head('외생변수', 'EV 보조금, CO2 규제, 자율주행 규제, 관세, 경기처럼 판매를 움직이는 요인 하나가 카드 한 장입니다. 이미 실적에 반영된 사건은 넣지 않습니다.', addBar()),
+      cardTable(set),
     ]));
   }
 

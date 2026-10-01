@@ -70,8 +70,10 @@ declare namespace Sim {
   // ---------- 기준선 ----------
 
   interface BaselineOptions {
-    /** 예측 개월 수. 기본 24, 12~36 */
-    horizon: number;
+    /** 예측 개월 수. null 이면 실적 마지막 해 + yearsAhead 년 12월까지 (기본) */
+    horizon: number | null;
+    /** 기본 2. 2026-08 실적이면 2028-12 까지 */
+    yearsAhead: number;
     /** 점유율 추세를 잡는 최근 개월 수. 기본 12 */
     trendWindow: number;
     /** 점유율 추세 감쇠율(월). 0 이면 추세 없이 최근 수준 유지, 1 이면 추세 그대로. 기본 0.85 */
@@ -124,9 +126,9 @@ declare namespace Sim {
     target: string;
     /** BRAND 에서만. 특정 파워트레인 안에서만 적용. 없으면 그 브랜드의 모든 파워트레인 */
     powertrain?: string | null;
-    /** 완전 발효 시 강도. min <= mode <= max */
+    /** 완전 발효 시 강도. min <= mode <= max (숫자 순서). Base = mode, Worst/Best 는 scenarios.build 가 고름 */
     magnitude: { min: number; mode: number; max: number };
-    /** 발생 확률 0~1. 몬테카를로 구간에만 쓰입니다. 시나리오 경로는 발생을 가정합니다 */
+    /** 발생 확률 0~1. 화면에서는 쓰지 않고 1 로 둡니다 (Worst/Base/Best 로 대신). engine.monteCarlo 에만 쓰입니다 */
     probability: number;
     /** 발효 시작 월 */
     start: Month;
@@ -211,12 +213,50 @@ declare namespace Sim {
     ourShare: number;
   }
 
+  type Tier = 'strategic' | 'maintain' | 'other';
+
   interface DisplaySettings {
-    /** 화면에 쓸 우리 회사 이름. 기본 '우리' */
+    /** 화면에 쓸 자사 표기. 기본 '자사' */
     companyName: string;
     defaultPanels: number;
     defaultShare: number;
     rows: DisplayRow[];
+    /** OEM -> 고객 구분. 없으면 other */
+    tiers: Record<string, 'strategic' | 'maintain'>;
+  }
+
+  interface TierTotal { vehicles: number; tam: number; ours: number; share: number }
+
+  interface AnnualYear {
+    year: number;
+    /** A 실적, E 실적+전망, F 전망 */
+    kind: 'A' | 'E' | 'F';
+    label: string;
+  }
+
+  interface AnnualResult {
+    years: AnnualYear[];
+    /** 지역(TOTAL 포함) -> OEM -> 연도별 판매 */
+    brandUnits: ByRegion<ByBrand<number[]>>;
+    tiv: ByRegion<number[]>;
+    share: ByRegion<ByBrand<number[]>>;
+  }
+
+  type ScenarioName = 'Worst' | 'Base' | 'Best';
+
+  interface ScenarioBuild {
+    items: Array<{
+      card: ShockCard;
+      /** 시나리오마다 쓴 강도 */
+      values: Record<ScenarioName, number>;
+      /** 카드 하나만 켰을 때 자사 기준 값(디스플레이 물량 또는 관측 OEM 차량)의 차이 */
+      effect: Record<ScenarioName, number>;
+      direction: 'positive' | 'negative' | 'neutral';
+    }>;
+    /** 강도를 한 값으로 고정한 카드 묶음. engine.simulate 에 그대로 넣습니다 */
+    cards: Record<ScenarioName, ShockCard[]>;
+    metric: 'display' | 'vehicles';
+    skipped: string[];
   }
 
   interface DisplayCell {
@@ -228,19 +268,25 @@ declare namespace Sim {
     share: number;
     panels: number;
     source?: 'region' | 'brand' | 'default';
+    tier?: Tier;
   }
 
   /** 지역 목록 + TOTAL */
-  type DisplayResult = ByRegion<{ vehicles: number; tam: number; ours: number; share: number; brands: ByBrand<DisplayCell> }>;
+  type DisplayResult = ByRegion<{ vehicles: number; tam: number; ours: number; share: number; brands: ByBrand<DisplayCell>; tiers: Record<Tier, TierTotal> }>;
 
   /** 저장 파일(.json). 판매 실적은 담지 않습니다 */
   interface ProjectFile {
     kind: 'demand-sim';
-    version: 1;
+    /** 2: cards + regions. 1판(scenarios[])도 읽습니다 */
+    version: 1 | 2;
     savedAt: string;
     brands: string[];
     baseline: BaselineOptions;
     scenarios: Scenario[];
+    /** 주요 지역. 나머지는 OTHER_REGION('기타 지역') */
+    regions?: string[];
+    /** 외생변수. Worst/Base/Best 는 여기서 자동 계산 (version 2) */
+    cards?: ShockCard[];
     /** 불러올 때 다른 데이터에 붙이는지 확인하는 용도 */
     dataInfo: { firstMonth: Month; lastMonth: Month; regions: string[] };
     display?: DisplaySettings;
@@ -251,6 +297,7 @@ declare namespace App {
   interface SimApi {
     TOTAL: '전체';
     OTHER: '기타';
+    OTHER_REGION: '기타 지역';
     util: {
       monthIndex(ym: Sim.Month): number;
       monthLabel(idx: number): Sim.Month;
@@ -272,14 +319,31 @@ declare namespace App {
       normalizePowertrain(records: Record<string, string>[], mapping: Record<string, string | null>): { rows: Sim.PowertrainRow[]; notes: Sim.Note[] };
       /** 최근 12개월 전 지역 판매량 순 */
       rankBrands(rows: Sim.SalesRow[]): Array<{ brand: string; units: number }>;
-      normalizeDisplay(records: Record<string, string>[], mapping: Record<string, string | null>): { rows: Sim.DisplayRow[]; notes: Sim.Note[] };
+      rankRegions(rows: Sim.SalesRow[]): Array<{ region: string; units: number }>;
+      /** 중국, 북미, 유럽, 한국, 일본으로 읽히는 지역. 없으면 상위 5개 */
+      defaultMajors(rank: Array<{ region: string; units: number }>): string[];
+      normalizeDisplay(records: Record<string, string>[], mapping: Record<string, string | null>): { rows: Sim.DisplayRow[]; notes: Sim.Note[]; tiers: Record<string, 'strategic' | 'maintain'> };
+      parseTier(v: unknown): 'strategic' | 'maintain' | '';
       /** '25%', '25', '0.25' -> 0.25 */
       parseShare(v: unknown): number;
-      buildDataset(sales: Sim.SalesRow[], powertrain: Sim.PowertrainRow[] | null, opts: { brands: string[] }): Sim.Dataset;
+      /** opts.regions 를 주면 그 밖의 지역은 '기타 지역' 하나로 합칩니다 */
+      buildDataset(sales: Sim.SalesRow[], powertrain: Sim.PowertrainRow[] | null, opts: { brands: string[]; regions?: string[] }): Sim.Dataset;
     };
     baseline: {
       defaults(): Sim.BaselineOptions;
       build(ds: Sim.Dataset, opts: Sim.BaselineOptions): Sim.Baseline;
+      horizonOf(lastMonth: Sim.Month, opts: Sim.BaselineOptions): number;
+    };
+    annual: {
+      years(ds: Sim.Dataset, bl: Sim.Baseline): Sim.AnnualYear[];
+      actualBrandUnits(ds: Sim.Dataset): Sim.ByRegion<Sim.ByBrand<number[]>>;
+      fromResult(ds: Sim.Dataset, bl: Sim.Baseline, res: Sim.SimResult, actual?: Sim.ByRegion<Sim.ByBrand<number[]>>): Sim.AnnualResult;
+      cagr(first: number, last: number, years: number): number;
+    };
+    scenarios: {
+      NAMES: Sim.ScenarioName[];
+      build(ds: Sim.Dataset, bl: Sim.Baseline, cards: Sim.ShockCard[], display: Sim.DisplaySettings): Sim.ScenarioBuild;
+      withValue(card: Sim.ShockCard, v: number): Sim.ShockCard;
     };
     shocks: {
       /** 월별 발효 강도 0~1 */
@@ -308,8 +372,12 @@ declare namespace App {
       regionLabel(region: string): string;
       /** 'NA' -> '북미' */
       regionShort(region: string): string;
+      /** '북미', 'North America' -> 'NA' */
+      regionKey(region: string): string;
     };
     display: {
+      TIERS: Array<{ key: Sim.Tier; label: string }>;
+      tierOf(s: Sim.DisplaySettings, brand: string): Sim.Tier;
       defaults(): Sim.DisplaySettings;
       lookup(s: Sim.DisplaySettings, brand: string, region: string): { panels: number; share: number; source: 'region' | 'brand' | 'default' };
       /** vehicles: 지역 -> 브랜드 -> 차량 대수 (TOTAL 없이) */
@@ -322,6 +390,9 @@ declare namespace App {
       /** 시드 고정 예시 데이터. 실제 브랜드가 아닙니다 */
       make(): { sales: Sim.SalesRow[]; powertrain: Sim.PowertrainRow[] };
       makeDisplay(): Sim.DisplayRow[];
+      makeTiers(): Record<string, 'strategic' | 'maintain'>;
+      OBSERVED: string[];
+      MAJORS: string[];
     };
   }
 }

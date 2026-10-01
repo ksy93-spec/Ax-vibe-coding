@@ -13,8 +13,15 @@
 
   var FLOOR = 1e-5;
 
+  /** horizon 이 null 이면 실적 마지막 해 + yearsAhead 년 12월까지 (2026-08 실적이면 2028-12, 28개월) */
   function defaults() {
-    return { horizon: 24, trendWindow: 12, phi: 0.85, growth: {} };
+    return { horizon: null, yearsAhead: 2, trendWindow: 12, phi: 0.85, growth: {} };
+  }
+
+  function horizonOf(lastMonth, opts) {
+    if (opts.horizon) return opts.horizon;
+    var y = Number(lastMonth.slice(0, 4)) + (opts.yearsAhead == null ? 2 : opts.yearsAhead);
+    return U.monthIndex(y + '-12') - U.monthIndex(lastMonth);
   }
 
   function seasonalIndex(x, months) {
@@ -56,7 +63,7 @@
    */
   function projectShares(shares, T, opts) {
     var W = Math.min(opts.trendWindow, T);
-    var H = opts.horizon;
+    var H = opts.horizonUsed;
     var cum = [];
     var acc = 0;
     for (var h = 1; h <= H; h++) {
@@ -103,8 +110,9 @@
     var opts = Object.assign(defaults(), options || {});
     opts.growth = Object.assign({}, (options && options.growth) || {});
     var T = ds.months.length;
-    var H = opts.horizon;
     var last = ds.months[T - 1];
+    var H = horizonOf(last, opts);
+    opts.horizonUsed = H;
     var months = [];
     for (var h = 1; h <= H; h++) months.push(U.addMonths(last, h));
 
@@ -190,5 +198,5 @@
     return out;
   }
 
-  sim.baseline = { defaults: defaults, build: build, seasonalIndex: seasonalIndex, slopeOf: slopeOf };
+  sim.baseline = { defaults: defaults, build: build, horizonOf: horizonOf, seasonalIndex: seasonalIndex, slopeOf: slopeOf };
 })(typeof window !== 'undefined' ? window : globalThis);

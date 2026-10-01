@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const files = ['util', 'countries', 'geo', 'prep', 'baseline', 'shocks', 'engine', 'display', 'presets', 'sample'].map((f) => path.join(root, 'src', 'model', f + '.js'));
+const files = ['util', 'countries', 'geo', 'prep', 'baseline', 'shocks', 'engine', 'display', 'annual', 'scenarios', 'presets', 'sample'].map((f) => path.join(root, 'src', 'model', f + '.js'));
 files.push(path.join(__dirname, 'model.test.js'));
 
 const ctx = vm.createContext({ console });

@@ -37,14 +37,18 @@
     var idx = countryIndex();
     var root = svg('svg', { viewBox: '0 0 ' + data.width + ' ' + data.height, class: 'map__svg', role: 'img', 'aria-label': '세계 지도. 데이터에 있는 지역이 강조되어 있습니다.' });
     var owner = {};
-    opts.regions.forEach(function (r) { r.iso2.forEach(function (c) { if (!owner[c]) owner[c] = r.key; }); });
+    var muted = {};
+    opts.regions.forEach(function (r) {
+      if (r.muted) muted[r.key] = true;
+      r.iso2.forEach(function (c) { if (!owner[c]) owner[c] = r.key; });
+    });
 
     var countryLayer = svg('g', { class: 'map__countries' });
     data.countries.forEach(function (c) {
       var reg = owner[c.iso2];
       var p = svg('path', {
         d: c.d,
-        class: 'map__country' + (reg ? ' is-region' : '') + (reg && reg === opts.selected ? ' is-selected' : ''),
+        class: 'map__country' + (reg ? ' is-region' : '') + (reg && muted[reg] ? ' is-muted' : '') + (reg && reg === opts.selected ? ' is-selected' : ''),
         'data-region': reg || null,
       });
       if (reg) {
@@ -85,6 +89,15 @@
         sw += wgt;
       });
       if (!sw) pts.forEach(function (c) { sx += c.cx * c.a; sy += c.cy * c.a; sw += c.a; });
+      if (r.anchor === 'max') {
+        // 여러 대륙에 흩어진 지역(기타 지역)은 가중 평균이 바다에 떨어지므로 가장 큰 나라에 점을 둡니다.
+        var best = null;
+        pts.forEach(function (c) {
+          var wgt = r.weights ? r.weights[c.iso2] || 0 : c.a;
+          if (!best || wgt > best.w) best = { c: c, w: wgt };
+        });
+        sx = best.c.cx; sy = best.c.cy; sw = 1;
+      }
       placed.push({ r: r, x: sx / sw, y: sy / sw, rad: 6 + 12 * Math.sqrt(Math.max(0, Math.min(1, r.size))) });
     });
 
@@ -118,7 +131,7 @@
     placed.forEach(function (m) {
       var r = m.r;
       var sel = r.key === opts.selected;
-      var g = svg('g', { class: 'map__marker' + (sel ? ' is-selected' : ''), tabindex: '0', role: 'button', 'aria-label': r.label + ' ' + r.value + ' 선택', 'data-region': r.key });
+      var g = svg('g', { class: 'map__marker' + (sel ? ' is-selected' : '') + (r.muted ? ' is-muted' : ''), tabindex: '0', role: 'button', 'aria-label': r.label + ' ' + r.value + ' 선택', 'data-region': r.key });
       g.appendChild(svg('circle', { cx: m.x, cy: m.y, r: m.rad, class: 'map__pulse' }));
       g.appendChild(svg('circle', { cx: m.x, cy: m.y, r: m.rad, class: 'map__dot' }));
       var t1 = svg('text', { x: m.label.x, y: m.label.y + 12, class: 'map__label', 'text-anchor': m.label.anchor });

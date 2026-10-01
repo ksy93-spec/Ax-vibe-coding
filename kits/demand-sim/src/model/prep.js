@@ -12,6 +12,7 @@
 
   var TOTAL = (sim.TOTAL = '전체');
   var OTHER = (sim.OTHER = '기타');
+  var OTHER_REGION = (sim.OTHER_REGION = '기타 지역');
   var ALL_PT = 'ALL';
 
   /* 표준 필드와 CSV 열 이름 후보. 앞에서부터 대소문자, 공백, 밑줄을 무시하고 비교합니다.
@@ -35,7 +36,8 @@
       brand: ['brand', 'salesbrand', 'make', 'oem', 'maker', '브랜드', '제조사', '고객사'],
       region: ['region', 'salesregion', '지역', '권역'],
       panels: ['panelspervehicle', 'panels', 'displaypervehicle', 'displays', 'attach', '대당디스플레이', '대당디스플레이수', '디스플레이수', '탑재수'],
-      share: ['ourshare', 'share', 'mys', 'ms', 'supplyshare', '우리점유율', '점유율', '공급비중', '자사점유율', '공급점유율'],
+      share: ['ourshare', 'share', 'mys', 'ms', 'supplyshare', '브랜드내자사m/s', '브랜드내자사ms', '자사m/s', '자사ms', '우리점유율', '점유율', '공급비중', '자사점유율', '공급점유율'],
+      tier: ['tier', 'customertier', 'segment', '고객구분', '구분', '고객등급'],
     },
   };
   var REQUIRED = {
@@ -116,7 +118,7 @@
       rows.push({ quarter: q, region: region, brand: brand, powertrain: pt, units: units });
     });
     var notes = [];
-    if (bad) notes.push({ level: 'warn', message: '동력원 자료에서 읽지 못한 행 ' + bad + '개를 건너뛰었습니다 (처음: ' + firstBad + ').' });
+    if (bad) notes.push({ level: 'warn', message: 'Powertrain 자료에서 읽지 못한 행 ' + bad + '개를 건너뛰었습니다 (처음: ' + firstBad + ').' });
     return { rows: rows, notes: notes };
   }
 
@@ -130,11 +132,25 @@
     return pct || n > 1 ? n / 100 : n;
   }
 
+  /** '전략', 'Strategic', '유지', 'Maintain' -> 'strategic' | 'maintain' | '' */
+  function parseTier(v) {
+    var t = String(v == null ? '' : v).trim().toLowerCase();
+    if (!t) return '';
+    if (t.indexOf('전략') >= 0 || t.indexOf('strategic') >= 0 || t === 's') return 'strategic';
+    if (t.indexOf('유지') >= 0 || t.indexOf('maintain') >= 0 || t.indexOf('retain') >= 0 || t === 'm') return 'maintain';
+    return '';
+  }
+
   function normalizeDisplay(records, mapping) {
     var rows = [];
+    var tiers = {};
     var bad = 0;
     records.forEach(function (rec) {
       var brand = cleanLabel(rec[mapping.brand]);
+      if (brand && mapping.tier) {
+        var tier = parseTier(rec[mapping.tier]);
+        if (tier) tiers[brand] = tier;
+      }
       var region = mapping.region ? cleanLabel(rec[mapping.region]) : '';
       var panels = mapping.panels ? U.parseNumber(rec[mapping.panels]) : NaN;
       var share = mapping.share ? parseShare(rec[mapping.share]) : NaN;
@@ -146,9 +162,9 @@
     });
     var notes = [];
     if (bad) notes.push({ level: 'warn', message: '디스플레이 가정에서 읽지 못한 행 ' + bad + '개를 건너뛰었습니다.' });
-    if (!mapping.panels) notes.push({ level: 'info', message: '대당 디스플레이 수 열이 없어 기본값을 씁니다.' });
-    if (!mapping.share) notes.push({ level: 'info', message: '우리 공급 비중 열이 없어 기본값을 씁니다.' });
-    return { rows: rows, notes: notes };
+    if (!mapping.panels) notes.push({ level: 'info', message: '대당 디스플레이(EA) 열이 없어 기본값을 씁니다.' });
+    if (!mapping.share) notes.push({ level: 'info', message: '브랜드 내 자사 M/S 열이 없어 기본값을 씁니다.' });
+    return { rows: rows, notes: notes, tiers: tiers };
   }
 
   function lastMonthOf(rows) {
@@ -270,9 +286,57 @@
     return out;
   }
 
+  /** 최근 12개월 지역별 판매 순 */
+  function rankRegions(rows) {
+    var last = lastMonthOf(rows);
+    if (!last) return [];
+    var from = U.addMonths(last, -11);
+    var tot = {};
+    rows.forEach(function (r) {
+      if (!(r.region in tot)) tot[r.region] = 0;
+      if (r.month >= from) tot[r.region] += r.units;
+    });
+    return Object.keys(tot)
+      .map(function (k) { return { region: k, units: tot[k] }; })
+      .sort(function (a, b) { return b.units - a.units || (a.region < b.region ? -1 : 1); });
+  }
+
+  /** 기본 주요 지역: 이름이 중국, 북미, 유럽, 한국, 일본으로 읽히는 지역. 하나도 없으면 판매 상위 5개 */
+  function defaultMajors(rank) {
+    var want = ['CN', 'NA', 'EU', 'KR', 'JP'];
+    var picked = [];
+    want.forEach(function (w) {
+      rank.forEach(function (r) {
+        if (picked.indexOf(r.region) >= 0) return;
+        var key = sim.geo ? sim.geo.regionKey(r.region) : r.region;
+        if (key === w) picked.push(r.region);
+      });
+    });
+    if (!picked.length) picked = rank.slice(0, 5).map(function (r) { return r.region; });
+    return picked;
+  }
+
   function buildDataset(sales, powertrain, opts) {
     if (!sales.length) throw new Error('월별 판매 자료가 비어 있습니다.');
     var notes = [];
+    // 주요 지역이 정해져 있으면 나머지 지역은 '기타 지역' 하나로 합칩니다.
+    // 국가 열이 없던 행은 원래 지역 이름을 국가 값으로 남겨 지도에서 찾을 수 있게 합니다.
+    var majors = opts.regions && opts.regions.length ? opts.regions.slice() : null;
+    var merged = {};
+    if (majors) {
+      var isMajor = {};
+      majors.forEach(function (r) { isMajor[r] = true; });
+      sales = sales.map(function (r) {
+        if (isMajor[r.region]) return r;
+        merged[r.region] = true;
+        return { month: r.month, region: OTHER_REGION, country: r.country || r.region, brand: r.brand, units: r.units };
+      });
+      if (powertrain) {
+        powertrain = powertrain.map(function (r) {
+          return isMajor[r.region] ? r : { quarter: r.quarter, region: OTHER_REGION, brand: r.brand, powertrain: r.powertrain, units: r.units };
+        });
+      }
+    }
     var keep = {};
     (opts.brands || []).forEach(function (b) { keep[b] = true; });
     function mapBrand(b) {
@@ -293,7 +357,12 @@
     var months = U.monthRange(first, last);
     var T = months.length;
     var mIdx0 = U.monthIndex(first);
-    var regions = Object.keys(regionSet).sort();
+    var regions = majors
+      ? majors.filter(function (r) { return regionSet[r]; }).concat(regionSet[OTHER_REGION] ? [OTHER_REGION] : [])
+      : Object.keys(regionSet).sort();
+    if (Object.keys(merged).length) {
+      notes.push({ level: 'info', message: '주요 지역 외 ' + Object.keys(merged).length + '개 지역을 "' + OTHER_REGION + '" 으로 합쳤습니다: ' + Object.keys(merged).sort().join(', ') });
+    }
     var brands = (opts.brands || []).filter(function (b) { return b !== OTHER; }).concat([OTHER]);
     var countries = {};
     regions.forEach(function (r) { countries[r] = Object.keys(countrySet[r]).sort(); });
@@ -346,7 +415,7 @@
           ptEstimated[r][b] = months.map(function () { return false; });
         });
       });
-      notes.push({ level: 'info', message: '동력원 자료가 없어 "동력원 비중" 카드는 쓸 수 없습니다.' });
+      notes.push({ level: 'info', message: 'Powertrain 자료가 없어 "Powertrain 비중" 외생변수는 쓸 수 없습니다.' });
     } else {
       var ptSet = {};
       powertrain.forEach(function (row) { ptSet[row.powertrain] = true; });
@@ -382,7 +451,7 @@
         w[ptPos[row.powertrain]] += row.units;
       });
       if (Object.keys(unknownRegion).length) {
-        notes.push({ level: 'warn', message: '동력원 자료의 지역 중 월별 판매에 없는 것은 뺐습니다: ' + Object.keys(unknownRegion).join(', ') });
+        notes.push({ level: 'warn', message: 'Powertrain 자료의 지역 중 월별 판매에 없는 것은 뺐습니다: ' + Object.keys(unknownRegion).join(', ') });
       }
 
       var quartersNeeded = [];
@@ -433,7 +502,7 @@
           m[pts.indexOf('ICE') >= 0 ? pts.indexOf('ICE') : nPt - 1] = 1;
           return m;
         });
-        if (!qr[r]) notes.push({ level: 'warn', message: r + ' 지역에 동력원 자료가 없어 전부 ' + (pts.indexOf('ICE') >= 0 ? 'ICE' : pts[nPt - 1]) + ' 로 두었습니다.' });
+        if (!qr[r]) notes.push({ level: 'warn', message: r + ' 지역에 Powertrain 자료가 없어 전부 ' + (pts.indexOf('ICE') >= 0 ? 'ICE' : pts[nPt - 1]) + ' 로 두었습니다.' });
         brands.forEach(function (b) {
           var series = mixSeries(qb[r] && qb[r][b], function (q) { return regional.mix[q]; });
           var split = splitByMix(monthly[r][b], months, series.mix, nPt);
@@ -441,7 +510,7 @@
           pts.forEach(function (p, i) { units[r][b][p] = split[i]; });
           ptEstimated[r][b] = months.map(function (m) { return series.est[U.quarterOf(m)]; });
           if (!(qb[r] && qb[r][b]) && U.sum(monthly[r][b]) > 0) {
-            notes.push({ level: 'warn', message: r + ' / ' + b + ': 동력원 자료가 없어 지역 평균 비중을 썼습니다.' });
+            notes.push({ level: 'warn', message: r + ' / ' + b + ': Powertrain 자료가 없어 지역 평균 비중을 썼습니다.' });
           }
           ptEstimated[r][b].forEach(function (e, t) {
             if (monthly[r][b][t] > 0) {
@@ -455,10 +524,10 @@
         return regions.some(function (r) { return !(qr[r] && qr[r][q]); });
       });
       if (estQuarters.length) {
-        notes.push({ level: 'info', message: '동력원 자료가 아직 없는 분기는 가장 가까운 분기 비중으로 채웠습니다: ' + estQuarters.join(', ') });
+        notes.push({ level: 'info', message: 'Powertrain 자료가 아직 없는 분기는 가장 가까운 분기 비중으로 채웠습니다: ' + estQuarters.join(', ') });
       }
       if (totalCells) {
-        notes.push({ level: 'info', message: '월별 동력원 판매 중 추정으로 채운 비율: ' + (Math.round((totalEst / totalCells) * 1000) / 10) + '% (지역 x 브랜드 x 월 기준)' });
+        notes.push({ level: 'info', message: '월별 Powertrain 판매 중 추정으로 채운 비율: ' + (Math.round((totalEst / totalCells) * 1000) / 10) + '% (지역 x 브랜드 x 월 기준)' });
       }
     }
 
@@ -472,7 +541,7 @@
     });
     notes.unshift({
       level: 'info',
-      message: '실적 ' + first + ' ~ ' + last + ' (' + T + '개월), 지역 ' + regions.length + '개, 지켜볼 브랜드 ' + (brands.length - 1) + '개, 기타로 묶은 브랜드 ' + otherCount + '개, 동력원 ' + pts.join('/'),
+      message: '실적 ' + first + ' ~ ' + last + ' (' + T + '개월), 지역 ' + regions.length + '개, 관측 OEM ' + (brands.length - 1) + '개, 기타로 묶은 OEM ' + otherCount + '개, Powertrain ' + pts.join('/'),
     });
 
     return {
@@ -495,7 +564,10 @@
     normalizePowertrain: normalizePowertrain,
     normalizeDisplay: normalizeDisplay,
     parseShare: parseShare,
+    parseTier: parseTier,
     rankBrands: rankBrands,
+    rankRegions: rankRegions,
+    defaultMajors: defaultMajors,
     splitByMix: splitByMix,
     buildDataset: buildDataset,
   };

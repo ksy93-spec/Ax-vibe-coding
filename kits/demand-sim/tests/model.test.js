@@ -25,8 +25,7 @@
   function fixture() {
     if (cache) return cache;
     var raw = sim.sample.make();
-    var brands = sim.prep.rankBrands(raw.sales).slice(0, 12).map(function (x) { return x.brand; });
-    var ds = sim.prep.buildDataset(raw.sales, raw.powertrain, { brands: brands });
+    var ds = sim.prep.buildDataset(raw.sales, raw.powertrain, { brands: sim.sample.OBSERVED, regions: sim.sample.MAJORS });
     var bl = sim.baseline.build(ds, sim.baseline.defaults());
     var base = sim.engine.simulate(ds, bl, []);
     cache = { raw: raw, ds: ds, bl: bl, base: base };
@@ -84,11 +83,15 @@
     });
   });
 
-  test('데이터셋: 지역 x 브랜드 월 합계가 입력 CSV 합계와 같고 기타로 빠짐없이 묶인다', function () {
+  test('데이터셋: 지역 x 브랜드 월 합계가 입력 CSV 합계와 같고 기타 OEM, 기타 지역으로 빠짐없이 묶인다', function () {
     var f = fixture();
     var T = f.ds.months.length;
     var want = {};
-    f.raw.sales.forEach(function (r) { want[r.region] = (want[r.region] || 0) + r.units; });
+    f.raw.sales.forEach(function (r) {
+      var key = sim.sample.MAJORS.indexOf(r.region) >= 0 ? r.region : sim.OTHER_REGION;
+      want[key] = (want[key] || 0) + r.units;
+    });
+    eq(f.ds.regions.join(','), sim.sample.MAJORS.concat([sim.OTHER_REGION]).join(','), '주요 5 + 기타 지역');
     f.ds.regions.forEach(function (r) {
       var got = 0;
       f.ds.brands.forEach(function (b) {
@@ -113,8 +116,8 @@
     var f = fixture();
     var res = sim.engine.simulate(f.ds, f.bl, [
       card({ layer: 'POWERTRAIN', region: 'CN', target: 'BEV', magnitude: { min: 30, mode: 30, max: 30 } }),
-      card({ layer: 'BRAND', region: 'CN', target: 'Brand A', magnitude: { min: 500, mode: 500, max: 500 } }),
-      card({ layer: 'BRAND', region: 'CN', target: 'Brand B', magnitude: { min: -90, mode: -90, max: -90 } }),
+      card({ layer: 'BRAND', region: 'CN', target: 'Tesla', magnitude: { min: 500, mode: 500, max: 500 } }),
+      card({ layer: 'BRAND', region: 'CN', target: 'BYD', magnitude: { min: -90, mode: -90, max: -90 } }),
     ]);
     f.ds.regions.concat([sim.TOTAL]).forEach(function (r) {
       for (var h = 0; h < res.months.length; h++) {
@@ -135,15 +138,15 @@
 
   test('BRAND +10% 카드: 완전 발효 달에 점유율이 정확히 1.1 배', function () {
     var f = fixture();
-    // Brand A 는 BEV 만 팔아서 지역 점유율도 정확히 1.1 배가 됩니다.
-    var c = card({ layer: 'BRAND', region: 'CN', target: 'Brand A', magnitude: { min: 10, mode: 10, max: 10 }, start: f.bl.months[2], rampShape: 'linear', rampMonths: 3 });
+    // Tesla 는 BEV 만 팔아서 지역 점유율도 정확히 1.1 배가 됩니다.
+    var c = card({ layer: 'BRAND', region: 'CN', target: 'Tesla', magnitude: { min: 10, mode: 10, max: 10 }, start: f.bl.months[2], rampShape: 'linear', rampMonths: 3 });
     var res = sim.engine.simulate(f.ds, f.bl, [c]);
     var full = fullMonths(c, f.bl.months);
     ok(full.length > 10, '완전 발효 달이 있어야 합니다');
     full.forEach(function (h) {
-      near(res.share.CN['Brand A'][h], f.base.share.CN['Brand A'][h] * 1.1, 1e-9, h + '번째 달');
+      near(res.share.CN['Tesla'][h], f.base.share.CN['Tesla'][h] * 1.1, 1e-9, h + '번째 달');
     });
-    near(res.share.CN['Brand A'][0], f.base.share.CN['Brand A'][0], 1e-12, '시작 전은 그대로');
+    near(res.share.CN['Tesla'][0], f.base.share.CN['Tesla'][0], 1e-12, '시작 전은 그대로');
     near(res.tiv.CN[5], f.base.tiv.CN[5], 1e-6, '총수요는 그대로');
   });
 
@@ -162,7 +165,7 @@
     var res = sim.engine.simulate(f.ds, f.bl, [c]);
     res.months.forEach(function (m, h) {
       near(res.tiv.NA[h], f.base.tiv.NA[h] * 1.1, 1e-6, h + ' 총수요');
-      near(res.share.NA['Brand C'][h], f.base.share.NA['Brand C'][h], 1e-12, h + ' 점유율');
+      near(res.share.NA['Toyota'][h], f.base.share.NA['Toyota'][h], 1e-12, h + ' 점유율');
     });
   });
 
@@ -213,13 +216,13 @@
 
   test('몬테카를로: 같은 시드면 같은 결과, 확률 0 이면 기준선과 같다', function () {
     var f = fixture();
-    var c = card({ layer: 'BRAND', region: 'CN', target: 'Brand A', magnitude: { min: 5, mode: 10, max: 30 }, probability: 0.5 });
+    var c = card({ layer: 'BRAND', region: 'CN', target: 'Tesla', magnitude: { min: 5, mode: 10, max: 30 }, probability: 0.5 });
     var m1 = sim.engine.monteCarlo(f.ds, f.bl, [c], { draws: 200, seed: 7 });
     var m2 = sim.engine.monteCarlo(f.ds, f.bl, [c], { draws: 200, seed: 7 });
-    eq(JSON.stringify(m1.brandUnits.CN['Brand A']), JSON.stringify(m2.brandUnits.CN['Brand A']), '같은 시드');
+    eq(JSON.stringify(m1.brandUnits.CN['Tesla']), JSON.stringify(m2.brandUnits.CN['Tesla']), '같은 시드');
     var zero = Object.assign({}, c, { probability: 0 });
     var m0 = sim.engine.monteCarlo(f.ds, f.bl, [zero], { draws: 50, seed: 7 });
-    m0.brandUnits.CN['Brand A'].p90.forEach(function (v, h) { near(v, f.base.brandUnits.CN['Brand A'][h], 1e-6, h); });
+    m0.brandUnits.CN['Tesla'].p90.forEach(function (v, h) { near(v, f.base.brandUnits.CN['Tesla'][h], 1e-6, h); });
   });
 
   test('몬테카를로: 확률 1 이고 강도가 한 값이면 구간 폭이 0 이고 시나리오와 같다', function () {
@@ -229,7 +232,7 @@
     var det = sim.engine.simulate(f.ds, f.bl, [c]);
     det.tiv.KR.forEach(function (v, h) {
       near(mc.tiv.KR.p10[h], v, 1e-6); near(mc.tiv.KR.p90[h], v, 1e-6);
-      near(mc.brandUnits.KR['Brand D'].p50[h], det.brandUnits.KR['Brand D'][h], 1e-6);
+      near(mc.brandUnits.KR['Hyundai'].p50[h], det.brandUnits.KR['Hyundai'][h], 1e-6);
     });
   });
 
@@ -237,8 +240,8 @@
 
   test('판매가 없는 대상의 카드는 빼고 계산하고 경고를 남긴다', function () {
     var f = fixture();
-    // 예시 데이터에서 Brand B 는 NA 에서 팔지 않습니다.
-    var c = card({ layer: 'BRAND', region: 'NA', target: 'Brand B', magnitude: { min: 50, mode: 50, max: 50 } });
+    // 예시 데이터에서 BYD 는 NA 에서 팔지 않습니다.
+    var c = card({ layer: 'BRAND', region: 'NA', target: 'BYD', magnitude: { min: 50, mode: 50, max: 50 } });
     var res = sim.engine.simulate(f.ds, f.bl, [c]);
     eq(res.warnings.length, 1, '경고 수');
     res.tiv.NA.forEach(function (v, h) { near(v, f.base.tiv.NA[h], 1e-6); });
@@ -247,12 +250,12 @@
   test('기여도: 서로 다른 지역 카드 두 장이면 상호작용이 0 이고 카드 차이 합이 전체 차이와 같다', function () {
     var f = fixture();
     var c1 = card({ id: 'k1', layer: 'TIV', region: 'KR', magnitude: { min: -5, mode: -5, max: -5 } });
-    var c2 = card({ id: 'k2', layer: 'BRAND', region: 'JP', target: 'Brand C', magnitude: { min: 5, mode: 5, max: 5 } });
+    var c2 = card({ id: 'k2', layer: 'BRAND', region: 'JP', target: 'Toyota', magnitude: { min: 5, mode: 5, max: 5 } });
     var cr = sim.engine.contributions(f.ds, f.bl, [c1, c2]);
     eq(cr.items.length, 2);
-    cr.interaction[sim.TOTAL]['Brand C'].forEach(function (v) { near(v, 0, 1e-6, '상호작용'); });
-    var d = cr.total.brandUnits.KR['Brand D'][4] - cr.base.brandUnits.KR['Brand D'][4];
-    near(cr.items[0].delta.KR['Brand D'][4], d, 1e-6);
+    cr.interaction[sim.TOTAL]['Toyota'].forEach(function (v) { near(v, 0, 1e-6, '상호작용'); });
+    var d = cr.total.brandUnits.KR['Hyundai'][4] - cr.base.brandUnits.KR['Hyundai'][4];
+    near(cr.items[0].delta.KR['Hyundai'][4], d, 1e-6);
   });
 
   test('예시 데이터는 열 때마다 같다', function () {
@@ -288,16 +291,16 @@
   test('디스플레이 수요 = 차량 x 대당 디스플레이 수, 우리 몫 = 수요 x 공급 비중, 지역 행이 브랜드 행보다 먼저', function () {
     var f = fixture();
     var settings = { companyName: '우리', defaultPanels: 2, defaultShare: 0, rows: [
-      { brand: 'Brand A', region: '', panelsPerVehicle: 3, ourShare: 0.1 },
-      { brand: 'Brand A', region: 'CN', panelsPerVehicle: 3, ourShare: 0.5 },
+      { brand: 'Tesla', region: '', panelsPerVehicle: 3, ourShare: 0.1 },
+      { brand: 'Tesla', region: 'CN', panelsPerVehicle: 3, ourShare: 0.5 },
     ] };
     var veh = sim.display.sumVehicles(f.ds, f.base.brandUnits, 0, 12);
     var d = sim.display.compute(f.ds, veh, settings);
-    near(d.CN.brands['Brand A'].tam, veh.CN['Brand A'] * 3, 1e-6, 'CN 수요');
-    near(d.CN.brands['Brand A'].ours, veh.CN['Brand A'] * 3 * 0.5, 1e-6, 'CN 지역 행');
-    near(d.NA.brands['Brand A'].ours, veh.NA['Brand A'] * 3 * 0.1, 1e-6, 'NA 브랜드 행');
-    near(d.NA.brands['Brand C'].tam, veh.NA['Brand C'] * 2, 1e-6, '기본값');
-    eq(d.NA.brands['Brand C'].ours, 0, '기본 공급 비중 0');
+    near(d.CN.brands['Tesla'].tam, veh.CN['Tesla'] * 3, 1e-6, 'CN 수요');
+    near(d.CN.brands['Tesla'].ours, veh.CN['Tesla'] * 3 * 0.5, 1e-6, 'CN 지역 행');
+    near(d.NA.brands['Tesla'].ours, veh.NA['Tesla'] * 3 * 0.1, 1e-6, 'NA 브랜드 행');
+    near(d.NA.brands['Toyota'].tam, veh.NA['Toyota'] * 2, 1e-6, '기본값');
+    eq(d.NA.brands['Toyota'].ours, 0, '기본 공급 비중 0');
     var tam = 0, ours = 0;
     f.ds.regions.forEach(function (r) { tam += d[r].tam; ours += d[r].ours; });
     near(d[sim.TOTAL].tam, tam, 1e-6, '전체 합');
@@ -320,5 +323,72 @@
     near(sim.prep.parseShare('25'), 0.25, 1e-12);
     near(sim.prep.parseShare('0.25'), 0.25, 1e-12);
     ok(isNaN(sim.prep.parseShare('')), '빈 값');
+  });
+
+  // ---------- 기타 지역, 연 단위, 시나리오, 고객 구분 ----------
+
+  test('기타 지역: 주요 지역이 아닌 지역의 국가가 지도 나라로 모두 잡힌다', function () {
+    var f = fixture();
+    var iso = sim.geo.regionCountries(sim.OTHER_REGION, f.ds.countries[sim.OTHER_REGION]);
+    ['IN', 'BR', 'AU', 'TH', 'SA', 'RU'].forEach(function (c) { ok(iso.indexOf(c) >= 0, c + ' 없음'); });
+    ok(iso.indexOf('US') < 0 && iso.indexOf('CN') < 0, '주요 지역 나라가 섞임');
+    eq(sim.prep.defaultMajors(sim.prep.rankRegions(f.raw.sales)).join(','), 'CN,NA,EU,KR,JP', '기본 주요 지역');
+  });
+
+  test('전망은 실적 마지막 해 + 2년 12월까지 (2026-08 실적이면 2028-12)', function () {
+    var f = fixture();
+    eq(f.bl.months[0], '2026-09');
+    eq(f.bl.months[f.bl.months.length - 1], '2028-12');
+  });
+
+  test('연 단위: 2025A, 2026E, 2027F, 2028F 이고 연도 합이 월 합과 같다', function () {
+    var f = fixture();
+    var an = sim.annual.fromResult(f.ds, f.bl, f.base);
+    eq(an.years.map(function (y) { return y.label; }).join(','), '2025A,2026E,2027F,2028F');
+    var act = sim.annual.actualBrandUnits(f.ds);
+    var T = f.ds.months.length;
+    var want2026 = 0;
+    for (var t = 0; t < T; t++) if (f.ds.months[t] >= '2026-01') want2026 += act.CN.Toyota[t];
+    for (var h = 0; h < 4; h++) want2026 += f.base.brandUnits.CN.Toyota[h];
+    near(an.brandUnits.CN.Toyota[1], want2026, 1e-6, '2026E');
+    var s = 0;
+    f.ds.brands.forEach(function (b) { s += an.share[sim.TOTAL][b][2]; });
+    near(s, 1, 1e-9, 'M/S 합');
+  });
+
+  test('시나리오: 자사 물량이 Worst <= Base <= Best, 부정 요인은 Worst 에서 가장 크게', function () {
+    var f = fixture();
+    var disp = { companyName: '자사', defaultPanels: 2, defaultShare: 0, rows: sim.sample.makeDisplay(), tiers: sim.sample.makeTiers() };
+    var cards = [
+      card({ id: 'neg', layer: 'TIV', region: 'NA', magnitude: { min: -8, mode: -4, max: -1 } }),
+      card({ id: 'pos', layer: 'BRAND', region: 'KR', target: 'Hyundai', magnitude: { min: 2, mode: 5, max: 10 } }),
+    ];
+    var sc = sim.scenarios.build(f.ds, f.bl, cards, disp);
+    eq(sc.items.length, 2);
+    var neg = sc.items[0];
+    var pos = sc.items[1];
+    eq(neg.direction, 'negative');
+    eq(neg.values.Worst, -8, '부정 요인 Worst = 가장 큰 감소');
+    eq(neg.values.Best, -1, '부정 요인 Best = 가장 작은 감소');
+    eq(pos.direction, 'positive');
+    eq(pos.values.Worst, 2, '긍정 요인 Worst = 낮게');
+    eq(pos.values.Best, 10, '긍정 요인 Best = 높게');
+    var m = sim.scenarios.metricFor(f.ds, disp);
+    var w = m(sim.engine.simulate(f.ds, f.bl, sc.cards.Worst));
+    var b = m(sim.engine.simulate(f.ds, f.bl, sc.cards.Base));
+    var be = m(sim.engine.simulate(f.ds, f.bl, sc.cards.Best));
+    ok(w <= b && b <= be, '순서: ' + w + ' / ' + b + ' / ' + be);
+  });
+
+  test('고객 구분: 전략, 유지, 기타 고객 합이 전체와 같다', function () {
+    var f = fixture();
+    var disp = { companyName: '자사', defaultPanels: 2, defaultShare: 0, rows: sim.sample.makeDisplay(), tiers: sim.sample.makeTiers() };
+    var d = sim.display.compute(f.ds, sim.display.sumVehicles(f.ds, f.base.brandUnits, 0, 12), disp);
+    var t = d[sim.TOTAL].tiers;
+    near(t.strategic.ours + t.maintain.ours + t.other.ours, d[sim.TOTAL].ours, 1e-6, '자사 몫');
+    near(t.strategic.tam + t.maintain.tam + t.other.tam, d[sim.TOTAL].tam, 1e-6, 'TAM');
+    eq(d.KR.brands.Hyundai.tier, 'strategic');
+    eq(sim.prep.parseTier('전략고객'), 'strategic');
+    eq(sim.prep.parseTier('Maintain'), 'maintain');
   });
 })(typeof window !== 'undefined' ? window : globalThis);

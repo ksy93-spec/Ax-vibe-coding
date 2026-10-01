@@ -15,9 +15,11 @@ ChatGPT 프로젝트의 지침(Instructions) 칸에 아래 블록을 통째로 �
 - 충격 카드 단위: 총수요 %, 파워트레인 비중 %p, 브랜드 점유율 상대 %.
 - 색과 간격은 CSS 변수(var(--c-*), var(--sp-*), var(--text-*), var(--viz-*))만 쓴다.
 - 결과 CSV 열 이름(src/ui/io.js 의 RESULT_COLUMNS)은 디스플레이 연동 기준이라 바꾸지 않는다. 새 열은 끝에만 더한다.
-- 화면 문구는 쉬운 말로 쓴다: 시장 전체 판매(TIV 대신), 동력원(파워트레인 대신), 기본 전망(기준선 대신),
-  변수 카드, 예상 영향, 일어날 가능성, 가능 범위(몬테카를로 대신). 전체 표는 SPEC.md 1절.
-- 디스플레이 수요 = 차량 판매 x 대당 디스플레이 수, 우리 몫 = 수요 x 공급 비중 (src/model/display.js).
+- 화면 문구는 사업부 용어를 쓴다: 차량 TAM, 디스플레이 TAM, OEM M/S, 브랜드 내 자사 M/S, 자사 M/S, Powertrain,
+  Trend, Worst / Base / Best, 2025A / 2026E / 2027F, 전략고객 / 유지고객. 전체 표는 SPEC.md 2절.
+- 시나리오는 Worst / Base / Best 셋뿐이며 외생변수 범위에서 자동 계산된다 (src/model/scenarios.js, App.actions.scenarioSet()).
+- 연 단위 값은 App.actions.scenarioSet().annual[시나리오] 에서, 디스플레이 값은 App.actions.displayFor(시나리오, 연도 인덱스) 에서 가져온다.
+- 디스플레이 TAM = 차량 판매 x 대당 디스플레이, 자사 물량 = 디스플레이 TAM x 브랜드 내 자사 M/S (src/model/display.js).
 - 브랜드 색은 App.w.brandColor(ds, brand) 로만 정한다. 같은 브랜드는 어느 화면에서나 같은 색이다.
 
 [금지]

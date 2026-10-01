@@ -69,7 +69,7 @@ declare namespace App {
     splitAt?: number;
     format?: 'units' | 'percent';
     height?: number;
-    series: Array<{ name: string; values: Array<number | null>; kind?: 'actual' | 'baseline' | 'scenario' | 'line' | 'line2' | 'line3' }>;
+    series: Array<{ name: string; values: Array<number | null>; kind?: 'actual' | 'baseline' | 'worst' | 'base' | 'best' | 'scenario' | 'line' | 'line2' | 'line3' }>;
     band?: { name: string; lo: Array<number | null>; hi: Array<number | null> };
   }
 }
@@ -96,6 +96,12 @@ declare const App: {
     centerValue: string;
     format?(v: number): string;
   }): void;
+  /** 임원 보고서 막대. stack: 한 줄 100% 막대, hbars: 가로 막대, columns: 연도별 Base 기둥 + Worst~Best */
+  bars: {
+    stack(mount: HTMLElement, opts: { items: Array<{ label: string; value: number; color: string }>; format?(v: number): string; label?: string }): void;
+    hbars(mount: HTMLElement, opts: { rows: Array<{ label: string; value: number; note?: string; color?: string; strong?: boolean }>; max?: number; format?(v: number): string }): void;
+    columns(mount: HTMLElement, opts: { labels: string[]; base: number[]; low: number[]; high: number[]; actual?: boolean[]; format?(v: number): string; height?: number; label?: string }): void;
+  };
   /** 자동 생성 지도 자료 (src/ui/worldmap-data.js). 손으로 고치지 않습니다 */
   worldMapData: { width: number; height: number; countries: Array<{ iso2: string; name: string; d: string; cx: number; cy: number; a: number }> };
   fmt: {

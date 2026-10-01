@@ -1,4 +1,4 @@
-/* 데이터 탭: CSV 불러오기, 열 지정, 관측 브랜드, 기준선 설정. 전역 App.views.data. */
+/* 데이터 탭: CSV 불러오기, 열 지정, 주요 지역, 관측 OEM, 전망 설정, 디스플레이 가정. 전역 App.views.data. */
 (function (global) {
   'use strict';
   var App = (global.App = global.App || {});
@@ -9,22 +9,25 @@
   var act = App.actions;
 
   var FIELD_LABEL = {
-    month: '월', quarter: '분기', region: '지역', country: '국가 (없어도 됨)', brand: '브랜드', powertrain: '동력원', units: '판매량',
-    panels: '대당 디스플레이 수', share: '우리 공급 비중',
+    month: '월', quarter: '분기', region: 'Sales Region', country: 'Country (없어도 됨)', brand: 'Sales Brand', powertrain: 'Powertrain', units: '판매량',
+    panels: '대당 디스플레이 (EA)', share: '브랜드 내 자사 M/S', tier: '고객 구분',
   };
+
+  function refresh() {
+    act.rebuild();
+    act.persist();
+    App.render();
+  }
 
   function loadFile(kind, file) {
     App.csv.readFile(file, function (err, res) {
       if (err) { App.ui.toast(err.message, 'danger'); return; }
       var det = sim.prep.detectColumns(res.columns, kind);
       var meta = { fileName: file.name, encoding: res.encoding, columns: res.columns, records: res.records, mapping: det.mapping };
-      st.source = 'file';
+      if (kind !== 'display') st.source = 'file';
       applyMapping(kind, meta);
-      if (det.missing.length) {
-        App.ui.toast('열 이름을 알아보지 못한 항목이 있습니다. 아래에서 열을 골라 주세요.', 'warn', 6000);
-      } else {
-        App.ui.toast(file.name + ' 을 읽었습니다 (' + res.records.length.toLocaleString('ko-KR') + '행)', 'ok');
-      }
+      if (det.missing.length) App.ui.toast('열 이름을 알아보지 못한 항목이 있습니다. 아래에서 열을 골라 주세요.', 'warn', 6000);
+      else App.ui.toast(file.name + ' 을 읽었습니다 (' + res.records.length.toLocaleString('ko-KR') + '행)', 'ok');
     });
   }
 
@@ -36,6 +39,7 @@
         var nd = sim.prep.normalizeDisplay(meta.records, meta.mapping);
         meta.notes = nd.notes;
         st.display.rows = nd.rows;
+        if (Object.keys(nd.tiers).length) st.display.tiers = nd.tiers;
         act.persist();
       }
       App.render();
@@ -72,23 +76,20 @@
         applyMapping(kind, meta);
       });
       if (meta.missing && meta.missing.indexOf(f) >= 0) sel.classList.add('is-invalid');
-      return w.field(FIELD_LABEL[f], sel);
+      return w.field(FIELD_LABEL[f] || f, sel);
     }));
   }
 
   function filePanel(kind, title, hint, meta) {
-    var body = [
-      h('h2', { class: 'panel__title', text: title }),
-      h('p', { class: 'panel__hint', text: hint }),
-    ];
+    var body = [w.head(title, hint)];
     if (meta && meta.columns) {
       body.push(h('div', { class: 'row' }, [
         h('strong', { text: meta.fileName }),
-        h('span', { class: 'badge', text: (meta.records.length).toLocaleString('ko-KR') + '행' }),
+        h('span', { class: 'badge', text: meta.records.length.toLocaleString('ko-KR') + '행' }),
         h('span', { class: 'badge', text: meta.encoding === 'cp949' ? 'CP949' : 'UTF-8' }),
-        meta.missing && meta.missing.length ? h('span', { class: 'badge badge--warn', text: '열 지정 필요' }) : h('span', { class: 'badge badge--ok', text: (meta.rows.length).toLocaleString('ko-KR') + '행 사용' }),
+        meta.missing && meta.missing.length ? h('span', { class: 'badge badge--warn', text: '열 지정 필요' }) : h('span', { class: 'badge badge--ok', text: meta.rows.length.toLocaleString('ko-KR') + '행 사용' }),
         h('div', { class: 'app__spacer' }),
-        kind === 'powertrain' ? h('button', { class: 'btn btn--sm', type: 'button', text: '빼기', onclick: function () { act.setPowertrain(null); App.render(); } }) : null,
+        kind === 'powertrain' ? h('button', { class: 'btn btn--sm', type: 'button', text: '빼기', onclick: function () { act.setPowertrain(null); act.persist(); App.render(); } }) : null,
       ]));
       body.push(mappingRow(kind, meta));
       body.push(w.notes(meta.notes));
@@ -104,170 +105,197 @@
     return h('section', { class: 'panel' }, body);
   }
 
-  function brandPanel() {
+  /** 체크 목록 (주요 지역, 관측 OEM 공용) */
+  function pickGrid(rank, keyOf, labelOf, selected, onChange) {
     var keep = {};
-    st.brands.forEach(function (b) { keep[b] = true; });
+    selected.forEach(function (k) { keep[k] = true; });
     var total = 0;
-    st.rank.forEach(function (r) { total += r.units; });
-    var list = h('div', { class: 'brand-grid' }, st.rank.map(function (r) {
+    rank.forEach(function (r) { total += r.units; });
+    return h('div', { class: 'brand-grid' }, rank.map(function (r) {
+      var key = keyOf(r);
       var cb = h('input', { type: 'checkbox' });
-      cb.checked = !!keep[r.brand];
+      cb.checked = !!keep[key];
       cb.addEventListener('change', function () {
-        if (cb.checked) st.brands.push(r.brand);
-        else st.brands = st.brands.filter(function (b) { return b !== r.brand; });
-        // 판매량 순서를 유지합니다.
-        var order = st.rank.map(function (x) { return x.brand; });
-        st.brands.sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
-        act.rebuild();
-        act.persist();
-        App.render();
+        var next = selected.filter(function (k) { return k !== key; });
+        if (cb.checked) next.push(key);
+        var order = rank.map(keyOf);
+        next.sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
+        onChange(next);
       });
       return h('label', { class: 'brand-item' + (cb.checked ? ' is-on' : '') }, [
         cb,
-        h('span', { class: 'brand-item__name', text: r.brand }),
+        h('span', { class: 'brand-item__name', text: labelOf(r) }),
         h('span', { class: 'brand-item__val', text: App.fmt.pct(total ? r.units / total : 0) }),
       ]);
     }));
+  }
+
+  function regionPanel() {
     return h('section', { class: 'panel' }, [
-      h('div', { class: 'row' }, [
-        h('h2', { class: 'panel__title', text: '3. 지켜볼 브랜드' }),
-        h('span', { class: 'badge', text: st.brands.length + '개 선택, 나머지 ' + (st.rank.length - st.brands.length) + '개는 "기타" 로 합침' }),
-        h('div', { class: 'app__spacer' }),
-        h('button', { class: 'btn btn--sm', type: 'button', text: '판매량 상위 12개', onclick: function () {
-          st.brands = st.rank.slice(0, 12).map(function (r) { return r.brand; });
-          act.rebuild(); act.persist(); App.render();
+      w.head('3. 주요 지역', '고른 지역은 M/S trend 로 따로 분석하고, 나머지는 "' + sim.OTHER_REGION + '" 하나로 합칩니다. 합쳐도 글로벌 TAM 에는 그대로 들어갑니다. 숫자는 최근 12개월 글로벌 비중.', [
+        h('span', { class: 'badge', text: st.regions.length + '개 지역 + ' + sim.OTHER_REGION }),
+        h('button', { class: 'btn btn--sm', type: 'button', text: '중국·북미·유럽·한국·일본', onclick: function () {
+          st.regions = sim.prep.defaultMajors(st.regionRank);
+          refresh();
         } }),
       ]),
-      h('p', { class: 'panel__hint', text: '숫자는 최근 1년 전체 지역 판매 비중입니다. 고르지 않은 브랜드도 "기타" 로 합쳐져 시장 전체 크기에는 그대로 들어갑니다.' }),
-      list,
+      pickGrid(st.regionRank, function (r) { return r.region; }, function (r) { return sim.geo.regionLabel(r.region); }, st.regions, function (next) {
+        if (!next.length) { App.ui.toast('주요 지역을 하나 이상 고르세요.', 'warn'); App.render(); return; }
+        st.regions = next;
+        refresh();
+      }),
+    ]);
+  }
+
+  function brandPanel() {
+    return h('section', { class: 'panel' }, [
+      w.head('4. 관측 OEM', '고르지 않은 OEM 은 "기타" 로 합칩니다. 고객사와 주요 경쟁 OEM 을 고르세요. 숫자는 최근 12개월 글로벌 M/S.', [
+        h('span', { class: 'badge', text: st.brands.length + '개 선택, ' + (st.rank.length - st.brands.length) + '개는 기타' }),
+        h('button', { class: 'btn btn--sm', type: 'button', text: '판매 상위 12개', onclick: function () {
+          st.brands = st.rank.slice(0, 12).map(function (r) { return r.brand; });
+          refresh();
+        } }),
+      ]),
+      pickGrid(st.rank, function (r) { return r.brand; }, function (r) { return r.brand; }, st.brands, function (next) {
+        st.brands = next;
+        refresh();
+      }),
     ]);
   }
 
   var PHI_OPTIONS = [
-    { value: 0, label: '반영 안 함 (지금 점유율 고정)' },
-    { value: 0.7, label: '조금' },
+    { value: 0, label: '반영 안 함 (현재 M/S 고정)' },
+    { value: 0.7, label: '약하게' },
     { value: 0.85, label: '보통 (권장)' },
-    { value: 0.95, label: '많이' },
-    { value: 1, label: '그대로 계속' },
+    { value: 0.95, label: '강하게' },
+    { value: 1, label: 'Trend 그대로 연장' },
   ];
 
-  function baselinePanel() {
+  function forecastPanel() {
     var o = st.blOptions;
     function set(k, v) {
       o[k] = v;
-      act.rebuild(); act.persist(); App.render();
+      refresh();
     }
     var phiOpts = PHI_OPTIONS.slice();
     if (!phiOpts.some(function (x) { return x.value === o.phi; })) phiOpts.push({ value: o.phi, label: '직접 입력값 ' + o.phi });
+    var lastY = Number(st.ds.months[st.ds.months.length - 1].slice(0, 4));
     var growthRows = st.ds.regions.map(function (r) {
       var ov = o.growth && typeof o.growth[r] === 'number' ? Math.round(o.growth[r] * 1000) / 10 : null;
       var inp = w.number(ov, function (v) {
         o.growth = o.growth || {};
         o.growth[r] = v === null || !isFinite(v) ? null : v / 100;
-        act.rebuild(); act.persist(); App.render();
-      }, { step: '0.5', placeholder: '비우면 자동', 'aria-label': r + ' 연간 성장률 직접 입력' });
+        refresh();
+      }, { step: '0.5', placeholder: '자동', 'aria-label': r + ' TAM 성장률 직접 입력' });
       return [sim.geo.regionLabel(r), App.fmt.signedPct(st.bl.growthAuto[r]), inp, App.fmt.signedPct(st.bl.growthUsed[r])];
     });
     return h('section', { class: 'panel' }, [
-      w.head('4. 기본 전망 설정', '기본 전망은 변수 카드 없이 지금 흐름이 그대로 이어질 때의 예측입니다. 대부분 그대로 두면 됩니다.', [
-        w.help('기본 전망은 이렇게 만듭니다',
-          '시장 전체 판매: 최근 1년 판매에서 계절 차이(연말 성수기 등)를 걸러 낸 수준에 연간 성장률을 곱하고, 계절 차이를 다시 입힙니다. ' +
-          '성장률은 최근 1년과 그 앞 1년을 비교해 자동으로 잡으며, 사내 전망이 있으면 직접 넣습니다.\n\n' +
-          '브랜드 점유율과 동력원 비중: 최근 흐름(예: 1년간 조금씩 오르는 중)을 앞으로도 얼마나 이어 갈지 정합니다. ' +
-          '"보통" 은 처음 몇 달은 흐름을 따르다가 점점 평평해집니다.'),
+      w.head('5. 전망 설정', '외생변수를 넣기 전 Trend 전망입니다. 지역 TAM 은 계절성과 성장률로, OEM M/S 와 Powertrain 비중은 월별 M/S trend 로 이어 갑니다.', [
+        w.help('Trend 전망 방법',
+          'TAM: 최근 12개월 판매에서 계절성(연말 성수기 등)을 걷어 낸 수준에 연간 성장률을 곱하고 계절성을 다시 입힙니다. 성장률은 최근 12개월 vs 직전 12개월로 자동 계산하며, 사내 전망이 있으면 직접 넣습니다.\n\n' +
+          'M/S: 최근 N개월 월별 M/S 의 기울기를 구해 앞으로 이어 가되, "반영 정도" 에 따라 점점 평평해집니다. "보통" 은 1년쯤 지나면 거의 평평해집니다.'),
       ]),
       h('div', { class: 'form-row' }, [
-        w.field('전망 기간', w.select([12, 18, 24, 30, 36].map(function (n) { return { value: n, label: n + '개월' }; }), o.horizon, function (v) { set('horizon', Number(v)); })),
-        w.field('최근 흐름을 읽을 기간', w.select([6, 12, 18, 24].map(function (n) { return { value: n, label: '최근 ' + n + '개월' }; }), o.trendWindow, function (v) { set('trendWindow', Number(v)); })),
-        w.field('최근 흐름을 앞으로도 이어 갈까요?', w.select(phiOpts, o.phi, function (v) { set('phi', Number(v)); })),
+        w.field('전망 종료', w.select([1, 2, 3].map(function (n) { return { value: n, label: (lastY + n) + '년 12월 (' + n + '년 뒤)' }; }), o.yearsAhead == null ? 2 : o.yearsAhead, function (v) { o.horizon = null; set('yearsAhead', Number(v)); })),
+        w.field('M/S trend 구간', w.select([6, 12, 18, 24].map(function (n) { return { value: n, label: '최근 ' + n + '개월' }; }), o.trendWindow, function (v) { set('trendWindow', Number(v)); })),
+        w.field('Trend 반영 정도', w.select(phiOpts, o.phi, function (v) { set('phi', Number(v)); })),
       ]),
-      h('h3', { class: 'sub-title', text: '지역별 연간 시장 성장률' }),
-      w.table(['지역', { label: '자동 (최근 1년 vs 그 앞 1년)', num: true }, { label: '직접 입력 (%)', num: true }, { label: '적용값', num: true }], growthRows),
+      h('h3', { class: 'sub-title', text: '지역별 연간 TAM 성장률' }),
+      w.table(['지역', { label: '자동 (최근 12M vs 직전 12M)', num: true }, { label: '직접 입력 (%)', num: true }, { label: '적용', num: true }], growthRows),
     ]);
   }
+
+  var TIER_OPTS = [{ value: '', label: '-' }, { value: 'strategic', label: '전략고객' }, { value: 'maintain', label: '유지고객' }];
 
   function displayPanel() {
     var d = st.display;
     var ds = st.ds;
+    d.tiers = d.tiers || {};
     function save() { act.persist(); App.render(); }
-    var company = h('input', { class: 'input input--sm', value: d.companyName, 'aria-label': '화면에 쓸 우리 회사 이름' });
-    company.addEventListener('change', function () { d.companyName = company.value.trim() || '우리'; save(); });
+    function brandRow(b) {
+      var row = d.rows.filter(function (r) { return r.brand === b && !r.region; })[0];
+      if (!row) {
+        row = { brand: b, region: '', panelsPerVehicle: NaN, ourShare: NaN };
+        d.rows.push(row);
+      }
+      return row;
+    }
+    var company = h('input', { class: 'input input--sm', value: d.companyName, 'aria-label': '자사 표기' });
+    company.addEventListener('change', function () { d.companyName = company.value.trim() || '자사'; save(); });
 
-    var regionOpts = [{ value: '', label: '모든 지역' }].concat(ds.regions.map(function (r) { return { value: r, label: sim.geo.regionLabel(r) }; }));
-    var rows = d.rows.map(function (row, i) {
-      var known = ds.brands.indexOf(row.brand) >= 0;
-      var brandSel = w.select((known ? [] : [{ value: row.brand, label: row.brand + ' (기타로 묶임)' }]).concat(ds.brands), row.brand, function (v) { row.brand = v; save(); });
+    var mainRows = ds.brands.map(function (b) {
+      var existing = d.rows.filter(function (r) { return r.brand === b && !r.region; })[0];
       return [
-        brandSel,
-        w.select(regionOpts, row.region || '', function (v) { row.region = v; save(); }),
-        w.number(isFinite(row.panelsPerVehicle) ? row.panelsPerVehicle : null, function (v) { row.panelsPerVehicle = v === null ? NaN : v; save(); }, { step: '0.1', min: '0', placeholder: '기본값' }),
-        w.number(isFinite(row.ourShare) ? Math.round(row.ourShare * 1000) / 10 : null, function (v) { row.ourShare = v === null ? NaN : Math.max(0, Math.min(100, v)) / 100; save(); }, { step: '1', min: '0', max: '100', placeholder: '기본값' }),
-        h('button', { class: 'btn btn--sm btn--ghost', type: 'button', text: '삭제', onclick: function () { d.rows.splice(i, 1); save(); } }),
+        h('span', { class: 'sbar__name' }, [h('span', { class: 'swatch', style: { background: w.brandColor(ds, b) } }), b]),
+        b === sim.OTHER ? h('span', { class: 'muted', text: '-' }) : w.select(TIER_OPTS, d.tiers[b] || '', function (v) { if (v) d.tiers[b] = v; else delete d.tiers[b]; save(); }),
+        w.number(existing && isFinite(existing.panelsPerVehicle) ? existing.panelsPerVehicle : null, function (v) { brandRow(b).panelsPerVehicle = v === null ? NaN : v; save(); }, { step: '0.1', min: '0', placeholder: String(d.defaultPanels) }),
+        w.number(existing && isFinite(existing.ourShare) ? Math.round(existing.ourShare * 1000) / 10 : null, function (v) { brandRow(b).ourShare = v === null ? NaN : Math.max(0, Math.min(100, v)) / 100; save(); }, { step: '1', min: '0', max: '100', placeholder: String(Math.round(d.defaultShare * 100)) }),
       ];
     });
-    var missing = ds.brands.filter(function (b) { return !d.rows.some(function (r) { return r.brand === b; }); });
+
+    var regionOpts = ds.regions.map(function (r) { return { value: r, label: sim.geo.regionLabel(r) }; });
+    var overrides = d.rows.map(function (row, i) { return { row: row, i: i }; }).filter(function (x) { return x.row.region; });
+    var ovRows = overrides.map(function (x) {
+      var row = x.row;
+      return [
+        w.select(ds.brands, row.brand, function (v) { row.brand = v; save(); }),
+        w.select(regionOpts.some(function (o) { return o.value === row.region; }) ? regionOpts : regionOpts.concat([{ value: row.region, label: row.region + ' (데이터에 없음)' }]), row.region, function (v) { row.region = v; save(); }),
+        w.number(isFinite(row.panelsPerVehicle) ? row.panelsPerVehicle : null, function (v) { row.panelsPerVehicle = v === null ? NaN : v; save(); }, { step: '0.1', min: '0' }),
+        w.number(isFinite(row.ourShare) ? Math.round(row.ourShare * 1000) / 10 : null, function (v) { row.ourShare = v === null ? NaN : Math.max(0, Math.min(100, v)) / 100; save(); }, { step: '1', min: '0', max: '100' }),
+        h('button', { class: 'btn btn--sm btn--ghost', type: 'button', text: '삭제', onclick: function () { d.rows.splice(x.i, 1); save(); } }),
+      ];
+    });
+    var unknown = d.rows.filter(function (r) { return !r.region && ds.brands.indexOf(r.brand) < 0; }).map(function (r) { return r.brand; });
     var meta = st.displayMeta;
     return h('section', { class: 'panel', id: 'display-panel' }, [
-      w.head('5. 디스플레이 가정 (선택)', '브랜드마다 차 한 대에 디스플레이가 몇 장 들어가는지, 그중 우리가 몇 % 를 공급하는지 넣습니다. 한눈에 보기 탭의 디스플레이 수요와 우리 점유율이 여기서 나옵니다.', [
-        h('button', { class: 'btn btn--sm', type: 'button', text: '+ 행 추가', onclick: function () {
-          d.rows.push({ brand: missing[0] || ds.brands[0], region: '', panelsPerVehicle: d.defaultPanels, ourShare: 0 });
-          save();
-        } }),
-        w.fileButton('CSV 로 불러오기', '.csv,.txt,.tsv', function (file) {
-          App.csv.readFile(file, function (err, res) {
-            if (err) { App.ui.toast(err.message, 'danger'); return; }
-            var det = sim.prep.detectColumns(res.columns, 'display');
-            applyMapping('display', { fileName: file.name, encoding: res.encoding, columns: res.columns, records: res.records, mapping: det.mapping });
-            App.ui.toast(file.name + ' 에서 ' + st.display.rows.length + '행을 읽었습니다.', 'ok');
-          });
-        }),
+      w.head('6. 디스플레이 가정과 고객 구분', 'OEM 별 대당 디스플레이(EA)와 브랜드 내 자사 M/S(%), 고객 구분을 넣습니다. 디스플레이 TAM = 차량 판매 x 대당 디스플레이, 자사 물량 = 디스플레이 TAM x 브랜드 내 자사 M/S.', [
+        w.fileButton('CSV 로 불러오기', '.csv,.txt,.tsv', function (file) { loadFile('display', file); }),
       ]),
       h('div', { class: 'form-row' }, [
-        w.field('화면에 쓸 우리 회사 이름', company),
-        w.field('가정이 없는 브랜드: 대당 디스플레이 수', w.number(d.defaultPanels, function (v) { d.defaultPanels = v === null ? 0 : v; save(); }, { step: '0.1', min: '0' })),
-        w.field('가정이 없는 브랜드: 우리 공급 비중 (%)', w.number(Math.round(d.defaultShare * 1000) / 10, function (v) { d.defaultShare = v === null ? 0 : Math.max(0, Math.min(100, v)) / 100; save(); }, { step: '1', min: '0', max: '100' })),
+        w.field('자사 표기', company),
+        w.field('가정 없는 OEM: 대당 디스플레이 (EA)', w.number(d.defaultPanels, function (v) { d.defaultPanels = v === null ? 0 : v; save(); }, { step: '0.1', min: '0' })),
+        w.field('가정 없는 OEM: 브랜드 내 자사 M/S (%)', w.number(Math.round(d.defaultShare * 1000) / 10, function (v) { d.defaultShare = v === null ? 0 : Math.max(0, Math.min(100, v)) / 100; save(); }, { step: '1', min: '0', max: '100' })),
       ]),
-      meta && meta.columns ? h('div', null, [h('p', { class: 'field__hint', text: '불러온 파일: ' + meta.fileName + '. 열 이름: 브랜드, 지역(없어도 됨), 대당 디스플레이 수, 우리 공급 비중(25%, 25, 0.25 모두 됨)' }), mappingRow('display', meta), w.notes(meta.notes)]) : null,
-      d.rows.length
-        ? w.table(['브랜드', '지역', { label: '대당 디스플레이 수 (장)', num: true }, { label: '우리 공급 비중 (%)', num: true }, ''], rows)
-        : h('p', { class: 'empty', text: '아직 가정이 없습니다. "+ 행 추가" 로 넣거나 CSV 를 불러오세요.' }),
-      h('p', { class: 'field__hint', text: '같은 브랜드에 "모든 지역" 행과 특정 지역 행이 함께 있으면 그 지역에서는 지역 행을 씁니다. 공급 비중은 사내 자료이니 이 PC 밖으로 내보내지 마세요.' }),
+      meta && meta.columns ? h('div', null, [h('p', { class: 'field__hint', text: '불러온 파일: ' + meta.fileName + '. 열: Brand, Region(없어도 됨), 대당 디스플레이, 브랜드 내 자사 M/S(25%, 25, 0.25 모두 됨), 고객 구분(전략/유지)' }), mappingRow('display', meta), w.notes(meta.notes)]) : null,
+      w.table(['OEM', '고객 구분', { label: '대당 디스플레이 (EA)', num: true }, { label: '브랜드 내 자사 M/S (%)', num: true }], mainRows),
+      h('div', { class: 'phead phead--sub' }, [
+        h('div', { class: 'phead__text' }, [h('h3', { class: 'sub-title', text: '지역별 예외 (선택)' }), h('p', { class: 'field__hint', text: '같은 OEM 이라도 지역마다 자사 M/S 가 다르면 여기에 넣습니다. 그 지역에서는 이 값이 위 값보다 먼저 쓰입니다.' })]),
+        h('div', { class: 'phead__tools' }, h('button', { class: 'btn btn--sm', type: 'button', text: '+ 예외 추가', onclick: function () {
+          d.rows.push({ brand: ds.brands[0], region: ds.regions[0], panelsPerVehicle: NaN, ourShare: NaN });
+          save();
+        } })),
+      ]),
+      ovRows.length ? w.table(['OEM', '지역', { label: '대당 디스플레이 (EA)', num: true }, { label: '브랜드 내 자사 M/S (%)', num: true }, ''], ovRows) : null,
+      unknown.length ? w.notes([{ level: 'info', message: '관측 OEM 이 아니라 쓰이지 않는 가정: ' + unknown.join(', ') + '. 이 OEM 들은 "기타" 행 값을 씁니다.' }]) : null,
+      h('p', { class: 'field__hint', text: '자사 M/S 와 고객 구분은 사내 자료입니다. 작업 파일과 브라우저 자동 저장에 들어가므로 사내 PC 밖으로 내보내지 마세요.' }),
     ]);
   }
 
   function render(root) {
-    var top = h('section', { class: 'panel panel--intro' }, [
-      h('div', { class: 'row' }, [
-        h('div', null, [
-          h('h2', { class: 'panel__title', text: '데이터 불러오기' }),
-          h('p', { class: 'panel__hint', text: '① 월별 판매 파일을 넣고 ② (있으면) 동력원 파일을 넣은 뒤 ③ 지켜볼 브랜드를 고릅니다. 처음이면 예시 데이터로 둘러보세요.' }),
-        ]),
-        h('div', { class: 'app__spacer' }),
+    root.appendChild(h('section', { class: 'panel panel--intro' }, [
+      w.head('데이터', '① 월별 판매 CSV ② (있으면) 분기 Powertrain CSV ③ 주요 지역 ④ 관측 OEM ⑤ 전망 설정 ⑥ 디스플레이 가정 순서입니다. 처음이면 예시 데이터로 둘러보세요.', [
         h('button', { class: 'btn btn--sm', type: 'button', text: '예시 CSV 내려받기', onclick: function () { App.io.exportSample(); } }),
         h('button', { class: 'btn btn--primary btn--sm', type: 'button', text: '예시 데이터로 시작', onclick: function () {
           act.useSample();
           if (st.pendingProject) { act.applyProject(st.pendingProject); st.pendingProject = null; }
           act.persist();
-          App.ui.toast('예시 데이터를 불러왔습니다. 실제 브랜드가 아닙니다.', 'ok');
+          App.ui.toast('예시 데이터를 불러왔습니다. OEM 이름은 실제지만 수치는 지어낸 값입니다.', 'ok', 6000);
           st.tab = 'overview';
           App.render();
         } }),
       ]),
-    ]);
-    root.appendChild(top);
+    ]));
     root.appendChild(h('div', { class: 'grid-2' }, [
-      filePanel('sales', '1. 월별 판매 (필수)', '열: 월, 지역(Sales Region), 국가, 브랜드(Sales Brand), 판매량. 한 줄이 "한 달, 한 국가, 한 브랜드" 입니다.', st.sales),
-      filePanel('powertrain', '2. 분기별 동력원 판매 (선택)', '열: 분기, 지역, 브랜드, 동력원(BEV, PHEV, HEV, ICE 등), 판매량. 있으면 전기차 비중 같은 변수를 쓸 수 있습니다.', st.pt),
+      filePanel('sales', '1. 월별 판매 (필수)', '열: 월, Sales Region, Country, Sales Brand, 판매량. 한 줄이 한 달 · 한 국가 · 한 브랜드.', st.sales),
+      filePanel('powertrain', '2. 분기 Powertrain (선택)', '열: 분기, Sales Region, Sales Brand, Powertrain(BEV/PHEV/HEV/ICE), 판매량. 있으면 BEV 비중 같은 외생변수를 쓸 수 있습니다.', st.pt),
     ]));
     if (st.error) root.appendChild(h('section', { class: 'panel' }, w.notes([{ level: 'error', message: st.error }])));
+    if (st.regionRank.length) root.appendChild(regionPanel());
     if (st.rank.length) root.appendChild(brandPanel());
     if (st.ds) {
-      root.appendChild(baselinePanel());
+      root.appendChild(forecastPanel());
       root.appendChild(displayPanel());
-      root.appendChild(h('section', { class: 'panel' }, [
-        h('h2', { class: 'panel__title', text: '데이터 점검 결과' }),
-        w.notes(st.ds.notes),
-      ]));
+      root.appendChild(h('section', { class: 'panel' }, [w.head('데이터 점검 결과'), w.notes(st.ds.notes)]));
     }
   }
 

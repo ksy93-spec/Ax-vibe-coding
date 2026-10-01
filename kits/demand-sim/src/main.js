@@ -8,33 +8,34 @@
 
   var TABS = [
     { key: 'data', label: '데이터' },
-    { key: 'overview', label: '한눈에 보기' },
-    { key: 'scenario', label: '시나리오' },
-    { key: 'result', label: '상세 결과' },
-    { key: 'report', label: '보고서' },
+    { key: 'overview', label: '대시보드' },
+    { key: 'scenario', label: '외생변수' },
+    { key: 'result', label: '상세 분석' },
+    { key: 'report', label: '임원 보고서' },
   ];
 
   var GLOSSARY = [
-    ['시장 전체 판매', '그 지역에서 한 달에 팔리는 차 전체 대수. 흔히 TIV 나 TAM 이라고 부릅니다.'],
-    ['동력원', '전기차(BEV), 플러그인 하이브리드(PHEV), 하이브리드(HEV), 내연기관(ICE) 같은 차의 구동 방식. 파워트레인이라고도 합니다.'],
-    ['기본 전망', '변수 카드 없이 지금 흐름이 그대로 이어질 때의 예측. 모든 시나리오는 이것과 비교합니다.'],
-    ['시나리오', '"이런 일이 생기면?" 하나. 변수 카드 여러 장을 묶은 것입니다.'],
-    ['변수 카드', '판매를 움직이는 일 하나(보조금 종료, 규제, 관세, 신차 등). 무엇이, 어디서, 얼마나, 언제 바뀌는지를 넣습니다.'],
-    ['%p (퍼센트포인트)', '비율끼리의 차이. 전기차 비중 40% 가 37% 가 되면 -3%p 입니다. -3% 와는 다릅니다.'],
-    ['막차 수요', '보조금이 끝나기 전처럼, 시작 전에 미리 사 두는 수요. 시작 뒤에는 그만큼 판매가 줄어듭니다.'],
-    ['가능 범위', '카드의 가능성과 영향 범위를 무작위로 뽑아 여러 번 계산한 결과 중 가운데 80%. 차트의 옅은 띠입니다.'],
-    ['디스플레이 수요', '차량 판매 x 대당 디스플레이 수. 여기에 브랜드별 우리 공급 비중을 곱하면 우리 몫이 됩니다.'],
+    ['TAM', '시장 전체 규모. 차량 TAM 은 차량 판매 대수, 디스플레이 TAM 은 차량 판매 x 대당 디스플레이(EA).'],
+    ['M/S', '점유율. OEM M/S 는 지역 차량 판매 중 그 OEM 비중, 자사 M/S 는 디스플레이 TAM 중 자사 물량 비중.'],
+    ['브랜드 내 자사 M/S', '그 OEM 이 쓰는 디스플레이 중 자사 공급 비중. 데이터 탭 6번에서 넣습니다.'],
+    ['Powertrain', 'BEV, PHEV, HEV, ICE. 분기 자료를 월로 나눠 씁니다.'],
+    ['주요 지역 / 기타 지역', '주요 지역은 따로 M/S trend 를 보고, 나머지는 기타 지역 하나로 합칩니다. 글로벌 TAM 에는 모두 들어갑니다.'],
+    ['Trend', '외생변수 없이 월별 M/S trend 만 이어 간 전망.'],
+    ['Worst / Base / Best', 'Base 는 외생변수 예상값, Worst 는 부정 요인 크게 · 긍정 요인 작게, Best 는 그 반대. 자동 계산.'],
+    ['A / E / F', '2025A 실적, 2026E 실적+전망, 2027F 전망.'],
+    ['전략고객 / 유지고객', 'OEM 고객 구분. 데이터 탭 6번에서 지정하고 임원 보고서 3·4번에 나옵니다.'],
+    ['Pull-forward', '보조금 종료 전 막차 수요처럼 시작 전에 앞당겨 사는 수요. 시작 뒤 같은 물량이 빠집니다.'],
   ];
 
   function showHelp() {
     var body = h('div', { class: 'helpdoc' }, [
       h('h3', { class: 'sub-title', text: '쓰는 순서' }),
       h('ol', { class: 'helpdoc__steps' }, [
-        h('li', { text: '데이터: 월별 판매 CSV 를 넣고(처음이면 예시 데이터), 지켜볼 브랜드와 디스플레이 가정을 정합니다.' }),
-        h('li', { text: '한눈에 보기: 지도에서 지역을 눌러 브랜드 구성과 우리 디스플레이 점유율을 봅니다.' }),
-        h('li', { text: '시나리오: "보조금 종료" 같은 변수 카드를 넣습니다.' }),
-        h('li', { text: '상세 결과: 브랜드, 지역별로 기본 전망과 시나리오를 비교합니다.' }),
-        h('li', { text: '보고서: 인쇄하거나 PDF, CSV 로 내보냅니다.' }),
+        h('li', { text: '데이터: 월별 판매 CSV(처음이면 예시 데이터), 주요 지역, 관측 OEM, 디스플레이 가정과 고객 구분.' }),
+        h('li', { text: '대시보드: 연도와 시나리오를 골라 지역별 TAM, OEM M/S, 자사 M/S 를 봅니다.' }),
+        h('li', { text: '외생변수: EV 보조금, 규제, 관세 같은 요인을 범위와 함께 넣으면 Worst / Base / Best 가 자동으로 나옵니다.' }),
+        h('li', { text: '상세 분석: 지역 x OEM 의 월별 M/S trend 와 연도별 판매.' }),
+        h('li', { text: '임원 보고서: TAM → 주요 지역 → 자사 M/S → 전략·유지고객 → 수요 전망 한 장. 인쇄, PDF, CSV.' }),
       ]),
       h('h3', { class: 'sub-title', text: '용어' }),
       h('dl', { class: 'helpdoc__terms' }, GLOSSARY.reduce(function (acc, g) {
@@ -72,7 +73,7 @@
           App.ui.toast('작업을 불러왔습니다. 데이터를 넣으면 이어서 적용됩니다.', 'ok', 6000);
         } else {
           var notes = act.applyProject(data);
-          App.ui.toast('작업을 불러왔습니다. 시나리오 ' + st.scenarios.length + '개', 'ok');
+          App.ui.toast('작업을 불러왔습니다. 외생변수 ' + st.cards.length + '개', 'ok');
           notes.forEach(function (n) { App.ui.toast(n, 'warn', 8000); });
         }
         act.persist();
@@ -99,8 +100,8 @@
       h('div', { class: 'brandmark' }, [
         h('span', { class: 'brandmark__logo', 'aria-hidden': 'true' }),
         h('div', null, [
-          h('h1', { class: 'app__title', text: '권역별 수요 시뮬레이터' }),
-          h('div', { class: 'app__sub', text: '지역별 브랜드 판매 전망과 "이런 일이 생기면?" 시나리오' }),
+          h('h1', { class: 'app__title', text: '디스플레이 수요 시뮬레이터' }),
+          h('div', { class: 'app__sub', text: '지역 x OEM M/S trend 와 외생변수 시나리오로 보는 차량 디스플레이 TAM' }),
         ]),
       ]),
       h('div', { class: 'app__spacer' }),
@@ -135,13 +136,13 @@
     root.appendChild(body);
     // 지난번 작업(시나리오, 설정)이 브라우저에 남아 있으면 데이터를 넣을 때 이어서 적용합니다.
     var saved = act.restorable();
-    if (saved && saved.scenarios && saved.scenarios.some(function (s) { return s.cards && s.cards.length; })) {
+    if (saved && ((saved.cards && saved.cards.length) || (saved.scenarios && saved.scenarios.some(function (s) { return s.cards && s.cards.length; })))) {
       st.pendingProject = saved;
       act.applyProject(saved);
     }
     render();
     if (st.pendingProject) {
-      App.ui.toast('지난 작업(시나리오 ' + st.scenarios.length + '개)을 이어서 씁니다. 데이터를 다시 불러오세요.', 'info', 6000);
+      App.ui.toast('지난 작업(외생변수 ' + st.cards.length + '개)을 이어서 씁니다. 데이터를 다시 불러오세요.', 'info', 6000);
     }
   }
 

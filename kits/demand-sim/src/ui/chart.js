@@ -13,8 +13,12 @@
   var W = 760;
   var PAD = { l: 56, r: 92, t: 12, b: 28 };
 
+  // 실적은 본문 색, 시나리오는 Worst 주황 / Base 파랑 / Best 청록. 같은 시나리오는 어느 차트에서나 같은 색입니다.
   var STYLE = {
-    actual: { color: 'var(--viz-1)', width: 2, dash: null },
+    actual: { color: 'var(--c-fg)', width: 2, dash: null },
+    worst: { color: 'var(--viz-2)', width: 2, dash: null },
+    base: { color: 'var(--viz-1)', width: 2.5, dash: null },
+    best: { color: 'var(--viz-3)', width: 2, dash: null },
     baseline: { color: 'var(--c-fg-muted)', width: 1.5, dash: '5 4' },
     scenario: { color: 'var(--viz-2)', width: 2, dash: null },
     line: { color: 'var(--viz-7)', width: 2, dash: null },

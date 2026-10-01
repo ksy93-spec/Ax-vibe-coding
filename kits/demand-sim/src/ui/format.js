@@ -14,12 +14,12 @@
     return Math.round(v).toLocaleString('ko-KR');
   }
 
-  /** 짧게. 19122226 -> '1,912만', 1688366 -> '168.8만', 12345 -> '1.2만', 2.3억 */
+  /** 짧게. 19122226 -> '1,912만', 4414910 -> '441만', 168836 -> '16.9만', 2.3억 */
   function compact(v) {
     if (v === null || v === undefined || !isFinite(v)) return '';
     var a = Math.abs(v);
     if (a >= 1e8) return trim(v / 1e8) + '억';
-    if (a >= 1e7) return Math.round(v / 1e4).toLocaleString('ko-KR') + '만';
+    if (a >= 1e6) return Math.round(v / 1e4).toLocaleString('ko-KR') + '만';
     if (a >= 1e4) return trim(v / 1e4) + '만';
     return Math.round(v).toLocaleString('ko-KR');
   }

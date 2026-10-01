@@ -34,8 +34,19 @@
     'na': '북미', 'northamerica': '북미', 'eu': '유럽', 'europe': '유럽', 'cn': '중국', 'china': '중국',
     'kr': '한국', 'korea': '한국', 'southkorea': '한국', 'jp': '일본', 'japan': '일본', 'in': '인도', 'india': '인도',
     'asean': '동남아', 'sea': '동남아', 'latam': '중남미', 'southamerica': '남미', 'mea': '중동·아프리카', 'middleeast': '중동',
-    'oceania': '오세아니아', 'anz': '오세아니아', 'russia': '러시아', 'cis': 'CIS',
+    'oceania': '오세아니아', 'anz': '오세아니아', 'russia': '러시아', 'cis': 'CIS', 'ru': '러시아·CIS',
+    '북미': '북미', '유럽': '유럽', '중국': '중국', '한국': '한국', '일본': '일본',
   };
+
+  var KEY_OF = {
+    '북미': 'NA', '유럽': 'EU', '중국': 'CN', '한국': 'KR', '일본': 'JP',
+  };
+
+  /** 지역 값 -> 'NA' 'EU' 'CN' 'KR' 'JP' 같은 표준 키. 모르면 원래 값 */
+  function regionKey(region) {
+    var n = REGION_NAME[norm(region)];
+    return (n && KEY_OF[n]) || String(region);
+  }
 
   /** 'NA' -> '북미 (NA)', '북미' -> '북미' */
   function regionLabel(region) {
@@ -96,9 +107,9 @@
         add(a2 ? [a2] : alias(c));
       }
     });
-    if (!out.length) add(alias(region) || [country(region)]);
+    if (!out.length && region !== sim.OTHER_REGION) add(alias(region) || [country(region)]);
     return out;
   }
 
-  sim.geo = { REGION_ALIASES: REGION_ALIASES, country: country, regionCountries: regionCountries, regionLabel: regionLabel, regionShort: regionShort };
+  sim.geo = { REGION_ALIASES: REGION_ALIASES, country: country, regionCountries: regionCountries, regionLabel: regionLabel, regionShort: regionShort, regionKey: regionKey };
 })(typeof window !== 'undefined' ? window : globalThis);

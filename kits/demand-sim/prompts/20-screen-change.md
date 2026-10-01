@@ -4,13 +4,12 @@
 
 ```
 파일: 〈src/ui/view-overview.js, src/ui/view-result.js, src/ui/view-report.js 중 하나〉
-목표: 〈예: 결과 탭 지표 카드에 "향후 24개월 누적 점유율 변화(%p)" 를 하나 더한다〉
+목표: 〈예: 임원 보고서 ④ 에 전략고객 OEM 별 2028F 자사 물량 열을 더한다〉
 
 이미 있는 것 (새로 만들지 말 것):
-- App.actions.result(scn) -> Sim.SimResult (시나리오), App.actions.baseResult() -> 기준선
-- App.actions.mcResult(scn) -> Sim.McResult 또는 null (구간 미계산)
-- App.views.history(ds) -> 최근 24개월 실적 { months, brandUnits[region][brand][], tiv[region][] }
-- App.views.sumRange(arr, from, to) -> 구간 합
+- App.actions.scenarioSet() -> { results: {Trend, Worst, Base, Best} (월, Sim.SimResult), annual: {...} (연, Sim.AnnualResult), years, build }
+- App.actions.displayFor(시나리오, 연도 인덱스) -> 지역별 디스플레이 TAM, 자사 물량, 고객 구분 합계 (Sim.DisplayResult)
+- App.bars.stack / hbars / columns: 임원 보고서 막대
 - App.w.kpi(label, value, sub, tone), App.w.table(columns, rows, opts), App.w.notes(list)
 - App.fmt.units / pct / signedUnits / signedPct / signedPp
 - App.fcChart(mount, spec): 예측 차트. spec 은 types/app.d.ts 의 FcChartSpec
@@ -31,6 +30,6 @@
 완료 기준:
 - index.html 을 열고 "예시 데이터로 시작" 후 해당 탭에서 새 항목이 보인다
 - 화면 전환(다크)에서도 글자가 보인다
-- 새 문구에 TIV, 기준선, 파워트레인, 몬테카를로 같은 말이 없다 (SPEC.md 1절 표)
+- 새 문구가 SPEC.md 2절 용어(TAM, M/S, Powertrain, Worst/Base/Best)를 따른다
 - 콘솔(F12)에 오류가 없다
 ```

@@ -1,4 +1,4 @@
-/* 한눈에 보기 탭: 세계 지도, 지역별 브랜드 점유율 도넛, 브랜드별 디스플레이 수요와 우리 몫. 전역 App.views.overview. */
+/* 대시보드 탭: 글로벌 TAM, 세계 지도, 지역 OEM M/S 도넛, OEM 별 디스플레이 TAM 과 자사 물량. 전역 App.views.overview. */
 (function (global) {
   'use strict';
   var App = (global.App = global.App || {});
@@ -11,24 +11,10 @@
   var act = App.actions;
 
   var DONUT_SLICES = 5; // + "그 외" = 6조각
+  var TIER_LABEL = { strategic: '전략', maintain: '유지' };
 
-  /** 고른 기간의 지역 -> 브랜드 -> 차량 대수 */
-  function vehiclesFor(period) {
-    var ds = st.ds;
-    if (period === 'actual') {
-      var T = ds.months.length;
-      return sim.display.sumVehicles(ds, act.actualSeries(), T - 12, T);
-    }
-    var res = period === 'scenario' ? act.result(act.scenario()) : act.baseResult();
-    return sim.display.sumVehicles(ds, res.brandUnits, 0, 12);
-  }
-
-  function periodLabel(period) {
-    var ds = st.ds;
-    if (period === 'actual') return '최근 1년 실적 (' + sim.util.addMonths(ds.months[ds.months.length - 1], -11) + ' ~ ' + ds.months[ds.months.length - 1] + ')';
-    var m = st.bl.months;
-    var span = m[0] + ' ~ ' + m[Math.min(11, m.length - 1)];
-    return period === 'scenario' ? '앞으로 1년, ' + act.scenario().name + ' (' + span + ')' : '앞으로 1년 기본 전망 (' + span + ')';
+  function rname(r) {
+    return r === sim.TOTAL ? '글로벌' : geo.regionShort(r);
   }
 
   function regionWeights(r) {
@@ -48,21 +34,35 @@
     return Object.keys(wts).length ? wts : null;
   }
 
-  function controls() {
-    var opts = [
-      { value: 'actual', label: '최근 1년 실적' },
-      { value: 'base', label: '앞으로 1년 · 기본 전망', title: '변수 카드 없이 지금 흐름이 이어질 때' },
-      { value: 'scenario', label: '앞으로 1년 · ' + act.scenario().name, title: '시나리오 탭에서 고른 시나리오' },
-    ];
+  function controls(years) {
+    var ov = st.overview;
     return h('section', { class: 'panel panel--bar' }, h('div', { class: 'row' }, [
-      h('span', { class: 'bar-label', text: '기간' }),
-      w.segmented(opts, st.overview.period, function (v) { st.overview.period = v; App.render(); }, '기간'),
+      h('span', { class: 'bar-label', text: '연도' }),
+      w.segmented(years.map(function (y, i) { return { value: i, label: y.label, title: y.kind === 'A' ? '실적' : y.kind === 'E' ? '실적 + 전망' : '전망' }; }), ov.year, function (v) { ov.year = Number(v); App.render(); }, '연도'),
+      h('span', { class: 'bar-label bar-label--gap', text: '시나리오' }),
+      w.segmented(act.SCN.map(function (n) { return { value: n, label: n }; }), ov.scenario, function (v) { ov.scenario = v; App.render(); }, '시나리오'),
       h('div', { class: 'app__spacer' }),
-      h('span', { class: 'muted', text: periodLabel(st.overview.period) }),
+      h('span', { class: 'muted', text: years[ov.year].kind === 'A' ? '실적 연도는 시나리오와 관계없이 같습니다' : 'A 실적 · E 실적+전망 · F 전망' }),
     ]));
   }
 
-  function mapPanel(veh, disp, regions) {
+  function kpiStrip(disp, prev, regions) {
+    var T = disp[sim.TOTAL];
+    var majors = regions.filter(function (r) { return r !== sim.OTHER_REGION; });
+    var majTam = 0;
+    majors.forEach(function (r) { majTam += disp[r].tam; });
+    var items = [
+      w.kpi('글로벌 차량 TAM', fmt.compact(T.vehicles) + '대', prev ? 'YoY ' + fmt.signedPct(prev[sim.TOTAL].vehicles ? T.vehicles / prev[sim.TOTAL].vehicles - 1 : 0) : '', prev ? w.tone(T.vehicles - prev[sim.TOTAL].vehicles) : ''),
+    ];
+    if (act.hasDisplay()) {
+      items.push(w.kpi('글로벌 디스플레이 TAM', fmt.compact(T.tam) + ' EA', '평균 대당 ' + (T.vehicles ? (T.tam / T.vehicles).toFixed(2) : '-') + ' EA'));
+      items.push(w.kpi('주요 ' + majors.length + '개 지역', fmt.compact(majTam) + ' EA', '디스플레이 TAM 의 ' + fmt.pct(T.tam ? majTam / T.tam : 0)));
+      items.push(w.kpi(st.display.companyName + ' M/S', fmt.pct(T.share), fmt.compact(T.ours) + ' EA' + (prev ? ' · YoY ' + fmt.signedPct(prev[sim.TOTAL].ours ? T.ours / prev[sim.TOTAL].ours - 1 : 0) : ''), prev ? w.tone(T.ours - prev[sim.TOTAL].ours) : ''));
+    }
+    return h('div', { class: 'kpis' }, items);
+  }
+
+  function mapPanel(disp, regions) {
     var ds = st.ds;
     var maxV = 0;
     regions.forEach(function (r) { maxV = Math.max(maxV, disp[r].vehicles); });
@@ -72,30 +72,35 @@
         return {
           key: r,
           label: geo.regionShort(r),
-          value: fmt.compact(disp[r].vehicles) + '대',
+          value: fmt.compact(act.hasDisplay() ? disp[r].tam : disp[r].vehicles) + (act.hasDisplay() ? ' EA' : '대'),
           size: maxV ? disp[r].vehicles / maxV : 0,
           iso2: geo.regionCountries(r, ds.countries[r]),
           weights: regionWeights(r),
+          muted: r === sim.OTHER_REGION,
+          anchor: r === sim.OTHER_REGION ? 'max' : null,
         };
       }),
       selected: st.overview.region,
       onSelect: function (r) { st.overview.region = r; App.render(); },
     });
-    var chips = h('div', { class: 'row map__chips' }, regions.map(function (r) {
+    var chips = h('div', { class: 'row map__chips' }, [h('button', {
+      class: 'chip chip--sm' + (st.overview.region === sim.TOTAL ? ' is-on' : ''), type: 'button', text: '글로벌',
+      onclick: function () { st.overview.region = sim.TOTAL; App.render(); },
+    })].concat(regions.map(function (r) {
       return h('button', {
         class: 'chip chip--sm' + (st.overview.region === r ? ' is-on' : ''), type: 'button',
         text: geo.regionShort(r) + (info.unmapped.indexOf(r) >= 0 ? ' (지도에 없음)' : ''),
         onclick: function () { st.overview.region = r; App.render(); },
       });
-    }));
+    })));
     return h('section', { class: 'panel panel--map' }, [
-      w.head('주요 지역', '점 크기는 차량 판매량입니다. 지역이나 점을 누르면 오른쪽에 그 지역의 브랜드 구성이 나옵니다.'),
+      w.head('지역별 ' + (act.hasDisplay() ? '디스플레이 TAM' : '차량 TAM'), '점 크기는 차량 판매량. 지역이나 점을 누르면 오른쪽에 그 지역 OEM M/S 가 나옵니다. 옅은 색은 ' + sim.OTHER_REGION + '.'),
       mount,
       chips,
     ]);
   }
 
-  function regionPanel(r, veh, disp) {
+  function regionPanel(r, disp) {
     var ds = st.ds;
     var d = disp[r];
     var brands = ds.brands.slice().sort(function (a, b) { return d.brands[b].vehicles - d.brands[a].vehicles; });
@@ -103,37 +108,37 @@
     var rest = d.vehicles;
     var items = top.map(function (b) {
       rest -= d.brands[b].vehicles;
-      return { label: b, value: d.brands[b].vehicles, color: w.brandColor(ds, b) };
+      return { label: b + (TIER_LABEL[d.brands[b].tier] ? ' · ' + TIER_LABEL[d.brands[b].tier] : ''), value: d.brands[b].vehicles, color: w.brandColor(ds, b) };
     });
-    if (rest > 0.5) items.push({ label: '그 외 (기타 포함)', value: rest, color: 'var(--c-border-strong)' });
+    if (rest > 0.5) items.push({ label: '그 외 OEM', value: rest, color: 'var(--c-border-strong)' });
     var mount = h('div');
     App.donut(mount, {
       items: items,
-      centerTitle: geo.regionShort(r) + ' 판매',
+      centerTitle: rname(r) + ' 차량 TAM',
       centerValue: fmt.compact(d.vehicles) + '대',
       format: function (v) { return fmt.units(v) + ' 대'; },
     });
-    var kpis = [w.kpi('차량 판매', fmt.compact(d.vehicles) + '대', '1년 합계')];
+    var kpis = [w.kpi('차량 TAM', fmt.compact(d.vehicles) + '대', '')];
     if (act.hasDisplay()) {
-      kpis.push(w.kpi('디스플레이 수요', fmt.compact(d.tam) + '장', '차량 x 대당 디스플레이 수'));
-      kpis.push(w.kpi(st.display.companyName + ' 점유율', fmt.pct(d.share), fmt.compact(d.ours) + '장', ''));
+      kpis.push(w.kpi('디스플레이 TAM', fmt.compact(d.tam) + ' EA', ''));
+      kpis.push(w.kpi(st.display.companyName + ' M/S', fmt.pct(d.share), fmt.compact(d.ours) + ' EA'));
     }
     return h('section', { class: 'panel' }, [
-      w.head(geo.regionLabel(r) + ' 브랜드 구성', '판매 상위 ' + DONUT_SLICES + '개 브랜드와 나머지. 전체 목록은 아래 표에 있습니다.'),
+      w.head((r === sim.TOTAL ? '글로벌' : geo.regionLabel(r)) + ' OEM M/S', '차량 판매 기준 상위 ' + DONUT_SLICES + '개 OEM. 전체 목록은 아래에 있습니다.'),
       h('div', { class: 'kpis kpis--compact' }, kpis),
       mount,
     ]);
   }
 
-  /** 브랜드별 디스플레이 수요 막대: 전체 길이 = 수요, 진한 부분 = 우리 몫 */
   function displayPanel(r, disp) {
     var ds = st.ds;
+    var name = st.display.companyName;
     if (!act.hasDisplay()) {
       return h('section', { class: 'panel' }, [
-        w.head('브랜드별 디스플레이 수요와 ' + st.display.companyName + ' 몫'),
+        w.head('OEM 별 디스플레이 TAM 과 ' + name + ' 물량'),
         h('div', { class: 'empty-cta' }, [
-          h('p', { text: '브랜드별 대당 디스플레이 수와 우리 공급 비중을 넣으면 이 지역 디스플레이 시장에서 우리가 차지하는 몫이 나옵니다.' }),
-          h('button', { class: 'btn btn--primary btn--sm', type: 'button', text: '디스플레이 가정 넣으러 가기', onclick: function () { st.tab = 'data'; App.render(); setTimeout(function () { var el = document.getElementById('display-panel'); if (el) el.scrollIntoView(); }, 0); } }),
+          h('p', { text: 'OEM 별 대당 디스플레이와 브랜드 내 자사 M/S 를 넣으면 디스플레이 TAM 과 ' + name + ' M/S 가 나옵니다.' }),
+          h('button', { class: 'btn btn--primary btn--sm', type: 'button', text: '디스플레이 가정 넣기', onclick: function () { st.tab = 'data'; App.render(); setTimeout(function () { var el = document.getElementById('display-panel'); if (el) el.scrollIntoView(); }, 0); } }),
         ]),
       ]);
     }
@@ -141,53 +146,67 @@
     var rows = ds.brands.filter(function (b) { return d.brands[b].tam > 0; }).sort(function (a, b) { return d.brands[b].tam - d.brands[a].tam; });
     var max = 0;
     rows.forEach(function (b) { max = Math.max(max, d.brands[b].tam); });
-    var list = h('div', { class: 'sbar-list', role: 'table', 'aria-label': '브랜드별 디스플레이 수요와 우리 몫' }, [
+    var list = h('div', { class: 'sbar-list', role: 'table', 'aria-label': 'OEM 별 디스플레이 TAM 과 자사 물량' }, [
       h('div', { class: 'sbar sbar--head', role: 'row' }, [
-        h('span', { role: 'columnheader', text: '브랜드' }),
-        h('span', { role: 'columnheader', text: '디스플레이 수요 (진한 부분이 ' + st.display.companyName + ')' }),
-        h('span', { class: 'num', role: 'columnheader', text: '수요' }),
-        h('span', { class: 'num', role: 'columnheader', text: st.display.companyName + ' 몫' }),
-        h('span', { class: 'num', role: 'columnheader', text: st.display.companyName + ' 비중' }),
+        h('span', { role: 'columnheader', text: 'OEM' }),
+        h('span', { role: 'columnheader', text: '디스플레이 TAM (진한 부분이 ' + name + ')' }),
+        h('span', { class: 'num', role: 'columnheader', text: 'TAM (EA)' }),
+        h('span', { class: 'num', role: 'columnheader', text: name + ' (EA)' }),
+        h('span', { class: 'num', role: 'columnheader', text: '자사 M/S' }),
       ]),
     ].concat(rows.map(function (b) {
       var x = d.brands[b];
-      var widthPct = max ? (x.tam / max) * 100 : 0;
-      return h('div', { class: 'sbar', role: 'row', title: b + ': 대당 ' + x.panels + '장, 공급 비중 ' + fmt.pct(x.share) + (x.source === 'default' ? ' (기본값)' : x.source === 'region' ? ' (이 지역 값)' : '') }, [
-        h('span', { class: 'sbar__name', role: 'cell' }, [h('span', { class: 'swatch', style: { background: w.brandColor(ds, b) } }), b]),
-        h('span', { class: 'sbar__track', role: 'cell' }, h('span', { class: 'sbar__total', style: { width: widthPct + '%' } }, h('span', { class: 'sbar__ours', style: { width: (x.share * 100) + '%' } }))),
+      return h('div', { class: 'sbar', role: 'row', title: b + ': 대당 ' + x.panels + ' EA, 브랜드 내 자사 M/S ' + fmt.pct(x.share) + (x.source === 'default' ? ' (기본값)' : x.source === 'region' ? ' (지역 예외)' : '') }, [
+        h('span', { class: 'sbar__name', role: 'cell' }, [
+          h('span', { class: 'swatch', style: { background: w.brandColor(ds, b) } }), b,
+          TIER_LABEL[x.tier] ? h('span', { class: 'tier tier--' + x.tier, text: TIER_LABEL[x.tier] }) : null,
+        ]),
+        h('span', { class: 'sbar__track', role: 'cell' }, h('span', { class: 'sbar__total', style: { width: (max ? (x.tam / max) * 100 : 0) + '%' } }, h('span', { class: 'sbar__ours', style: { width: (x.share * 100) + '%' } }))),
         h('span', { class: 'num', role: 'cell', text: fmt.compact(x.tam) }),
         h('span', { class: 'num', role: 'cell', text: fmt.compact(x.ours) }),
         h('span', { class: 'num', role: 'cell', text: fmt.pct(x.share) + (x.source === 'default' ? '*' : '') }),
       ]);
     })));
-    var hasDefault = rows.some(function (b) { return d.brands[b].source === 'default'; });
+    var tiers = sim.display.TIERS.map(function (t) {
+      var x = d.tiers[t.key];
+      return t.label + ' ' + fmt.pct(d.ours ? x.ours / d.ours : 0);
+    }).join(' · ');
     return h('section', { class: 'panel' }, [
-      w.head(geo.regionLabel(r) + ' 디스플레이 수요와 ' + st.display.companyName + ' 몫',
-        '디스플레이 수요 ' + fmt.compact(d.tam) + '장 중 ' + st.display.companyName + ' ' + fmt.compact(d.ours) + '장 (' + fmt.pct(d.share) + ')'),
+      w.head((r === sim.TOTAL ? '글로벌' : geo.regionLabel(r)) + ' OEM 별 디스플레이 TAM 과 ' + name + ' 물량',
+        '디스플레이 TAM ' + fmt.compact(d.tam) + ' EA 중 ' + name + ' ' + fmt.compact(d.ours) + ' EA (M/S ' + fmt.pct(d.share) + '). ' + name + ' 물량 구성: ' + tiers),
       list,
-      hasDefault ? h('p', { class: 'field__hint', text: '* 가정을 넣지 않아 기본값(대당 ' + st.display.defaultPanels + '장, 비중 ' + fmt.pct(st.display.defaultShare) + ')을 쓴 브랜드' }) : null,
+      rows.some(function (b) { return d.brands[b].source === 'default'; }) ? h('p', { class: 'field__hint', text: '* 가정이 없어 기본값(대당 ' + st.display.defaultPanels + ' EA, 자사 M/S ' + fmt.pct(st.display.defaultShare) + ')을 쓴 OEM' }) : null,
     ]);
   }
 
-  function regionTable(regions, disp, dispActual) {
+  function regionTable(regions, disp, prev) {
     var showDisp = act.hasDisplay();
-    var cmp = st.overview.period !== 'actual';
-    var cols = ['지역', { label: '차량 판매', num: true }];
-    if (cmp) cols.push({ label: '최근 1년 대비', num: true });
-    if (showDisp) cols = cols.concat([{ label: '디스플레이 수요', num: true }, { label: st.display.companyName + ' 몫', num: true }, { label: st.display.companyName + ' 점유율', num: true }]);
-    var keys = regions.concat([sim.TOTAL]);
+    var cols = ['지역', { label: '차량 TAM', num: true }];
+    if (prev) cols.push({ label: 'YoY', num: true });
+    if (showDisp) cols = cols.concat([{ label: '디스플레이 TAM (EA)', num: true }, { label: st.display.companyName + ' 물량 (EA)', num: true }, { label: st.display.companyName + ' M/S', num: true }]);
+    var majors = regions.filter(function (r) { return r !== sim.OTHER_REGION; });
+    function sumOf(list, key, src) {
+      var s = 0;
+      list.forEach(function (r) { s += src[r][key]; });
+      return s;
+    }
+    function row(label, veh, pveh, tam, ours) {
+      var out = [label, fmt.units(veh)];
+      if (prev) out.push(fmt.signedPct(pveh ? veh / pveh - 1 : 0));
+      if (showDisp) out = out.concat([fmt.units(tam), fmt.units(ours), fmt.pct(tam ? ours / tam : 0)]);
+      return out;
+    }
+    var keys = regions.slice();
     var rows = keys.map(function (r) {
-      var d = disp[r];
-      var row = [r === sim.TOTAL ? '전체' : geo.regionLabel(r), fmt.units(d.vehicles)];
-      if (cmp) row.push(fmt.signedPct(dispActual[r].vehicles ? d.vehicles / dispActual[r].vehicles - 1 : 0));
-      if (showDisp) row = row.concat([fmt.units(d.tam), fmt.units(d.ours), fmt.pct(d.share)]);
-      return row;
+      return row(geo.regionLabel(r), disp[r].vehicles, prev && prev[r].vehicles, disp[r].tam, disp[r].ours);
     });
+    rows.push(row('주요 ' + majors.length + '개 지역 합계', sumOf(majors, 'vehicles', disp), prev && sumOf(majors, 'vehicles', prev), sumOf(majors, 'tam', disp), sumOf(majors, 'ours', disp)));
+    rows.push(row('글로벌', disp[sim.TOTAL].vehicles, prev && prev[sim.TOTAL].vehicles, disp[sim.TOTAL].tam, disp[sim.TOTAL].ours));
     return h('section', { class: 'panel' }, [
-      w.head('지역 비교', '행을 누르면 그 지역을 봅니다.'),
+      w.head('지역 비교', '줄을 누르면 그 지역을 봅니다.'),
       w.table(cols, rows, {
-        onRowClick: function (i) { if (keys[i] !== sim.TOTAL) { st.overview.region = keys[i]; App.render(); } },
-        selected: function (i) { return keys[i] === st.overview.region; },
+        onRowClick: function (i) { if (i < keys.length) { st.overview.region = keys[i]; App.render(); } else if (i === keys.length + 1) { st.overview.region = sim.TOTAL; App.render(); } },
+        selected: function (i) { return keys[i] === st.overview.region || (i === keys.length + 1 && st.overview.region === sim.TOTAL); },
       }),
     ]);
   }
@@ -197,18 +216,20 @@
       root.appendChild(h('section', { class: 'panel' }, h('p', { class: 'empty', text: '먼저 데이터 탭에서 데이터를 불러오세요.' })));
       return;
     }
-    var period = st.overview.period;
-    var veh = vehiclesFor(period);
-    var disp = sim.display.compute(st.ds, veh, st.display);
-    var dispActual = period === 'actual' ? disp : sim.display.compute(st.ds, vehiclesFor('actual'), st.display);
-    var regions = st.ds.regions.slice().sort(function (a, b) { return disp[b].vehicles - disp[a].vehicles; });
-    if (regions.indexOf(st.overview.region) < 0) st.overview.region = regions[0];
-    var r = st.overview.region;
+    var set = act.scenarioSet();
+    var years = set.years;
+    var ov = st.overview;
+    if (!(ov.year >= 0 && ov.year < years.length)) ov.year = act.defaultYear(years);
+    var disp = act.displayFor(ov.scenario, ov.year);
+    var prev = ov.year > 0 ? act.displayFor(ov.scenario, ov.year - 1) : null;
+    var regions = st.ds.regions.slice();
+    if (ov.region !== sim.TOTAL && regions.indexOf(ov.region) < 0) ov.region = regions[0];
 
-    root.appendChild(controls());
-    root.appendChild(h('div', { class: 'grid-main' }, [mapPanel(veh, disp, regions), regionPanel(r, veh, disp)]));
-    root.appendChild(displayPanel(r, disp));
-    root.appendChild(regionTable(regions, disp, dispActual));
+    root.appendChild(controls(years));
+    root.appendChild(kpiStrip(disp, prev, regions));
+    root.appendChild(h('div', { class: 'grid-main' }, [mapPanel(disp, regions), regionPanel(ov.region, disp)]));
+    root.appendChild(displayPanel(ov.region, disp));
+    root.appendChild(regionTable(regions, disp, prev));
   }
 
   App.views = App.views || {};

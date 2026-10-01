@@ -7,18 +7,15 @@
   var sim = (App.sim = App.sim || {});
   var U = sim.util;
 
-  // 화면에 나가는 말. 전문 용어 대신 풀어 쓴 표현을 씁니다.
-  var LAYER_LABEL = { TIV: '시장 전체 판매량', POWERTRAIN: '동력원 비중', BRAND: '브랜드 점유율' };
+  // 화면에 나가는 말. 사업부에서 쓰는 용어(TAM, M/S, Powertrain)를 그대로 씁니다.
+  var LAYER_LABEL = { TIV: '시장 TAM', POWERTRAIN: 'Powertrain 비중', BRAND: 'OEM M/S' };
   var LAYER_HELP = {
-    TIV: '그 지역에서 팔리는 차 전체가 늘거나 줄어듭니다. 예: 경기 둔화, 금리 변화',
-    POWERTRAIN: '전기차, 하이브리드 같은 동력원 비중이 바뀝니다. 예: 보조금 종료, 배출 규제',
-    BRAND: '특정 브랜드가 경쟁사 몫을 가져오거나 잃습니다. 예: 자율주행 승인, 관세, 신차 출시',
+    TIV: '지역 차량 판매 전체가 늘거나 줄어듦. 예: 경기 둔화, 금리, 구매세',
+    POWERTRAIN: 'BEV, PHEV, HEV, ICE 비중이 바뀜. 예: EV 보조금 종료, CO2 규제',
+    BRAND: '특정 OEM 이 같은 Powertrain 경쟁사 몫을 가져오거나 잃음. 예: 자율주행 승인, 관세, 신차',
   };
-  var SHAPE_LABEL = { step: '바로', linear: '일정하게', scurve: '천천히 시작해 빨라지게' };
-  var PT_LABEL = {
-    BEV: '전기차 (BEV)', PHEV: '플러그인 하이브리드 (PHEV)', EREV: '주행거리 연장형 (EREV)', HEV: '하이브리드 (HEV)',
-    MHEV: '마일드 하이브리드 (MHEV)', ICE: '내연기관 (ICE)', FCEV: '수소차 (FCEV)', ALL: '전체',
-  };
+  var SHAPE_LABEL = { step: '즉시', linear: '선형', scurve: 'S-curve' };
+  var PT_LABEL = { ALL: '전체' };
 
   function ptLabel(code) {
     return PT_LABEL[code] || code;
@@ -90,7 +87,7 @@
     if (![mg.min, mg.mode, mg.max].every(function (v) { return typeof v === 'number' && isFinite(v); })) {
       err('영향 크기를 숫자로 넣어 주세요.');
     } else if (!(mg.min <= mg.mode && mg.mode <= mg.max)) {
-      err('영향 범위는 "작게 보면 <= 예상 <= 크게 보면" 순서여야 합니다.');
+      err('영향 크기는 범위 최소 <= 예상 <= 범위 최대 순서여야 합니다 (−6 이 −1 보다 작음).');
     }
     if (!(card.probability >= 0 && card.probability <= 1)) err('일어날 가능성은 0~100% 사이입니다.');
     if (card.holdMonths !== null && card.holdMonths !== undefined && !(card.holdMonths >= 1)) err('효과가 이어지는 기간은 1개월 이상이어야 합니다.');
@@ -99,16 +96,16 @@
 
     if (card.layer === 'POWERTRAIN') {
       var pi = ds.powertrains.indexOf(card.target);
-      if (ds.powertrains.length === 1 && ds.powertrains[0] === 'ALL') err('동력원(파워트레인) 자료를 넣지 않아 이 카드를 쓸 수 없습니다.');
-      else if (pi < 0) err('데이터에 없는 동력원입니다: ' + card.target);
-      else if (!bl.ptActive[card.region][pi]) err(card.region + ' 에서 최근 1년 판매가 없는 동력원입니다. 판매가 없는 곳은 카드로 늘릴 수 없습니다.');
+      if (ds.powertrains.length === 1 && ds.powertrains[0] === 'ALL') err('Powertrain 자료가 없어 이 카드를 쓸 수 없습니다.');
+      else if (pi < 0) err('데이터에 없는 Powertrain 입니다: ' + card.target);
+      else if (!bl.ptActive[card.region][pi]) err(card.region + ' 에서 최근 1년 판매가 없는 Powertrain 입니다. 판매가 없는 곳은 카드로 늘릴 수 없습니다.');
     } else if (card.layer === 'BRAND') {
       var bi = ds.brands.indexOf(card.target);
       if (bi < 0) {
-        err('관측 브랜드가 아닙니다 (기타로 묶였을 수 있습니다): ' + card.target);
+        err('관측 OEM 이 아닙니다 (기타로 묶였을 수 있습니다): ' + card.target);
       } else {
         var nests = card.powertrain ? [card.powertrain] : ds.powertrains;
-        if (card.powertrain && ds.powertrains.indexOf(card.powertrain) < 0) err('데이터에 없는 동력원입니다: ' + card.powertrain);
+        if (card.powertrain && ds.powertrains.indexOf(card.powertrain) < 0) err('데이터에 없는 Powertrain 입니다: ' + card.powertrain);
         else if (!nests.some(function (p) { return bl.brandActive[card.region][p][bi]; })) {
           err(card.region + ' 에서 ' + card.target + (card.powertrain ? ' ' + card.powertrain : '') + ' 의 최근 1년 판매가 없습니다. 판매가 없는 곳은 카드로 늘릴 수 없습니다.');
         }
@@ -121,12 +118,12 @@
     var first = bl.months[0];
     var lastM = bl.months[bl.months.length - 1];
     if (card.start < first) warn('시작 월이 이미 지난 달입니다. 실적에 이미 나타난 일이라면 두 번 계산됩니다.');
-    if (card.start > lastM && !card.pullForward) warn('시작 월이 전망 기간 뒤라 결과에 영향이 없습니다.');
+    if (card.start > lastM && !card.pullForward) warn('시작 월이 전망 기간(Forecast) 뒤라 결과에 영향이 없습니다.');
     if ((card.countries || []).length) {
       var w = countryWeight(card, ds);
       if (w === 0) warn('고른 국가의 최근 1년 판매가 없어 영향이 0 입니다.');
     }
-    if (card.layer === 'TIV' && mg.min <= -100) err('시장 판매 감소는 -100% 보다 클 수 없습니다.');
+    if (card.layer === 'TIV' && mg.min <= -100) err('TAM 감소는 -100% 보다 클 수 없습니다.');
     return out;
   }
 
@@ -172,17 +169,16 @@
     var unit = unitOf(card.layer);
     var mg = card.magnitude;
     var where = card.region + ((card.countries || []).length ? '(' + card.countries.join(', ') + ')' : '');
-    var what = card.layer === 'TIV' ? '시장 전체 판매'
+    var what = card.layer === 'TIV' ? 'TAM'
       : card.layer === 'POWERTRAIN' ? ptLabel(card.target) + ' 비중'
-      : card.target + (card.powertrain ? ' ' + ptLabel(card.powertrain) : '') + ' 점유율';
+      : card.target + (card.powertrain ? ' ' + ptLabel(card.powertrain) : '') + ' M/S';
     var amount = signed(mg.mode) + unit;
     var range = mg.min === mg.max ? '' : ' (범위 ' + signed(mg.min) + ' ~ ' + signed(mg.max) + ')';
-    var timing = card.start + '부터 ' + (card.rampShape === 'step' || card.rampMonths <= 1 ? '바로' : card.rampMonths + '개월에 걸쳐') + ' 반영';
-    if (card.holdMonths === null || card.holdMonths === undefined) timing += ', 계속 유지';
-    else timing += ', ' + card.holdMonths + '개월 뒤 ' + (card.halfLifeMonths ? '서서히 줄어듦' : '사라짐');
+    var timing = card.start + ' 부터 ' + (card.rampShape === 'step' || card.rampMonths <= 1 ? '즉시' : card.rampMonths + '개월 ' + SHAPE_LABEL[card.rampShape]) + ' 반영';
+    if (card.holdMonths === null || card.holdMonths === undefined) timing += ', 지속';
+    else timing += ', ' + card.holdMonths + '개월 후 ' + (card.halfLifeMonths ? '점진 소멸' : '종료');
     var parts = [where + ' ' + what + ' ' + amount + range, timing];
-    if (card.probability < 1) parts.push('가능성 ' + Math.round(card.probability * 100) + '%');
-    if (card.pullForward) parts.push('시작 전 ' + card.pullForward.months + '개월 미리 사는 수요 ' + signed(card.pullForward.pct) + '%');
+    if (card.pullForward) parts.push('Pull-forward ' + card.pullForward.months + '개월 ' + signed(card.pullForward.pct) + '%');
     return parts.join(' · ');
   }
 

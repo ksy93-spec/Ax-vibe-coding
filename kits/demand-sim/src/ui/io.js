@@ -47,7 +47,11 @@
     'baseline_units', 'scenario_units', 'p10_units', 'p50_units', 'p90_units',
     'baseline_share', 'scenario_share', 'region_tiv_baseline', 'region_tiv_scenario',
     'baseline_panels', 'scenario_panels', 'our_panels_baseline', 'our_panels_scenario',
+    'customer_tier',
   ];
+
+  /** 연 단위 결과 CSV 열. 임원 보고와 디스플레이 계획에 바로 쓰는 형태 */
+  var ANNUAL_COLUMNS = ['scenario', 'region', 'brand', 'year', 'vehicles', 'ms', 'display_tam', 'our_panels', 'our_ms_in_brand', 'customer_tier'];
 
   /** 월별 디스플레이 수요와 우리 몫: key(지역 또는 전체) -> brand -> { panels[], ours[] } */
   function panelSeries(brandUnits) {
@@ -79,30 +83,32 @@
     return out;
   }
 
-  function resultRecords(scenarios) {
+  /** 월 단위. scenario 열은 Trend, Worst, Base, Best. baseline_* 열은 Trend(외생변수 미반영) 값입니다. */
+  function resultRecords() {
     var st = App.state;
     var ds = st.ds;
-    var base = App.actions.baseResult();
+    var set = App.actions.scenarioSet();
+    var base = set.results.Trend;
     var hasDisp = App.actions.hasDisplay();
     var bp = hasDisp ? panelSeries(base.brandUnits) : null;
     var recs = [];
-    scenarios.forEach(function (scn) {
-      var res = App.actions.result(scn);
-      var mc = App.actions.mcResult(scn);
+    ['Trend'].concat(App.actions.SCN).forEach(function (name) {
+      var res = set.results[name];
       var sp = hasDisp ? panelSeries(res.brandUnits) : null;
       ds.regions.concat([sim.TOTAL]).forEach(function (r) {
         ds.brands.forEach(function (b) {
+          var tier = sim.display.tierOf(st.display, b);
           res.months.forEach(function (m, h) {
             recs.push({
-              scenario: scn.name,
+              scenario: name,
               region: r,
               brand: b,
               month: m,
               baseline_units: Math.round(base.brandUnits[r][b][h]),
               scenario_units: Math.round(res.brandUnits[r][b][h]),
-              p10_units: mc ? Math.round(mc.brandUnits[r][b].p10[h]) : '',
-              p50_units: mc ? Math.round(mc.brandUnits[r][b].p50[h]) : '',
-              p90_units: mc ? Math.round(mc.brandUnits[r][b].p90[h]) : '',
+              p10_units: '',
+              p50_units: '',
+              p90_units: '',
               baseline_share: base.share[r][b][h].toFixed(6),
               scenario_share: res.share[r][b][h].toFixed(6),
               region_tiv_baseline: Math.round(base.tiv[r][h]),
@@ -111,6 +117,7 @@
               scenario_panels: hasDisp ? Math.round(sp[r][b].panels[h]) : '',
               our_panels_baseline: hasDisp ? Math.round(bp[r][b].ours[h]) : '',
               our_panels_scenario: hasDisp ? Math.round(sp[r][b].ours[h]) : '',
+              customer_tier: tier,
             });
           });
         });
@@ -119,9 +126,40 @@
     return recs;
   }
 
-  function exportResults(scenarios) {
-    var text = App.csv.stringify(RESULT_COLUMNS, resultRecords(scenarios));
-    return App.csv.download('demand-sim_result_' + stamp() + '.csv', text);
+  function annualRecords() {
+    var st = App.state;
+    var ds = st.ds;
+    var set = App.actions.scenarioSet();
+    var recs = [];
+    ['Trend'].concat(App.actions.SCN).forEach(function (name) {
+      var an = set.annual[name];
+      an.years.forEach(function (y, yi) {
+        var d = App.actions.displayFor(name, yi);
+        ds.regions.concat([sim.TOTAL]).forEach(function (r) {
+          ds.brands.forEach(function (b) {
+            var x = d[r].brands[b];
+            recs.push({
+              scenario: name, region: r, brand: b, year: y.label,
+              vehicles: Math.round(an.brandUnits[r][b][yi]),
+              ms: an.share[r][b][yi].toFixed(6),
+              display_tam: Math.round(x.tam),
+              our_panels: Math.round(x.ours),
+              our_ms_in_brand: x.share.toFixed(4),
+              customer_tier: sim.display.tierOf(st.display, b),
+            });
+          });
+        });
+      });
+    });
+    return recs;
+  }
+
+  function exportResults() {
+    var a = App.csv.download('demand-sim_annual_' + stamp() + '.csv', App.csv.stringify(ANNUAL_COLUMNS, annualRecords()));
+    setTimeout(function () {
+      App.csv.download('demand-sim_monthly_' + stamp() + '.csv', App.csv.stringify(RESULT_COLUMNS, resultRecords()));
+    }, 400);
+    return a;
   }
 
   /** 예시 데이터를 사내 CSV 와 같은 모양으로 내려받습니다. 열 이름 확인용. */
@@ -134,14 +172,18 @@
         raw.powertrain.map(function (r) { return { Quarter: r.quarter, 'Sales Region': r.region, 'Sales Brand': r.brand, Powertrain: r.powertrain, Volume: r.units }; })));
     }, 400);
     setTimeout(function () {
-      App.csv.download('sample_display_assumptions.csv', App.csv.stringify(['Brand', 'Region', 'Panels per vehicle', 'Our share'],
-        sim.sample.makeDisplay().map(function (r) { return { Brand: r.brand, Region: r.region, 'Panels per vehicle': r.panelsPerVehicle, 'Our share': Math.round(r.ourShare * 100) + '%' }; })));
+      var tiers = sim.sample.makeTiers();
+      var label = { strategic: '전략고객', maintain: '유지고객' };
+      App.csv.download('sample_display_assumptions.csv', App.csv.stringify(['Brand', 'Region', 'Panels per vehicle', 'Our share', 'Tier'],
+        sim.sample.makeDisplay().map(function (r) { return { Brand: r.brand, Region: r.region, 'Panels per vehicle': r.panelsPerVehicle, 'Our share': Math.round(r.ourShare * 100) + '%', Tier: r.region ? '' : label[tiers[r.brand]] || '' }; })));
     }, 800);
     return a;
   }
 
   App.io = {
     RESULT_COLUMNS: RESULT_COLUMNS,
+    ANNUAL_COLUMNS: ANNUAL_COLUMNS,
+    annualRecords: annualRecords,
     saveProject: saveProject,
     readJsonFile: readJsonFile,
     resultRecords: resultRecords,
