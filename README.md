@@ -34,6 +34,7 @@
 | --- | --- | --- | --- |
 | `kits/mi-portal` | MI 통합 포탈 템플릿. shadcn-admin 기반 React + TypeScript (1차 프로젝트 권장 시작점) | B. 패키지 tarball 동봉 | 101MB |
 | `kits/demand-sim` | 디스플레이 수요 시뮬레이터. 주요 지역 OEM M/S trend, 외생변수 Worst/Base/Best, 디스플레이 TAM과 자사 M/S 임원 보고서 | C. npm 의존성 0개 | 3.7MB |
+| `kits/big-memo` | 큰 글씨 메모장. 청력이 약한 어르신용 메모, 글로 대화하기, 화면이 깜빡이는 알림. `open-app.bat` 으로 앱 창처럼 열림 | C. npm 의존성 0개 | 3.3MB |
 | `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
 | `kits/portal-shell` | Market Intelligence 통합 포탈 셸 (1차 프로젝트) | C. npm 의존성 0개 | 640KB |
 | `kits/mi-starter` | MI 기능을 ChatGPT 로 만들 때의 시작 템플릿과 오프라인 패키지 | B. 패키지 tarball 동봉 | 87MB |
