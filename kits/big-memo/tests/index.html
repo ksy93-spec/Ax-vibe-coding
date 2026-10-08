@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>메모장 계산 테스트</title>
+<link rel="stylesheet" href="../assets/fonts/pretendard/font.css">
+<style>
+  body { font-family: 'Pretendard Variable', 'Malgun Gothic', sans-serif; font-size: 20px; margin: 30px; background: #fff; color: #111; }
+  h1 { font-size: 28px; }
+  #summary { font-size: 26px; font-weight: 800; }
+  ul { list-style: none; padding: 0; }
+  li { padding: 6px 0; border-bottom: 1px solid #ccc; }
+  .pass::before { content: '통과  '; color: #0b6b2b; font-weight: 800; }
+  .fail::before { content: '실패  '; color: #a3141c; font-weight: 800; }
+  .err { display: block; color: #a3141c; padding-left: 60px; font-size: 16px; }
+</style>
+</head>
+<body>
+<h1>메모장 계산 테스트 (src/core.js)</h1>
+<p id="summary">실행 중...</p>
+<ul id="list"></ul>
+<script src="../src/core.js"></script>
+<script src="core.test.js"></script>
+<script>
+  (function () {
+    var list = document.getElementById('list');
+    var pass = 0;
+    window.CORE_TESTS.forEach(function (t) {
+      var li = document.createElement('li');
+      li.textContent = t.name;
+      try { t.fn(); pass++; li.className = 'pass'; }
+      catch (e) {
+        li.className = 'fail';
+        var s = document.createElement('span');
+        s.className = 'err';
+        s.textContent = e.message;
+        li.appendChild(s);
+      }
+      list.appendChild(li);
+    });
+    document.getElementById('summary').textContent = pass + '/' + window.CORE_TESTS.length + ' 통과';
+  })();
+</script>
+</body>
+</html>
