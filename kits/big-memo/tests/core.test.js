@@ -126,26 +126,27 @@
     var s = core.emptyState(NOW, 0.5);
     assert.strictEqual(s.memos.length, 1);
     assert.ok(s.memos[0].text.indexOf('큰 글씨 메모장') === 0);
-    assert.deepStrictEqual(s.settings, { size: core.DEFAULT_SIZE, theme: 'light', bold: true, sound: true });
+    assert.deepStrictEqual(s.settings, { size: core.DEFAULT_SIZE, theme: 'light', bold: true, sound: true, keepAwake: 'talk' });
     assert.ok(s.phrases.length >= 10);
   });
 
   test('저장값 맞추기: 빠진 값 채움, 범위 밖 값 바로잡음', function () {
     var s = core.normalize({
       memos: [{ id: 'x', text: '가' }, 'garbage', { text: 3 }],
-      settings: { size: 99, theme: 'neon', bold: false },
+      settings: { size: 99, theme: 'neon', bold: false, keepAwake: 'always' },
       reminders: [{ time: '07:30', text: '약' }, { time: 'bad' }],
-      talk: [{ at: 1, text: '안녕' }, { text: 5 }]
+      talk: [{ at: 1, text: '안녕', voice: true }, { at: 2, text: '네', voice: 'x', extra: 1 }, { text: 5 }]
     }, NOW, 0.5);
     assert.strictEqual(s.memos.length, 2);
     assert.strictEqual(s.memos[0].updated, T);
     assert.strictEqual(s.memos[1].text, '');
     assert.ok(s.memos[1].id);
-    assert.deepStrictEqual(s.settings, { size: core.SIZES.length - 1, theme: 'light', bold: false, sound: true });
+    assert.deepStrictEqual(s.settings, { size: core.SIZES.length - 1, theme: 'light', bold: false, sound: true, keepAwake: 'always' });
+    assert.strictEqual(core.normalize({ memos: [], settings: { keepAwake: 'x' } }, NOW, 0.5).settings.keepAwake, 'talk');
     assert.strictEqual(s.reminders.length, 1);
     assert.strictEqual(s.reminders[0].on, true);
     assert.strictEqual(s.reminders[0].next, new Date(2026, 9, 9, 7, 30).getTime());
-    assert.deepStrictEqual(s.talk, [{ at: 1, text: '안녕' }]);
+    assert.deepStrictEqual(s.talk, [{ at: 1, text: '안녕', voice: true }, { at: 2, text: '네', voice: true }]);
     assert.deepStrictEqual(s.phrases, core.DEFAULT_PHRASES);
   });
 
@@ -170,12 +171,28 @@
   });
 
   test('대화를 메모 글로', function () {
-    var text = core.talkToText([{ at: new Date(2026, 9, 8, 9, 5).getTime(), text: '안녕하세요' }], NOW);
-    assert.strictEqual(text, '10월 8일 목요일 대화\n\n[오전 9:05] 안녕하세요');
+    var text = core.talkToText([
+      { at: new Date(2026, 9, 8, 9, 5).getTime(), text: '안녕하세요' },
+      { at: new Date(2026, 9, 8, 9, 6).getTime(), text: '진지 드셨어요', voice: true }
+    ], NOW);
+    assert.strictEqual(text, '10월 8일 목요일 대화\n\n[오전 9:05] 안녕하세요\n[오전 9:06 말] 진지 드셨어요');
   });
 
   test('파일 이름에 한글이 없음', function () {
     assert.strictEqual(core.fileStamp(NOW), '20261008-1524');
+  });
+
+  test('받아쓰기: 확정된 글과 듣는 중인 글 나누기', function () {
+    var r = [{ final: true, text: '옛 글' }, { final: true, text: ' 점심 ' }, { final: false, text: '드셨' }, { final: false, text: '어요' }, { final: true, text: '  ' }];
+    assert.deepStrictEqual(core.splitSpeech(r, 1), { finals: ['점심'], interim: '드셨 어요' });
+    assert.deepStrictEqual(core.splitSpeech([], 0), { finals: [], interim: '' });
+  });
+
+  test('받아쓰기: 커서 자리에 넣고 띄어쓰기 맞추기', function () {
+    assert.deepStrictEqual(core.insertAt('', 0, '안녕'), { text: '안녕', cursor: 2 });
+    assert.deepStrictEqual(core.insertAt('병원', 2, '가요'), { text: '병원 가요', cursor: 5 });
+    assert.deepStrictEqual(core.insertAt('병원 \n약', 3, '가요'), { text: '병원 가요\n약', cursor: 5 });
+    assert.deepStrictEqual(core.insertAt('내일요', 2, '병원'), { text: '내일 병원 요', cursor: 6 });
   });
 
   if (typeof module !== 'undefined' && module.exports) module.exports = tests;
