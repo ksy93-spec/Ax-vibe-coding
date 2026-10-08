@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '2026.10.08.2';
+  var APP_VERSION = '2026.10.08.3';
   var core = window.App.core;
   var KEY = 'big-memo.v1';
   var TAB_KEY = 'big-memo.tab';
@@ -226,6 +226,7 @@
   var listener = null; // { where: 'memo'|'talk', rec, active }
 
   var SPEECH_ERRORS = {
+    inapp: '앱 안의 브라우저에서는 마이크 허용이 계속 다시 뜹니다. 오른쪽 위 메뉴에서 "다른 브라우저로 열기" (Chrome 또는 Safari) 를 눌러 주세요.',
     unsupported: '이 브라우저에서는 받아쓰기가 되지 않습니다. 안드로이드는 Chrome, 아이폰과 아이패드는 Safari 로 여세요.',
     insecure: '받아쓰기는 https 로 시작하는 주소로 열어야 됩니다.',
     denied: '마이크 사용이 막혀 있습니다. 주소창 옆 자물쇠(또는 설정)에서 마이크를 허용해 주세요.',
@@ -238,6 +239,7 @@
   function startListening(where, onFinal, onInterim) {
     stopListening();
     if (!window.isSecureContext) { toast(SPEECH_ERRORS.insecure); return false; }
+    if (inAppBrowser()) { toast(SPEECH_ERRORS.inapp); return false; }
     if (!SR) { toast(SPEECH_ERRORS.unsupported); return false; }
     var L = { where: where, rec: null, active: true, quickEnds: 0, startedAt: 0, timer: null, onFinal: onFinal, onInterim: onInterim };
     listener = L;
@@ -1087,7 +1089,22 @@
     });
   }
 
+  /* 카카오톡, 네이버 같은 앱 안의 브라우저는 마이크 허용을 기억하지 못해 말을 들을 때마다 허용을 다시 묻습니다.
+     카카오톡에서 연 경우 바로 기기 기본 브라우저(Chrome, Safari)로 넘기고, 그 밖의 앱 브라우저는 안내만 합니다. */
+  var UA = navigator.userAgent;
+  function leaveInAppBrowser() {
+    if (/KAKAOTALK/i.test(UA)) {
+      location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+      return true;
+    }
+    return false;
+  }
+  function inAppBrowser() {
+    return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|; wv\)/i.test(UA);
+  }
+
   function start() {
+    if (leaveInAppBrowser()) return;
     state = load();
     state.memos = core.purgeTrash(state.memos, now());
     bind();

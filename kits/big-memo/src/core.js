@@ -36,20 +36,6 @@
     '잠깐 나갔다 올게요.'
   ];
 
-  var WELCOME_TEXT = [
-    '큰 글씨 메모장',
-    '',
-    '여기에 바로 쓰면 됩니다. 쓰는 대로 저절로 저장됩니다.',
-    '',
-    '왼쪽 "새 메모" 를 누르면 새 종이가 생깁니다.',
-    '위쪽 "가+" 를 누르면 글씨가 더 커집니다.',
-    '"크게 보여주기" 를 누르면 화면 가득 보여줍니다.',
-    '"말로 쓰기" 를 누르고 말하면 글자로 바뀌어 들어갑니다.',
-    '',
-    '다른 사람과 이야기할 때는 아래쪽 "대화하기" 를 누르세요.',
-    '상대가 말하면 그 말이 화면에 크게 나옵니다.'
-  ].join('\n');
-
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   function uid(now, rand) {
@@ -186,7 +172,7 @@
     var t = now.getTime();
     return {
       version: 1,
-      memos: [{ id: uid(t, rand), text: WELCOME_TEXT, created: t, updated: t, pinned: false, deletedAt: null }],
+      memos: [],
       currentId: null,
       settings: { size: DEFAULT_SIZE, theme: 'light', bold: true, sound: true, keepAwake: 'talk' },
       phrases: DEFAULT_PHRASES.slice(),

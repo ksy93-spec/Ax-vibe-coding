@@ -122,10 +122,9 @@
     assert.strictEqual(a.time, '15:34');
   });
 
-  test('처음 상태: 안내 메모 하나, 기본 설정', function () {
+  test('처음 상태: 메모 없음, 기본 설정', function () {
     var s = core.emptyState(NOW, 0.5);
-    assert.strictEqual(s.memos.length, 1);
-    assert.ok(s.memos[0].text.indexOf('큰 글씨 메모장') === 0);
+    assert.strictEqual(s.memos.length, 0);
     assert.deepStrictEqual(s.settings, { size: core.DEFAULT_SIZE, theme: 'light', bold: true, sound: true, keepAwake: 'talk' });
     assert.ok(s.phrases.length >= 10);
   });
