@@ -12,6 +12,9 @@
   var SIZES = [24, 32, 40, 48, 60, 72];
   var DEFAULT_SIZE = 2;
 
+  // 화면 켜 두기: 대화하기 화면에서만 / 늘 / 안 함
+  var KEEP_AWAKE = ['talk', 'always', 'off'];
+
   var THEMES = [
     { id: 'light', name: '흰 바탕' },
     { id: 'dark', name: '검은 바탕' },
@@ -39,10 +42,12 @@
     '여기에 바로 쓰면 됩니다. 쓰는 대로 저절로 저장됩니다.',
     '',
     '왼쪽 "새 메모" 를 누르면 새 종이가 생깁니다.',
-    '위쪽 "가 크게" 를 누르면 글씨가 더 커집니다.',
+    '위쪽 "가+" 를 누르면 글씨가 더 커집니다.',
     '"크게 보여주기" 를 누르면 화면 가득 보여줍니다.',
+    '"말로 쓰기" 를 누르고 말하면 글자로 바뀌어 들어갑니다.',
     '',
-    '다른 사람과 이야기할 때는 위쪽 "대화하기" 를 누르세요.'
+    '다른 사람과 이야기할 때는 아래쪽 "대화하기" 를 누르세요.',
+    '상대가 말하면 그 말이 화면에 크게 나옵니다.'
   ].join('\n');
 
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
@@ -183,7 +188,7 @@
       version: 1,
       memos: [{ id: uid(t, rand), text: WELCOME_TEXT, created: t, updated: t, pinned: false, deletedAt: null }],
       currentId: null,
-      settings: { size: DEFAULT_SIZE, theme: 'light', bold: true, sound: true },
+      settings: { size: DEFAULT_SIZE, theme: 'light', bold: true, sound: true, keepAwake: 'talk' },
       phrases: DEFAULT_PHRASES.slice(),
       reminders: [],
       talk: []
@@ -219,7 +224,8 @@
         size: Math.max(0, Math.min(SIZES.length - 1, Math.round(size))),
         theme: themeOk ? s.theme : 'light',
         bold: s.bold !== false,
-        sound: s.sound !== false
+        sound: s.sound !== false,
+        keepAwake: KEEP_AWAKE.indexOf(s.keepAwake) >= 0 ? s.keepAwake : 'talk'
       },
       phrases: Array.isArray(raw.phrases)
         ? raw.phrases.filter(function (p) { return typeof p === 'string' && p.trim(); })
@@ -238,7 +244,11 @@
       }) : [],
       talk: Array.isArray(raw.talk) ? raw.talk.filter(function (x) {
         return isObj(x) && typeof x.text === 'string';
-      }).map(function (x) { return { at: num(x.at, t), text: x.text }; }).slice(-TALK_KEEP) : []
+      }).map(function (x) {
+        var line = { at: num(x.at, t), text: x.text };
+        if (x.voice) line.voice = true;
+        return line;
+      }).slice(-TALK_KEEP) : []
     };
   }
 
@@ -263,24 +273,46 @@
   function talkToText(talk, now) {
     var head = clockText(now).date + ' 대화';
     return head + '\n\n' + talk.map(function (x) {
-      return '[' + timeText(new Date(x.at)) + '] ' + x.text;
+      return '[' + timeText(new Date(x.at)) + (x.voice ? ' 말' : '') + '] ' + x.text;
     }).join('\n');
   }
 
-  /** 다운로드 파일 이름. 한글을 넣지 않습니다(사내 PC 에서 이름이 깨지는 경우가 있어서). */
+  /** 다운로드 파일 이름. 한글을 넣지 않습니다(기기에 따라 이름이 깨지는 경우가 있어서). */
   function fileStamp(d) {
     return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '-' + pad2(d.getHours()) + pad2(d.getMinutes());
   }
 
+  /** 받아쓰기 결과(SpeechRecognitionEvent.results 를 배열로 바꾼 것)를 확정된 글과 아직 듣는 중인 글로 나눕니다.
+      results: [{ final: boolean, text: string }], from: 이번 이벤트에서 새로 바뀐 첫 위치(resultIndex) */
+  function splitSpeech(results, from) {
+    var finals = [], interim = '';
+    for (var i = from; i < results.length; i++) {
+      var t = String(results[i].text || '').trim();
+      if (!t) continue;
+      if (results[i].final) finals.push(t);
+      else interim += (interim ? ' ' : '') + t;
+    }
+    return { finals: finals, interim: interim };
+  }
+
+  /** 메모 글의 커서 자리에 받아쓴 글을 넣습니다. 앞뒤 띄어쓰기를 맞춥니다. */
+  function insertAt(text, pos, add) {
+    var before = text.slice(0, pos), after = text.slice(pos);
+    var pre = before && !/\s$/.test(before) ? ' ' : '';
+    var post = after && !/^\s/.test(after) ? ' ' : '';
+    var piece = pre + add + post;
+    return { text: before + piece + after, cursor: pos + pre.length + add.length + post.length };
+  }
+
   var core = {
-    SIZES: SIZES, DEFAULT_SIZE: DEFAULT_SIZE, THEMES: THEMES, DEFAULT_PHRASES: DEFAULT_PHRASES,
+    SIZES: SIZES, DEFAULT_SIZE: DEFAULT_SIZE, THEMES: THEMES, KEEP_AWAKE: KEEP_AWAKE, DEFAULT_PHRASES: DEFAULT_PHRASES,
     TRASH_KEEP_DAYS: TRASH_KEEP_DAYS, TALK_KEEP: TALK_KEEP,
     uid: uid, dateKey: dateKey, timeText: timeText, hhmmText: hhmmText, clockText: clockText,
     stampText: stampText, titleOf: titleOf, sortMemos: sortMemos, searchMemos: searchMemos,
     purgeTrash: purgeTrash, parseHHMM: parseHHMM, nextOccurrence: nextOccurrence,
     dueReminders: dueReminders, afterFired: afterFired, isLate: isLate, toHHMM: toHHMM,
     afterMinutes: afterMinutes, emptyState: emptyState, normalize: normalize, mergeBackup: mergeBackup,
-    talkToText: talkToText, fileStamp: fileStamp
+    talkToText: talkToText, fileStamp: fileStamp, splitSpeech: splitSpeech, insertAt: insertAt
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = core;
