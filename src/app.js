@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '2026.10.08.3';
+  var APP_VERSION = '2026.10.09.1';
   var core = window.App.core;
   var KEY = 'big-memo.v1';
   var TAB_KEY = 'big-memo.tab';
@@ -299,10 +299,11 @@
   function renderListening() {
     var w = listener && listener.where;
     $('memo-mic').setAttribute('aria-pressed', String(w === 'memo'));
-    $('memo-mic').textContent = w === 'memo' ? '그만 듣기' : '말로 쓰기';
+    $('memo-mic').querySelector('.l').textContent = w === 'memo' ? '그만 듣기' : '말로 쓰기';
     $('memo-listen').hidden = w !== 'memo';
     $('talk-mic').setAttribute('aria-pressed', String(w === 'talk'));
-    $('talk-mic').textContent = w === 'talk' ? '그만 듣기' : '말 듣기 시작';
+    $('talk-mic').querySelector('.l').textContent = w === 'talk' ? '그만 듣기' : '눌러서 말 듣기';
+    $('talk-mic').querySelector('.i').textContent = w === 'talk' ? '⏹️' : '🎤';
     $('talk-listen').hidden = w !== 'talk';
   }
 
@@ -365,7 +366,7 @@
     });
     if (!list.length) ul.appendChild(el('li', 'empty-note', q ? '"' + q + '" 이(가) 들어간 메모가 없습니다.' : '메모가 없습니다.'));
     $('trash-count').textContent = String(state.memos.length - liveMemos().length);
-    $('memo-pin').textContent = cur.pinned ? '고정 풀기' : '위에 고정';
+    $('memo-pin').querySelector('.l').textContent = cur.pinned ? '고정 풀기' : '위에 고정';
   }
 
   function renderEditor() {
@@ -556,7 +557,7 @@
     if (!typed && interimTalk) { text = interimTalk; cls = 'interim'; }
     else {
       text = talkNowText();
-      if (!text.trim()) { text = '"말 듣기 시작" 을 누르면 상대가 하는 말이 여기에 크게 나옵니다.'; cls = 'placeholder'; }
+      if (!text.trim()) { text = '아래 🎤 단추를 누르면 상대가 하는 말이 여기에 크게 나옵니다.'; cls = 'placeholder'; }
     }
     t.textContent = text;
     t.className = 'fit-text' + (cls ? ' ' + cls : '');
@@ -1112,7 +1113,7 @@
     renderAll();
     var saved = null;
     try { saved = localStorage.getItem(TAB_KEY); } catch (e) { /* 무시 */ }
-    showTab(saved === 'talk' || saved === 'alarm' ? saved : 'memo');
+    showTab(saved === 'memo' || saved === 'alarm' ? saved : 'talk');
     // 좁은 화면은 목록에서 시작하고, 마지막 메모를 열어 둡니다("뒤로" 를 누르면 목록).
     $('view-memo').dataset.pane = 'list';
     setPane('editor');
