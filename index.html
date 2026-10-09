@@ -123,7 +123,6 @@
 <nav class="tabs" role="tablist">
   <button class="tab" role="tab" data-tab="talk" type="button"><span class="i" aria-hidden="true">💬</span>대화</button>
   <button class="tab" role="tab" data-tab="memo" type="button"><span class="i" aria-hidden="true">📝</span>메모</button>
-  <button class="tab" role="tab" data-tab="alarm" type="button"><span class="i" aria-hidden="true">⏰</span>알림 <span id="alarm-count" class="badge" hidden></span></button>
 </nav>
 
 <!-- 화면 가득 보여주기 -->
@@ -178,7 +177,7 @@
       <button id="set-bold-on" class="btn" type="button"><b>굵게</b></button>
     </div>
   </div>
-  <div class="set-block">
+  <div class="set-block" hidden>
     <div class="set-name">알림 소리와 떨림</div>
     <div class="set-btns">
       <button id="set-sound-on" class="btn" type="button">함께 울리기</button>
@@ -192,7 +191,7 @@
       <button class="btn" type="button" data-awake="always">늘 켜 두기</button>
       <button class="btn" type="button" data-awake="off">안 함</button>
     </div>
-    <p class="hint">"늘 켜 두기" 는 알림을 기다릴 때 좋습니다. 배터리가 빨리 닳으니 충전기에 꽂아 두세요.</p>
+    <p class="hint">"늘 켜 두기" 는 배터리가 빨리 닳으니 충전기에 꽂아 두세요.</p>
   </div>
   <div class="set-block">
     <label class="set-name" for="set-phrases">자주 쓰는 말 (한 줄에 하나)</label>

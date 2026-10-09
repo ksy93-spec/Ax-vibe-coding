@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '2026.10.09.2';
+  var APP_VERSION = '2026.10.09.3';
   var core = window.App.core;
   var KEY = 'big-memo.v1';
   var TAB_KEY = 'big-memo.tab';
@@ -767,6 +767,7 @@
     if (!list.length) ul.appendChild(el('li', 'empty-note', '만든 알림이 없습니다.'));
     var onN = state.reminders.filter(function (r) { return r.on; }).length;
     var badge = $('alarm-count');
+    if (!badge) return;
     badge.hidden = !onN;
     badge.textContent = String(onN);
   }
@@ -1075,7 +1076,6 @@
         if (saveTimer) saveNow();
         stopListening();
       } else {
-        checkAlarms();
         renderList();
       }
       updateWake();
@@ -1114,7 +1114,7 @@
     renderAll();
     var saved = null;
     try { saved = localStorage.getItem(TAB_KEY); } catch (e) { /* 무시 */ }
-    showTab(saved === 'memo' || saved === 'alarm' ? saved : 'talk');
+    showTab(saved === 'memo' ? saved : 'talk');
     // 좁은 화면은 목록에서 시작하고, 마지막 메모를 열어 둡니다("뒤로" 를 누르면 목록).
     $('view-memo').dataset.pane = 'list';
     setPane('editor');
@@ -1122,8 +1122,6 @@
     saveNow();
     tickClock();
     setInterval(tickClock, 1000);
-    setInterval(checkAlarms, 5000);
-    checkAlarms();
     // 날짜가 바뀌면 목록의 "오늘/어제" 를 다시 씁니다.
     setInterval(renderList, 60 * 1000);
 
