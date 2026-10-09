@@ -59,7 +59,7 @@
 | `assets/fonts/pretendard/` | Pretendard 1.3.9 원본 분할 파일 (OFL-1.1, `LICENSE.txt`) |
 | `tests/` | `src/core.js` 테스트 21개. `node tests/run.cjs` 또는 `tests/index.html` |
 
-## 확인한 것 (2026-10-08, 판 2026.10.08.3)
+## 확인한 것 (2026-10-08, 판 2026.10.09.1)
 
 - `node tests/run.cjs` 21/21 통과, 브라우저 `tests/index.html` 도 같음
 - 헤드리스 Chromium 으로 Pixel 7, iPad 가로/세로 크기를 흉내 내어 확인: 메모 쓰기와 저장, 뒤로 단추, 말로 쓰기, 보내기(복사),

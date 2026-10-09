@@ -519,3 +519,24 @@ main { flex: 1; min-height: 0; display: flex; position: relative; }
   .tab { min-height: 48px; }
   .btn-mic-big { min-height: 54px; }
 }
+
+/* 그림 단추: 그림 위, 글 아래 */
+.ico { flex-direction: column; gap: 2px; padding: 6px 4px; min-height: 76px; font-size: 18px; }
+.ico .i { font-size: 30px; line-height: 1; }
+.ico-row { gap: 10px; }
+.ico-row .i { font-size: 28px; line-height: 1; }
+.btn-mic::before { display: none; }
+.btn-mic-big { min-height: 96px; font-size: 28px; border-width: 4px; }
+.btn-mic-big .i { font-size: 40px; }
+.btn-big { min-height: 72px; font-size: 25px; }
+.bar.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bar.grid3 .btn { width: 100%; }
+#memo-back { display: inline-flex; }
+@media (min-width: 900px) { #memo-back { display: none; } .bar.grid3 { grid-template-columns: repeat(5, 1fr); } }
+.tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 72px; }
+.tab .i { font-size: 28px; line-height: 1; }
+.panel-foot { margin-top: 10px; width: 100%; flex: none; }
+.panel-foot.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#settings-btn span { font-size: 26px; }
+.tab { position: relative; }
+.tab .badge { position: absolute; top: 4px; right: 18%; }

@@ -23,7 +23,7 @@
   <div class="view-ctl">
     <button id="size-down" class="btn btn-sq" type="button" aria-label="글씨 작게">가−</button>
     <button id="size-up" class="btn btn-sq" type="button" aria-label="글씨 크게"><b>가+</b></button>
-    <button id="settings-btn" class="btn" type="button">설정</button>
+    <button id="settings-btn" class="btn btn-sq" type="button" aria-label="설정"><span aria-hidden="true">⚙️</span></button>
   </div>
 </header>
 
@@ -35,19 +35,19 @@
   <!-- 메모장. 좁은 화면에서는 목록과 쓰는 칸을 번갈아 보여줍니다(data-pane). -->
   <section id="view-memo" class="view" data-view="memo" data-pane="editor">
     <aside class="side">
-      <button id="memo-new" class="btn btn-primary btn-wide" type="button">+ 새 메모</button>
+      <button id="memo-new" class="btn btn-primary btn-wide btn-big" type="button"><span aria-hidden="true">✏️</span>&nbsp;새 메모 쓰기</button>
       <input id="memo-search" class="search" type="search" placeholder="메모 찾기" autocomplete="off" enterkeyhint="search">
       <ul id="memo-list" class="memo-list"></ul>
       <button id="trash-btn" class="btn btn-ghost btn-wide" type="button"><span>지운 메모 <span id="trash-count">0</span>개</span></button>
     </aside>
     <div class="editor">
-      <div class="bar">
-        <button id="memo-back" class="btn narrow-only" type="button">← 목록</button>
-        <button id="memo-show" class="btn btn-primary" type="button">크게 보여주기</button>
-        <button id="memo-mic" class="btn btn-mic" type="button" aria-pressed="false">말로 쓰기</button>
-        <button id="memo-pin" class="btn" type="button">위에 고정</button>
-        <button id="memo-share" class="btn" type="button">보내기</button>
-        <button id="memo-del" class="btn btn-danger" type="button">지우기</button>
+      <div class="bar grid3">
+        <button id="memo-back" class="btn ico" type="button"><span class="i" aria-hidden="true">📋</span><span class="l">메모 목록</span></button>
+        <button id="memo-mic" class="btn ico btn-mic" type="button" aria-pressed="false"><span class="i" aria-hidden="true">🎤</span><span class="l">말로 쓰기</span></button>
+        <button id="memo-show" class="btn ico" type="button"><span class="i" aria-hidden="true">🔍</span><span class="l">크게 보기</span></button>
+        <button id="memo-pin" class="btn ico" type="button"><span class="i" aria-hidden="true">📌</span><span class="l">위에 고정</span></button>
+        <button id="memo-share" class="btn ico" type="button"><span class="i" aria-hidden="true">📤</span><span class="l">보내기</span></button>
+        <button id="memo-del" class="btn ico btn-danger" type="button"><span class="i" aria-hidden="true">🗑️</span><span class="l">지우기</span></button>
       </div>
       <div id="memo-listen" class="listen-bar" hidden><span class="dot"></span><span id="memo-listen-text">듣고 있습니다. 말씀하세요.</span></div>
       <textarea id="memo-text" class="big-text" spellcheck="false" placeholder="여기에 쓰세요"></textarea>
@@ -63,29 +63,28 @@
         <div id="talk-now" class="fit-text"></div>
       </div>
       <div class="talk-mic-row">
-        <button id="talk-mic" class="btn btn-mic btn-mic-big" type="button" aria-pressed="false">말 듣기 시작</button>
+        <button id="talk-mic" class="btn ico-row btn-mic btn-mic-big" type="button" aria-pressed="false"><span class="i" aria-hidden="true">🎤</span><span class="l">눌러서 말 듣기</span></button>
       </div>
       <div class="talk-input-row">
-        <textarea id="talk-input" class="talk-input" rows="1" spellcheck="false" placeholder="글로 쓰기" enterkeyhint="send"></textarea>
-        <button id="talk-send" class="btn btn-primary" type="button">보여주기</button>
+        <textarea id="talk-input" class="talk-input" rows="1" spellcheck="false" placeholder="⌨️ 글로 쓰기" enterkeyhint="send"></textarea>
+        <button id="talk-send" class="btn btn-primary" type="button">보이기</button>
       </div>
-      <div class="bar">
-        <button id="talk-show" class="btn" type="button">화면 가득</button>
-        <button id="phrases-open" class="btn narrow-only" type="button">자주 쓰는 말</button>
-        <button id="history-open" class="btn narrow-only" type="button">지난 대화</button>
-        <button id="talk-add-phrase" class="btn" type="button">자주 쓰는 말에 넣기</button>
-        <button id="talk-to-memo" class="btn" type="button">메모로 남기기</button>
-        <button id="talk-clear" class="btn btn-danger" type="button">대화 지우기</button>
+      <div class="bar grid3">
+        <button id="phrases-open" class="btn ico" type="button"><span class="i" aria-hidden="true">💬</span><span class="l">자주 쓰는 말</span></button>
+        <button id="history-open" class="btn ico" type="button"><span class="i" aria-hidden="true">🕘</span><span class="l">지난 대화</span></button>
+        <button id="talk-show" class="btn ico" type="button"><span class="i" aria-hidden="true">🔍</span><span class="l">크게 보기</span></button>
       </div>
     </div>
     <aside id="talk-side" class="talk-side">
       <div id="phrase-panel" class="side-panel">
         <div class="panel-head"><h2>자주 쓰는 말</h2><button class="btn panel-close narrow-only" type="button">닫기</button></div>
         <div id="phrase-list" class="phrase-list"></div>
+        <button id="talk-add-phrase" class="btn ico-row panel-foot" type="button"><span class="i" aria-hidden="true">➕</span><span class="l">방금 글을 여기에 넣기</span></button>
       </div>
       <div id="history-panel" class="side-panel">
         <div class="panel-head"><h2>지난 대화</h2><button class="btn panel-close narrow-only" type="button">닫기</button></div>
         <ol id="talk-history" class="talk-history"></ol>
+        <div class="panel-foot two"><button id="talk-to-memo" class="btn ico-row" type="button"><span class="i" aria-hidden="true">📝</span><span class="l">메모로</span></button><button id="talk-clear" class="btn ico-row btn-danger" type="button"><span class="i" aria-hidden="true">🗑️</span><span class="l">모두 지우기</span></button></div>
       </div>
     </aside>
   </section>
@@ -95,17 +94,17 @@
     <div class="alarm-form">
       <h2>새 알림</h2>
       <p class="hint">정한 시각이 되면 화면 전체가 깜빡이고 글이 크게 나옵니다. 이 화면이 켜져 있어야 울립니다.</p>
-      <label class="field-label" for="alarm-text">무엇을 알려 드릴까요</label>
+      <label class="field-label" for="alarm-text">✏️ 무엇을 알려 드릴까요</label>
       <input id="alarm-text" class="field" type="text" placeholder="예: 혈압약 드세요" autocomplete="off" enterkeyhint="done">
-      <div class="field-label">몇 시에</div>
+      <div class="field-label">🕘 몇 시에</div>
       <div class="time-row">
         <select id="alarm-ampm" class="field" aria-label="오전 오후"><option value="am">오전</option><option value="pm">오후</option></select>
         <select id="alarm-hour" class="field" aria-label="시"></select><span class="unit">시</span>
         <select id="alarm-min" class="field" aria-label="분"></select><span class="unit">분</span>
       </div>
       <label class="check"><input id="alarm-daily" type="checkbox" checked> 매일 같은 시각에</label>
-      <button id="alarm-add" class="btn btn-primary btn-wide" type="button">알림 만들기</button>
-      <div class="field-label">지금부터</div>
+      <button id="alarm-add" class="btn btn-primary btn-wide btn-big" type="button"><span aria-hidden="true">⏰</span>&nbsp;알림 만들기</button>
+      <div class="field-label">⏱️ 지금부터</div>
       <div class="quick-row">
         <button class="btn" type="button" data-after="5">5분 뒤</button>
         <button class="btn" type="button" data-after="10">10분 뒤</button>
@@ -122,17 +121,17 @@
 </main>
 
 <nav class="tabs" role="tablist">
-  <button class="tab" role="tab" data-tab="memo" type="button">메모장</button>
-  <button class="tab" role="tab" data-tab="talk" type="button">대화하기</button>
-  <button class="tab" role="tab" data-tab="alarm" type="button">알림 <span id="alarm-count" class="badge" hidden></span></button>
+  <button class="tab" role="tab" data-tab="talk" type="button"><span class="i" aria-hidden="true">💬</span>대화</button>
+  <button class="tab" role="tab" data-tab="memo" type="button"><span class="i" aria-hidden="true">📝</span>메모</button>
+  <button class="tab" role="tab" data-tab="alarm" type="button"><span class="i" aria-hidden="true">⏰</span>알림 <span id="alarm-count" class="badge" hidden></span></button>
 </nav>
 
 <!-- 화면 가득 보여주기 -->
 <div id="show" class="show" hidden>
   <div id="show-box" class="show-box"><div id="show-text" class="fit-text"></div></div>
   <div class="show-actions">
-    <button id="show-flip" class="btn" type="button" aria-pressed="false">뒤집기</button>
-    <button id="show-close" class="btn btn-primary" type="button">닫기</button>
+    <button id="show-flip" class="btn" type="button" aria-pressed="false">🔄 뒤집기</button>
+    <button id="show-close" class="btn btn-primary" type="button">✖ 닫기</button>
   </div>
 </div>
 
@@ -141,8 +140,8 @@
   <div id="ring-time" class="ring-time"></div>
   <div id="ring-box" class="ring-box"><div id="ring-text" class="fit-text"></div></div>
   <div class="ring-actions">
-    <button id="ring-ok" class="btn btn-primary btn-huge" type="button">확인했습니다</button>
-    <button id="ring-snooze" class="btn btn-huge" type="button">5분 뒤 다시</button>
+    <button id="ring-ok" class="btn btn-primary btn-huge" type="button">👍 확인했어요</button>
+    <button id="ring-snooze" class="btn btn-huge" type="button">⏰ 5분 뒤 다시</button>
   </div>
 </div>
 
