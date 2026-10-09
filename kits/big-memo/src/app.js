@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '2026.10.09.3';
+  var APP_VERSION = '2026.10.09.4';
   var core = window.App.core;
   var KEY = 'big-memo.v1';
   var TAB_KEY = 'big-memo.tab';
@@ -1114,7 +1114,14 @@
     renderAll();
     var saved = null;
     try { saved = localStorage.getItem(TAB_KEY); } catch (e) { /* 무시 */ }
-    showTab(saved === 'memo' ? saved : 'talk');
+    var quick = /[?&]start=talk/.test(location.search);
+    showTab(quick ? 'talk' : saved === 'memo' ? saved : 'talk');
+    // 홈 화면 아이콘을 길게 눌러 "바로 말 듣기" 로 열면 곧바로 듣기 시작합니다.
+    // 브라우저가 누르기 전 시작을 막으면 큰 마이크 단추만 보여 줍니다.
+    if (quick) {
+      history.replaceState(null, '', location.pathname);
+      setTimeout(function () { if (!listener) toggleTalkMic(); }, 300);
+    }
     // 좁은 화면은 목록에서 시작하고, 마지막 메모를 열어 둡니다("뒤로" 를 누르면 목록).
     $('view-memo').dataset.pane = 'list';
     setPane('editor');
