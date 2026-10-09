@@ -540,3 +540,6 @@ main { flex: 1; min-height: 0; display: flex; position: relative; }
 #settings-btn span { font-size: 26px; }
 .tab { position: relative; }
 .tab .badge { position: absolute; top: 4px; right: 18%; }
+
+/* 알림 기능은 뺐습니다(탭 둘) */
+.tabs { grid-template-columns: repeat(2, 1fr); }
