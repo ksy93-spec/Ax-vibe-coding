@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '2026.10.09.1';
+  var APP_VERSION = '2026.10.09.2';
   var core = window.App.core;
   var KEY = 'big-memo.v1';
   var TAB_KEY = 'big-memo.tab';
@@ -423,10 +423,6 @@
 
   async function deleteMemo() {
     var m = currentMemo();
-    if (m.text.trim()) {
-      var ok = await ask('"' + core.titleOf(m.text, 20) + '" 메모를 지울까요?\n지운 메모는 30일 안에 되살릴 수 있습니다.', '지우기');
-      if (!ok) return;
-    }
     stopListening();
     m.deletedAt = Date.now();
     state.currentId = null;
@@ -669,14 +665,19 @@
 
   async function clearTalk() {
     if (!state.talk.length && !$('talk-input').value) return;
-    var ok = await ask('지난 대화를 모두 지울까요?', '지우기');
-    if (!ok) return;
+    var old = state.talk.slice();
     state.talk = [];
     $('talk-input').value = '';
     growInput();
     renderTalkNow();
     renderTalkHistory();
     saveNow();
+    if (old.length) toast('대화를 지웠습니다.', '되살리기', function () {
+      state.talk = old.concat(state.talk);
+      renderTalkNow();
+      renderTalkHistory();
+      saveNow();
+    });
   }
 
   /* ---------- 알림 ---------- */
