@@ -1,5 +1,14 @@
 # rfx-volume 업데이트
 
+## 처음 받거나 통째로 바꾸기
+
+[rfx-volume-latest.zip](rfx-volume-latest.zip) 은 최신 판 전체입니다 (5.8MB, 판 2026.10.16.3). 깃헙에서 이 파일을 열고 다운로드 단추(Download raw file)로 받습니다.
+
+1. 이미 쓰던 폴더가 있으면 `rfx-volume_old` 로 이름을 바꿔 둡니다. 실제 데이터(`data/`)와 고친 설정(`config/`)은 새 폴더로 옮깁니다.
+2. zip 을 `C:\work` 처럼 짧은 경로에 풀면 `rfx-volume` 폴더가 생깁니다. 그 안의 `run.bat` 을 실행합니다.
+
+## 바뀐 파일만 적용하기
+
 킷을 한 번 통째로 옮긴 뒤에는 여기 zip 만 받아서 적용합니다. 위에서부터 순서대로 적용합니다.
 GitHub 에서 zip 파일을 누르고 다운로드 단추(Download raw file)로 받으면 저장소 전체를 받지 않아도 됩니다.
 
