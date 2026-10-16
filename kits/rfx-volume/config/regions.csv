@@ -1,0 +1,16 @@
+db_region,label,order
+Europe,유럽,1
+West Europe,유럽,1
+Western Europe,유럽,1
+Central/East Europe,유럽,1
+Central Europe,유럽,1
+Eastern Europe,유럽,1
+North America,북미,2
+Greater China,중국,3
+China,중국,3
+Japan/Korea,한국/일본,4
+Japan,한국/일본,4
+South Korea,한국/일본,4
+South Asia,남아시아,5
+South America,남미,6
+Middle East/Africa,중동/아프리카,7

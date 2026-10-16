@@ -1,0 +1,24 @@
+alias,type,target
+아우디,brand,Audi
+audi,brand,Audi
+volkswagen audi,brand,Audi
+vw audi,brand,Audi
+AU,brand,Audi
+폭스바겐,brand,Volkswagen
+VW,brand,Volkswagen
+폭스바겐그룹,group,Volkswagen Group
+vw group,group,Volkswagen Group
+포르쉐,brand,Porsche
+스코다,brand,Skoda
+현대,brand,Hyundai
+현대차,brand,Hyundai
+HY,brand,Hyundai
+기아,brand,Kia
+KI,brand,Kia
+현대차그룹,group,Hyundai Group
+bmw,brand,BMW
+비엠더블유,brand,BMW
+미니,brand,MINI
+벤츠,brand,Mercedes-Benz
+메르세데스,brand,Mercedes-Benz
+benz,brand,Mercedes-Benz
