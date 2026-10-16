@@ -1,4 +1,4 @@
-# exe 를 만듭니다. 인터넷에 접속하지 않습니다 (vendor 폴더의 휠만 씀).
+﻿# exe 를 만듭니다. 인터넷에 접속하지 않습니다 (vendor 폴더의 휠만 씀).
 # 결과: dist\rfx-volume\rfx-volume.exe
 $ErrorActionPreference = 'Stop'
 Set-Location -Path $PSScriptRoot
