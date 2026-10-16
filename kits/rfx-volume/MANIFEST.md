@@ -7,7 +7,8 @@ RFx 로 받은 고객 물동을 조사기관 생산 전망(IHS 형식 엑셀)과
 ## 실행 환경
 
 - Python: 실행만 하면 3.8 이상, exe 를 만들려면 3.10 ~ 3.14 (Windows 64비트)
-- 실행에 필요한 패키지: 없음. 표준 라이브러리만 씁니다 (엑셀 읽기/쓰기도 직접 구현)
+- 서버 쪽 패키지: 없음. 표준 라이브러리만 씁니다 (엑셀 읽기/쓰기도 직접 구현)
+- 화면 쪽 라이브러리: ECharts 6.1.0 (차트), Lucide 1.48.0 (아이콘). 빌드 없이 `web/vendor/` 의 파일을 그대로 읽습니다
 - 브라우저: 사내 Chrome 또는 Edge (ES 모듈, CSS `:has`, `color-mix` 사용. Chrome/Edge 111 이상)
 - 빌드 단계: 화면은 없음. exe 를 만들 때만 PyInstaller 를 씀
 
@@ -27,7 +28,9 @@ Python 코드(`app/`)를 고쳤을 때만 `build-exe.bat` 을 다시 실행합�
 | `app/calc.py` | 물동 계산, 결과 보드 문장 | 계산식, 문장 바꿀 때 |
 | `app/export.py` | 엑셀 내보내기 | 시트 구성 바꿀 때 |
 | `app/server.py` | 웹 서버, API | 거의 없음 |
-| `web/` | 화면 (HTML, CSS, JS. 외부 라이브러리 없음) | 화면 문구, 차트 |
+| `web/` | 화면 (HTML, CSS, JS) | 화면 문구, 차트 |
+| `web/js/charts.js` | ECharts 차트 설정 모음 (차트 하나 = 함수 하나) | 차트 모양 |
+| `web/vendor/` | ECharts, Lucide 아이콘 원본 파일 | 없음 |
 | `config/settings.ini` | 포트, 데이터 파일 경로, 연도 범위, 허용 범위, 담당자 | 처음 한 번 |
 | `config/columns.ini` | 조사기관 파일의 열 이름 연결 | 처음 한 번 |
 | `config/aliases.csv` | 고객 별칭 (아우디 → Audi, 내부 코드) | 수시로 |
@@ -37,6 +40,20 @@ Python 코드(`app/`)를 고쳤을 때만 `build-exe.bat` 을 다시 실행합�
 | `tools/make_sample.py` | 가짜 데이터 다시 만들기 | 없음 |
 | `prompts/` | 사내 ChatGPT 에 붙여넣는 프롬프트 | 없음 |
 | `vendor/` | PyInstaller 와 의존성 휠 7개 | 없음 |
+
+## 포함된 의존성 (화면)
+
+| 패키지 | 버전 | 라이선스(SPDX) | 용도 | 원문 |
+| --- | --- | --- | --- | --- |
+| echarts | 6.1.0 | Apache-2.0 | 차트 (`dist/echarts.min.js` 한 파일) | `web/vendor/echarts/LICENSE`, `NOTICE` |
+| lucide-static | 1.48.0 | ISC | 아이콘 SVG 33개 (원본 그대로) | `web/vendor/lucide/LICENSE` |
+
+- echarts 는 `kits/mi-starter/vendor/echarts-6.1.0.tgz` 와 같은 tarball 에서 꺼냈습니다.
+  tarball 무결성 `sha512-q0yaFPggC9FUdsWH4blavRWFmxdrIodbkoKNAjJudAI6CA9gNPxHtV2RcZNEepZVlk4yvBYkOkbk6HIVpIyHZA==` (npm 레지스트리 값과 일치),
+  `echarts.min.js` 의 sha256 `b66b25aeb4df84e33199dc21694014d336d222cbd9deb0e5a7c14bd6aa0d0fd0`.
+- lucide-static tarball 무결성 `sha512-ZUGgZ4rzlLfVbhN2Zi37TMrTaSpXAbWx6Y/xZxKSDLPiqxtTK7Mw2M+oBJa0gjV8p3+CWBHh48u+IC9+jKlUjA==` (npm 레지스트리 값과 일치).
+  `package/icons/` 에서 쓰는 아이콘만 골라 파일을 고치지 않고 복사했습니다.
+- 둘 다 mi-starter 에서 이미 고른 라이브러리입니다. 사내 도구끼리 같은 차트, 아이콘을 쓰면 ChatGPT 에 맡길 때 결과가 덜 흔들립니다.
 
 ## 포함된 의존성 (exe 만들 때만)
 
@@ -89,12 +106,13 @@ PyInstaller 의 Bootloader exception 덕분에 만든 exe 는 GPL 을 따르지 
 
 ## 검증 기록
 
-2026-10-16, 리눅스 (Python 3.13.16, Chromium 1194)
+2026-10-16, 리눅스 (Python 3.13.16, Chromium 1194). 판 2026.10.16.2 (화면 개편) 기준
 
 - `python -m unittest discover -s tests` : 34개 통과 (계산 17, 파일 읽기와 고객 찾기 12, 서버 5)
 - `python main.py --no-browser` 로 서버를 켜고 Playwright 로 1~6단계를 끝까지 진행:
   아우디 입력 → Audi 선택 → A5, Q5 (SOP 2024) 선택 → 옵션 30%, 이원화 50%, 대당 2개 →
-  엑셀에서 두 줄(물동, 판가) 붙여넣기 → 결과 보드, 차트 7개, 표, 민감도 → 엑셀 내보내기, 검토 건 저장 → 새 검토 후 불러오기.
+  엑셀에서 두 줄(물동, 판가) 붙여넣기 → 결과 보드, ECharts 차트 9개, 표, 민감도 히트맵 → 엑셀 내보내기, 검토 건 저장 → 새 검토 후 불러오기.
+  3~5단계의 작은 차트(지역 도넛, 1,000대 기준 물동, 입력 미리 보기)도 같이 확인.
   브라우저 콘솔 오류 0건. 라이트/다크 화면 둘 다 확인
 - 내보낸 엑셀을 `app/xlsx.py` 로 다시 읽어 시트 5개(요약, 연도별, 차종별, 지역별, 민감도) 확인
 - PyInstaller 6.16.0 (리눅스 휠) 로 `--onedir` 빌드 후 exe 옆에 `web/ config/ data/` 를 두고 실행, `/api/meta` 와 화면 응답 확인

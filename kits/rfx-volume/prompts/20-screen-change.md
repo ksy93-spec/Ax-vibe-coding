@@ -2,6 +2,8 @@
 
 한 번에 한 파일. 문구와 질문은 `web/index.html`, 동작과 결과 화면은 `web/js/app.js`, 차트 모양은 `web/js/charts.js`, 색과 간격은 `web/css/app.css`.
 
+차트를 바꿀 때 ChatGPT 에 "ECharts 6 옵션으로" 라고 같이 적으면 결과가 정확해집니다. ECharts 5 와 6 의 옵션은 대부분 같습니다.
+
 ```
 아래는 web/<파일> 전체다. 폐쇄망 도구라 외부 라이브러리, CDN, 원격 폰트를 쓸 수 없다.
 
@@ -9,7 +11,9 @@
 - 다른 파일의 함수 이름과 요소 id (index.html 의 id 는 app.js 가 찾는다)
 - 서버에 보내는 값의 형태 (app.js 의 requestBody 함수)
 - 색은 tokens.css 의 변수(var(--viz-1) 등)만 쓴다. 새 색 코드를 만들지 않는다.
-- 차트 색 순서(SERIES)를 바꾸거나 돌려 쓰지 않는다. 8개를 넘으면 "기타" 로 묶는다.
+- 차트는 ECharts 6.1.0 (전역 변수 echarts) 만 쓴다. 색은 charts.js 의 theme() 가 tokens.css 에서 읽은 값만 쓴다.
+- 계열 색 순서(theme().series)를 바꾸거나 돌려 쓰지 않는다. 8개를 넘으면 "기타" 로 묶는다.
+- 축이 두 개인 차트(이중 축)를 만들지 않는다. 단위가 다르면 차트를 나눈다.
 
 요청: <바꿀 내용 하나>
 

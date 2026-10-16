@@ -1,273 +1,415 @@
-// SVG 차트. 외부 라이브러리 없이 막대, 꺾은선, 기간 막대만 그립니다.
-// 색은 tokens.css 의 --viz-* 변수를 순서대로 씁니다. 순서를 바꾸지 마세요.
+// ECharts 6.1.0 로 그리는 차트 모음. echarts 는 index.html 에서 vendor/echarts/echarts.min.js 로 읽습니다 (전역 변수).
+// 색은 tokens.css 의 --viz-* 를 실행 중에 읽어 씁니다. 계열 색 순서는 바꾸거나 돌려 쓰지 마세요.
+/* global echarts */
 
-const NS = 'http://www.w3.org/2000/svg';
-export const SERIES = ['var(--viz-1)', 'var(--viz-2)', 'var(--viz-3)', 'var(--viz-4)', 'var(--viz-5)', 'var(--viz-6)', 'var(--viz-7)', 'var(--viz-8)'];
-export const RISK = 'var(--viz-critical)';
-export const OPP = 'var(--viz-1)';
-export const MUTED = 'var(--c-fg-subtle)';
+const live = new Map(); // 요소 -> 차트
 
-function el(tag, attrs = {}, parent) {
-  const n = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v === undefined || v === null) continue;
-    if (k === 'style') n.setAttribute('style', v);
-    else if (k === 'text') n.textContent = v;
-    else n.setAttribute(k, v);
+function css(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+export function theme() {
+  return {
+    series: [1, 2, 3, 4, 5, 6, 7, 8].map(i => css('--viz-' + i)),
+    risk: css('--viz-critical'),
+    opp: css('--viz-1'),
+    good: css('--viz-good'),
+    fg: css('--c-fg'),
+    muted: css('--c-fg-muted'),
+    subtle: css('--c-fg-subtle'),
+    grid: css('--viz-grid'),
+    axis: css('--viz-axis'),
+    bg: css('--c-bg'),
+    raised: css('--c-bg-raised'),
+    border: css('--c-border'),
+    accentBg: css('--c-accent-bg'),
+    dangerBg: css('--c-danger-bg'),
+    font: css('--font-sans') || 'sans-serif',
+  };
+}
+
+const nf0 = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 });
+const nf1 = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+export const fmtK = v => nf1.format(v / 1000);
+export const fmtKs = v => (v > 0 ? '+' : '') + nf1.format(v / 1000);
+export const fmtAxis = v => {
+  const a = Math.abs(v);
+  if (a >= 1e6) return nf1.format(v / 1e6) + 'M';
+  if (a >= 1000) return nf0.format(v / 1000) + 'K';
+  return nf0.format(v);
+};
+const pct = v => v == null ? '-' : nf0.format(v * 100) + '%';
+
+function base(t, { toolbox = true } = {}) {
+  return {
+    backgroundColor: 'transparent',
+    textStyle: { fontFamily: t.font, color: t.muted },
+    animationDuration: 700,
+    animationEasing: 'cubicOut',
+    grid: { left: 8, right: 20, top: 44, bottom: 4, containLabel: true },
+    legend: { top: 0, left: 0, icon: 'roundRect', itemWidth: 12, itemHeight: 8, itemGap: 16, textStyle: { color: t.muted, fontSize: 12 } },
+    tooltip: {
+      trigger: 'axis', confine: true, backgroundColor: t.raised, borderColor: t.border, borderWidth: 1, padding: [8, 12],
+      textStyle: { color: t.fg, fontSize: 12, fontFamily: t.font },
+      extraCssText: 'border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,.16);',
+      axisPointer: { type: 'shadow', shadowStyle: { color: t.grid, opacity: .45 } },
+    },
+    toolbox: toolbox ? {
+      right: 0, top: -4, itemSize: 14, iconStyle: { borderColor: t.subtle },
+      feature: { saveAsImage: { title: '그림 저장', pixelRatio: 2, backgroundColor: t.bg, name: 'rfx-volume' } },
+    } : undefined,
+  };
+}
+
+function catAxis(t, data, extra = {}) {
+  return { type: 'category', data, axisTick: { show: false }, axisLine: { lineStyle: { color: t.axis } }, axisLabel: { color: t.muted }, ...extra };
+}
+function valAxis(t, fmt = fmtAxis, extra = {}) {
+  return { type: 'value', splitLine: { lineStyle: { color: t.grid, type: [4, 4] } }, axisLabel: { color: t.muted, formatter: fmt }, ...extra };
+}
+
+function tipRows(params, fmt) {
+  const list = Array.isArray(params) ? params : [params];
+  const head = `<div style="font-weight:700;margin-bottom:4px">${list[0].axisValueLabel ?? list[0].name}</div>`;
+  return head + list.filter(p => p.value != null && p.seriesName && !p.seriesName.startsWith('_')).map(p =>
+    `<div style="display:flex;gap:12px;align-items:center"><span>${p.marker}${p.seriesName}</span><b style="margin-left:auto">${fmt(Array.isArray(p.value) ? p.value[1] : p.value, p)}</b></div>`).join('');
+}
+
+export function mount(el, option) {
+  let chart = live.get(el);
+  if (chart && chart.isDisposed()) chart = null;
+  if (!chart) {
+    chart = echarts.init(el, null, { renderer: 'svg' });
+    live.set(el, chart);
+    new ResizeObserver(() => chart.isDisposed() || chart.resize()).observe(el);
   }
-  if (parent) parent.appendChild(n);
-  return n;
+  chart.setOption(option, true);
+  return chart;
 }
 
-function niceStep(range, count) {
-  const raw = range / Math.max(1, count);
-  const mag = Math.pow(10, Math.floor(Math.log10(raw || 1)));
-  const n = raw / mag;
-  const step = n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10;
-  return step * mag;
-}
-
-function scaleDomain(min, max, ticks = 5) {
-  if (min === max) { max = min + 1; }
-  const step = niceStep(max - min, ticks);
-  const lo = Math.floor(min / step) * step;
-  const hi = Math.ceil(max / step) * step;
-  const out = [];
-  for (let v = lo; v <= hi + step / 2; v += step) out.push(Math.round(v / step) * step);
-  return { lo, hi, ticks: out };
-}
-
-// ---------------------------------------------------------------- 툴팁
-
-const tip = () => document.getElementById('tooltip');
-
-export function showTip(evt, title, rows) {
-  const t = tip();
-  t.innerHTML = '';
-  const h = document.createElement('div');
-  h.className = 'tt-title';
-  h.textContent = title;
-  t.appendChild(h);
-  for (const r of rows) {
-    const d = document.createElement('div');
-    d.className = 'tt-row';
-    const sw = document.createElement('i');
-    if (r.color) sw.style.background = r.color; else sw.style.visibility = 'hidden';
-    const a = document.createElement('span');
-    a.textContent = r.name;
-    const b = document.createElement('span');
-    b.textContent = r.value;
-    d.append(sw, a, b);
-    t.appendChild(d);
+export function disposeIn(root) {
+  for (const [el, chart] of live) {
+    if (root.contains(el) || !document.body.contains(el)) { chart.dispose(); live.delete(el); }
   }
-  t.hidden = false;
-  const pad = 14;
-  const w = t.offsetWidth, hh = t.offsetHeight;
-  let x = evt.clientX + pad, y = evt.clientY + pad;
-  if (x + w > window.innerWidth - 8) x = evt.clientX - w - pad;
-  if (y + hh > window.innerHeight - 8) y = evt.clientY - hh - pad;
-  t.style.left = x + 'px';
-  t.style.top = y + 'px';
-}
-export function hideTip() { tip().hidden = true; }
-
-export function legend(items) {
-  const box = document.createElement('div');
-  box.className = 'legend';
-  for (const it of items) {
-    const s = document.createElement('span');
-    const i = document.createElement('i');
-    i.style.background = it.color;
-    if (it.line) i.className = 'line';
-    s.append(i, document.createTextNode(it.name));
-    box.appendChild(s);
-  }
-  return box;
 }
 
-// ---------------------------------------------------------------- 축 공통
+// ---------------------------------------------------------------- 결과 화면
 
-function frame(container, { width, height = 260, left = 56, right = 16, top = 12, bottom = 28 } = {}) {
-  // 실제 폭으로 그려야 글자 크기가 늘어나지 않습니다
-  width = width || Math.max(320, Math.round(container.clientWidth - 32) || 640);
-  const svg = el('svg', { class: 'chart', viewBox: `0 0 ${width} ${height}`, role: 'img' });
-  container.appendChild(svg);
-  return { svg, width, height, x0: left, x1: width - right, y0: top, y1: height - bottom };
-}
-
-function yAxis(f, dom, fmt) {
-  const g = el('g', { class: 'grid' }, f.svg);
-  const y = v => f.y1 - (v - dom.lo) / (dom.hi - dom.lo) * (f.y1 - f.y0);
-  for (const t of dom.ticks) {
-    el('line', { x1: f.x0, x2: f.x1, y1: y(t), y2: y(t) }, g);
-    el('text', { x: f.x0 - 8, y: y(t) + 4, 'text-anchor': 'end', text: fmt(t) }, f.svg);
-  }
-  if (dom.lo < 0 && dom.hi > 0) el('line', { class: 'zero', x1: f.x0, x2: f.x1, y1: y(0), y2: y(0) }, f.svg);
-  return y;
-}
-
-function xBands(f, cats) {
-  const bw = (f.x1 - f.x0) / cats.length;
-  cats.forEach((c, i) => el('text', { x: f.x0 + bw * (i + .5), y: f.y1 + 18, 'text-anchor': 'middle', text: String(c) }, f.svg));
-  el('line', { class: 'zero', x1: f.x0, x2: f.x1, y1: f.y1, y2: f.y1 }, f.svg);
-  return { bw, cx: i => f.x0 + bw * (i + .5) };
-}
-
-// 아래쪽이 기준선인 막대. 끝만 둥글게 (4px).
-function barPath(x, w, yBase, yTop) {
-  const h = yBase - yTop;
-  const up = h >= 0;
-  const r = Math.min(4, Math.abs(h), w / 2);
-  if (Math.abs(h) < .5) return `M${x},${yBase}h${w}`;
-  if (up) return `M${x},${yBase}V${yTop + r}q0,-${r} ${r},-${r}h${w - 2 * r}q${r},0 ${r},${r}V${yBase}Z`;
-  return `M${x},${yBase}V${yTop - r}q0,${r} ${r},${r}h${w - 2 * r}q${r},0 ${r},-${r}V${yBase}Z`;
-}
-
-function hitAreas(f, cats, bands, onTip) {
-  cats.forEach((c, i) => {
-    const r = el('rect', { class: 'hit', x: f.x0 + bands.bw * i, y: f.y0, width: bands.bw, height: f.y1 - f.y0 }, f.svg);
-    r.addEventListener('mousemove', e => onTip(e, i));
-    r.addEventListener('mouseleave', hideTip);
+/** 연도별 예상 물동(조사기관)과 고객 물동 */
+export function volumeCompare(el, { years, expected, customer }) {
+  const t = theme();
+  return mount(el, {
+    ...base(t),
+    tooltip: { ...base(t).tooltip, formatter: p => tipRows(p, v => fmtK(v) + ' Kpcs') },
+    xAxis: catAxis(t, years),
+    yAxis: valAxis(t),
+    series: [
+      { name: '예상 물동 (조사기관)', type: 'bar', data: expected, barGap: '12%', barMaxWidth: 22, itemStyle: { color: t.series[0], borderRadius: [4, 4, 0, 0] } },
+      { name: '고객 물동', type: 'bar', data: customer, barMaxWidth: 22, itemStyle: { color: t.series[1], borderRadius: [4, 4, 0, 0] } },
+    ],
   });
 }
 
-// ---------------------------------------------------------------- 막대
-
-/**
- * series: [{name, color, values:[숫자|null]}]
- * mode: 'group' 나란히, 'stack' 쌓기, 'stack100' 100% 쌓기
- * line: {name, color, values} 같은 단위의 꺾은선 겹치기 (선택)
- * colorOf: (값, 계열 번호) => 색. 양수/음수 색을 다르게 할 때.
- * labels: 막대 위에 숫자를 붙일 인덱스 목록 (선택)
- */
-export function barChart(container, { categories, series, mode = 'group', fmt, tipFmt, line, colorOf, labels, height, tipExtra }) {
-  const f = frame(container, { height });
-  tipFmt = tipFmt || fmt;
-  let lo = 0, hi = 0;
-  const n = categories.length;
-  const totals = categories.map((_, i) => series.reduce((s, se) => s + Math.max(0, se.values[i] || 0), 0));
-  if (mode === 'stack100') { lo = 0; hi = 1; }
-  else if (mode === 'stack') { hi = Math.max(...totals, 0); }
-  else for (const se of series) for (const v of se.values) { if (v == null) continue; hi = Math.max(hi, v); lo = Math.min(lo, v); }
-  if (line) for (const v of line.values) if (v != null) { hi = Math.max(hi, v); lo = Math.min(lo, v); }
-  if (hi === 0 && lo === 0) hi = 1;
-  const dom = scaleDomain(lo, hi);
-  const y = yAxis(f, dom, mode === 'stack100' ? v => Math.round(v * 100) + '%' : fmt);
-  const bands = xBands(f, categories);
-  const gap = 2;
-  const inner = bands.bw * .72;
-  for (let i = 0; i < n; i++) {
-    const left = f.x0 + bands.bw * i + (bands.bw - inner) / 2;
-    if (mode === 'group') {
-      const w = (inner - gap * (series.length - 1)) / series.length;
-      series.forEach((se, k) => {
-        const v = se.values[i];
-        if (v == null) return;
-        const x = left + k * (w + gap);
-        el('path', { d: barPath(x, w, y(0), y(v)), style: `fill:${colorOf ? colorOf(v, k) : se.color}` }, f.svg);
-        if (labels && labels.includes(i) && series.length === 1) {
-          el('text', { class: 'label', x: x + w / 2, y: v >= 0 ? y(v) - 5 : y(v) + 14, 'text-anchor': 'middle', text: fmt(v) }, f.svg);
-        }
-      });
-    } else {
-      let acc = 0;
-      const tot = mode === 'stack100' ? totals[i] || 1 : 1;
-      series.forEach((se, k) => {
-        const v = Math.max(0, se.values[i] || 0) / tot;
-        if (!v) return;
-        const yb = y(acc), yt = y(acc + v);
-        const last = series.slice(k + 1).every(s => !(s.values[i] > 0));
-        const h = yb - yt - (last ? 0 : gap);
-        if (h > 0) {
-          const d = last ? barPath(left, inner, yb, yb - h) : `M${left},${yb}h${inner}v${-h}h${-inner}Z`;
-          el('path', { d, style: `fill:${se.color}` }, f.svg);
-        }
-        acc += v;
-      });
-    }
-  }
-  if (line) {
-    const pts = line.values.map((v, i) => v == null ? null : [bands.cx(i), y(v)]);
-    let d = '';
-    pts.forEach((p, i) => { if (!p) return; d += (d && pts[i - 1] ? 'L' : 'M') + p[0] + ',' + p[1]; });
-    el('path', { d, style: `fill:none;stroke:${line.color};stroke-width:2` }, f.svg);
-    pts.forEach(p => p && el('circle', { cx: p[0], cy: p[1], r: 4, style: `fill:${line.color};stroke:var(--c-bg);stroke-width:2` }, f.svg));
-  }
-  hitAreas(f, categories, bands, (e, i) => {
-    const rows = series.map(se => ({ name: se.name, color: se.color, value: se.values[i] == null ? '-' : tipFmt(se.values[i]) }));
-    if (mode === 'stack100') {
-      rows.forEach((r, k) => { const v = series[k].values[i] || 0; r.value = totals[i] ? Math.round(v / totals[i] * 1000) / 10 + '%' : '-'; });
-    }
-    if (line) rows.push({ name: line.name, color: line.color, value: line.values[i] == null ? '-' : tipFmt(line.values[i]) });
-    if (tipExtra) rows.push(...tipExtra(i));
-    showTip(e, String(categories[i]), rows.filter(r => r.value !== '-' || series.length < 4));
+/** 연도별 수량 Gap. 음수 Risk, 양수 Opportunity */
+export function gapBars(el, { years, gap, ratio, amount, currency }) {
+  const t = theme();
+  return mount(el, {
+    ...base(t),
+    legend: { ...base(t).legend, data: [{ name: 'Risk', itemStyle: { color: t.risk } }, { name: 'Opportunity', itemStyle: { color: t.opp } }] },
+    tooltip: {
+      ...base(t).tooltip,
+      formatter: p => {
+        const i = p[0].dataIndex;
+        if (gap[i] == null) return `<b>${years[i]}</b><br>고객 물동 없음`;
+        const kind = gap[i] < 0 ? 'Risk' : 'Opportunity';
+        let s = `<div style="font-weight:700;margin-bottom:4px">${years[i]} · ${kind}</div>수량 Gap <b style="float:right;margin-left:16px">${fmtKs(gap[i])} Kpcs</b>`;
+        if (ratio[i] != null) s += `<br>Gap 비율 <b style="float:right">${(ratio[i] > 0 ? '+' : '') + nf1.format(ratio[i] * 100)}%</b>`;
+        if (amount[i] != null) s += `<br>금액 Gap <b style="float:right">${nf1.format(amount[i] / 1e6)} M${currency}</b>`;
+        return s;
+      },
+    },
+    xAxis: catAxis(t, years, { axisLine: { onZero: true, lineStyle: { color: t.axis } } }),
+    yAxis: valAxis(t),
+    series: [
+      { name: 'Risk', type: 'bar', data: [], itemStyle: { color: t.risk } },
+      { name: 'Opportunity', type: 'bar', data: [], itemStyle: { color: t.opp } },
+      {
+        name: '수량 Gap', type: 'bar', barMaxWidth: 28, barGap: '-100%',
+        data: gap.map(v => v == null ? null : { value: v, itemStyle: { color: v < 0 ? t.risk : t.opp, borderRadius: v < 0 ? [0, 0, 4, 4] : [4, 4, 0, 0] } }),
+        label: { show: true, position: 'outside', formatter: p => fmtK(p.value), color: t.muted, fontSize: 10 },
+        labelLayout: { hideOverlap: true },
+      },
+    ],
   });
-  return f.svg;
 }
 
-// ---------------------------------------------------------------- 꺾은선
-
-/** refs: [{value, label}] 가로 기준선 */
-export function lineChart(container, { categories, series, fmt, tipFmt, refs = [], height, minZero = true }) {
-  const f = frame(container, { height });
-  tipFmt = tipFmt || fmt;
-  let lo = minZero ? 0 : Infinity, hi = -Infinity;
-  for (const se of series) for (const v of se.values) if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
-  for (const r of refs) { lo = Math.min(lo, r.value); hi = Math.max(hi, r.value); }
-  if (!isFinite(hi)) { lo = 0; hi = 1; }
-  const dom = scaleDomain(lo, hi);
-  const y = yAxis(f, dom, fmt);
-  const bands = xBands(f, categories);
-  for (const r of refs) {
-    el('line', { x1: f.x0, x2: f.x1, y1: y(r.value), y2: y(r.value), style: 'stroke:var(--c-fg-muted);stroke-width:1;stroke-dasharray:4 3' }, f.svg);
-    el('text', { x: f.x1, y: y(r.value) - 5, 'text-anchor': 'end', text: r.label }, f.svg);
-  }
-  for (const se of series) {
-    const pts = se.values.map((v, i) => v == null ? null : [bands.cx(i), y(v)]);
-    let d = '';
-    pts.forEach((p, i) => { if (!p) return; d += (d && pts[i - 1] ? 'L' : 'M') + p[0] + ',' + p[1]; });
-    el('path', { d, style: `fill:none;stroke:${se.color};stroke-width:2` }, f.svg);
-    pts.forEach((p, i) => p && el('circle', { cx: p[0], cy: p[1], r: 4, style: `fill:${se.pointColor ? se.pointColor(se.values[i]) : se.color};stroke:var(--c-bg);stroke-width:2` }, f.svg));
-    // 마지막 점에 값 표시
-    const lastIdx = pts.map((p, i) => p ? i : -1).filter(i => i >= 0).pop();
-    if (lastIdx != null && se.labelLast) {
-      el('text', { class: 'label', x: pts[lastIdx][0], y: pts[lastIdx][1] - 9, 'text-anchor': 'middle', text: fmt(se.values[lastIdx]) }, f.svg);
-    }
-  }
-  hitAreas(f, categories, bands, (e, i) => {
-    showTip(e, String(categories[i]), series.map(se => ({ name: se.name, color: se.color, value: se.values[i] == null ? '-' : tipFmt(se.values[i]) })));
+/** 누적 수량 Gap. 0 아래는 빨간 면, 위는 파란 면 */
+export function cumulative(el, { years, cum }) {
+  const t = theme();
+  const last = [...cum].reverse().find(v => v != null) ?? 0;
+  return mount(el, {
+    ...base(t),
+    legend: { show: false },
+    tooltip: { ...base(t).tooltip, axisPointer: { type: 'line', lineStyle: { color: t.axis } }, formatter: p => tipRows(p, v => fmtKs(v) + ' Kpcs') },
+    xAxis: catAxis(t, years, { boundaryGap: false }),
+    yAxis: valAxis(t),
+    series: [{
+      name: '누적 수량 Gap', type: 'line', connectNulls: false, smooth: .25, symbol: 'circle', symbolSize: 8,
+      data: cum.map(v => v == null ? null : { value: v, itemStyle: { color: v < 0 ? t.risk : t.opp, borderColor: t.bg, borderWidth: 2 } }),
+      lineStyle: { width: 2.5, color: last < 0 ? t.risk : t.opp },
+      areaStyle: { color: last < 0 ? t.risk : t.opp, opacity: .12 },
+      markLine: { silent: true, symbol: 'none', data: [{ yAxis: 0 }], lineStyle: { color: t.axis, type: 'solid' }, label: { show: false } },
+      endLabel: { show: true, formatter: p => fmtKs(p.value) + 'K', color: t.fg, fontWeight: 700 },
+    }],
+    grid: { ...base(t).grid, top: 24, right: 56 },
   });
-  return f.svg;
 }
 
-// ---------------------------------------------------------------- 기간 막대 (차종 수명)
+/** 고객 물동을 맞추려면 필요한 옵션율 */
+export function impliedOption(el, { years, implied, input }) {
+  const t = theme();
+  const max = Math.max(1.1, ...implied.filter(v => v != null).map(v => v * 1.1));
+  return mount(el, {
+    ...base(t),
+    legend: { show: false },
+    tooltip: { ...base(t).tooltip, axisPointer: { type: 'line', lineStyle: { color: t.axis } }, formatter: p => tipRows(p, pct) },
+    xAxis: catAxis(t, years, { boundaryGap: false }),
+    yAxis: valAxis(t, pct, { max: Math.ceil(max * 10) / 10 }),
+    series: [{
+      name: '필요 옵션율', type: 'line', data: implied, smooth: .25, symbol: 'circle', symbolSize: 8,
+      lineStyle: { width: 2.5, color: t.series[1] }, itemStyle: { color: t.series[1] },
+      markArea: { silent: true, itemStyle: { color: t.risk, opacity: .08 }, data: [[{ yAxis: 1 }, { yAxis: Math.ceil(max * 10) / 10 }]],
+        label: { show: true, position: 'insideTopRight', formatter: '100% 초과: 불가능한 물동', color: t.risk, fontSize: 11 } },
+      markLine: {
+        silent: true, symbol: 'none',
+        data: [{ yAxis: input, name: '입력' }],
+        lineStyle: { color: t.fg, type: [6, 4] }, label: { formatter: `현재 입력 ${pct(input)}`, position: 'insideEndTop', color: t.fg },
+      },
+    }],
+    grid: { ...base(t).grid, top: 24 },
+  });
+}
 
-/** items: [{label, start:[연,월], end:[연,월]}], years: 보이는 연도 범위, demand: 고객 물동이 있는 연도 */
-export function lifecycle(container, { items, years, demand = [] }) {
-  const rowH = 26;
-  const height = 30 + items.length * rowH + 10;
-  const f = frame(container, { height, left: 190, top: 4, bottom: 26 });
+/** 차종별 예상 물동 (쌓은 막대) + 고객 물동 꺾은선 */
+export function vehicleStack(el, { years, series, customer }) {
+  const t = theme();
+  const s = series.map((se, i) => ({
+    name: se.name, type: 'bar', stack: 'v', data: se.values, barMaxWidth: 40,
+    itemStyle: { color: t.series[i], borderColor: t.bg, borderWidth: 1 },
+    emphasis: { focus: 'series' },
+  }));
+  if (s.length) s[s.length - 1].itemStyle.borderRadius = [4, 4, 0, 0];
+  if (customer) {
+    s.push({ name: '고객 물동', type: 'line', data: customer, symbol: 'circle', symbolSize: 8, z: 5,
+      lineStyle: { color: t.fg, width: 2 }, itemStyle: { color: t.fg, borderColor: t.bg, borderWidth: 2 } });
+  }
+  return mount(el, {
+    ...base(t),
+    legend: { ...base(t).legend, type: 'scroll', right: 40 },
+    tooltip: { ...base(t).tooltip, formatter: p => tipRows(p, v => fmtK(v) + ' Kpcs') },
+    xAxis: catAxis(t, years),
+    yAxis: valAxis(t),
+    series: s,
+  });
+}
+
+/** 차종 수명 (SOP ~ EOP) 기간 막대. 음영은 고객 물동이 있는 연도 */
+export function lifecycle(el, { items, years, demand }) {
+  const t = theme();
   const y0 = years[0], y1 = years[years.length - 1] + 1;
-  const x = t => f.x0 + (t - y0) / (y1 - y0) * (f.x1 - f.x0);
-  const bw = (f.x1 - f.x0) / (y1 - y0);
-  years.forEach(yr => {
-    if (demand.includes(yr)) el('rect', { x: x(yr), y: f.y0, width: bw, height: f.y1 - f.y0, style: 'fill:var(--c-accent-bg)' }, f.svg);
-    el('line', { x1: x(yr), x2: x(yr), y1: f.y0, y2: f.y1, style: 'stroke:var(--viz-grid)' }, f.svg);
-    el('text', { x: x(yr) + bw / 2, y: f.y1 + 18, 'text-anchor': 'middle', text: String(yr) }, f.svg);
+  const pos = v => v ? v[0] + (v[1] - 1) / 12 : null;
+  const starts = items.map(it => Math.max(y0, pos(it.start) ?? y0));
+  const ends = items.map(it => Math.min(y1, it.end ? it.end[0] + it.end[1] / 12 : y1));
+  // 연속된 연도를 한 구간으로
+  const spans = [];
+  for (const y of [...demand].sort()) {
+    const last = spans[spans.length - 1];
+    if (last && last[1] === y) last[1] = y + 1; else spans.push([y, y + 1]);
+  }
+  const ym = v => v ? `${v[0]}.${String(v[1]).padStart(2, '0')}` : '정보 없음';
+  el.style.height = Math.max(150, 70 + items.length * 34) + 'px';
+  return mount(el, {
+    ...base(t),
+    legend: { show: false },
+    tooltip: {
+      ...base(t).tooltip, trigger: 'item',
+      formatter: p => { const it = items[p.dataIndex]; return `<b>${it.label}</b><br>SOP ${ym(it.start)}<br>EOP ${ym(it.end)}`; },
+    },
+    grid: { left: 8, right: 24, top: 8, bottom: 4, containLabel: true },
+    xAxis: { type: 'value', min: y0, max: y1, interval: 1, axisLabel: { color: t.muted, formatter: v => v < y1 ? String(v) : '' },
+      splitLine: { lineStyle: { color: t.grid } } },
+    yAxis: { type: 'category', data: items.map(it => it.label), inverse: true, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: t.fg, fontWeight: 600 } },
+    series: [
+      { name: '_base', type: 'bar', stack: 'l', data: starts, itemStyle: { color: 'transparent' }, silent: true, tooltip: { show: false }, barWidth: 16 },
+      {
+        name: '수명', type: 'bar', stack: 'l', data: ends.map((e, i) => Math.max(0, e - starts[i])), barWidth: 16,
+        itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: t.series[0] }, { offset: 1, color: t.series[2] }]), borderRadius: 8 },
+        label: { show: true, position: 'insideLeft', color: '#fff', fontSize: 11, fontWeight: 600,
+          formatter: p => { const it = items[p.dataIndex]; return `${ym(it.start)} ~ ${ym(it.end)}`; } },
+        markArea: { silent: true, itemStyle: { color: t.accentBg, opacity: .9 }, label: { show: false },
+          data: spans.map(([a, b]) => [{ xAxis: a }, { xAxis: b }]) },
+      },
+    ],
   });
-  items.forEach((it, i) => {
-    const cy = f.y0 + 8 + i * rowH;
-    el('text', { x: f.x0 - 10, y: cy + 12, 'text-anchor': 'end', class: 'label', text: it.label.length > 28 ? it.label.slice(0, 27) + '…' : it.label }, f.svg);
-    const s = it.start ? it.start[0] + (it.start[1] - 1) / 12 : y0;
-    const e = it.end ? it.end[0] + it.end[1] / 12 : y1;
-    const xs = Math.max(f.x0, x(s)), xe = Math.min(f.x1, x(e));
-    if (xe > xs) {
-      el('rect', { x: xs, y: cy + 2, width: xe - xs, height: 14, rx: 4, style: 'fill:var(--viz-1)' }, f.svg);
+}
+
+/** 연도별 생산 지역 비중 (100% 쌓은 면) */
+export function regionShare(el, { years, regions, values }) {
+  const t = theme();
+  const tot = years.map((_, i) => regions.reduce((s, r) => s + (values[r][i] || 0), 0));
+  return mount(el, {
+    ...base(t),
+    tooltip: { ...base(t).tooltip, axisPointer: { type: 'line', lineStyle: { color: t.axis } }, formatter: p => tipRows(p, v => nf1.format(v) + '%') },
+    xAxis: catAxis(t, years, { boundaryGap: false }),
+    yAxis: valAxis(t, v => v + '%', { max: 100 }),
+    series: regions.map((r, k) => ({
+      name: r, type: 'line', stack: 'r', smooth: .2, symbol: 'none', lineStyle: { width: 1, color: t.bg },
+      areaStyle: { color: t.series[k], opacity: .92 }, itemStyle: { color: t.series[k] },
+      data: years.map((_, i) => tot[i] ? Math.round(values[r][i] / tot[i] * 1000) / 10 : null),
+    })),
+  });
+}
+
+/** 지역 비중 도넛 */
+export function donut(el, { items, center }) {
+  const t = theme();
+  const total = items.reduce((s, x) => s + x.value, 0) || 1;
+  return mount(el, {
+    ...base(t, { toolbox: false }),
+    legend: { show: false },
+    tooltip: { ...base(t).tooltip, trigger: 'item', formatter: p => `${p.marker}${p.name}<b style="float:right;margin-left:16px">${nf1.format(p.value / total * 100)}%</b>` },
+    title: { text: center[0], subtext: center[1], left: 'center', top: '40%', textStyle: { color: t.fg, fontSize: 22, fontWeight: 800 }, subtextStyle: { color: t.muted, fontSize: 12 }, itemGap: 2 },
+    series: [{
+      type: 'pie', radius: ['58%', '82%'], padAngle: 2, itemStyle: { borderRadius: 6, borderColor: t.bg, borderWidth: 2 },
+      label: { show: true, formatter: p => `${p.name}\n${Math.round(p.percent)}%`, color: t.fg, fontSize: 11, lineHeight: 15 },
+      labelLine: { length: 8, length2: 6, lineStyle: { color: t.axis } },
+      data: items.map((x, i) => ({ name: x.name, value: x.value, itemStyle: { color: x.color || t.series[i], opacity: x.dim ? .25 : 1 } })),
+    }],
+  });
+}
+
+/** 물동 브리지: 생산 대수 → 옵션 → 이원화 → 대당 사용량 → 예상 물동, 고객 물동과 비교 */
+export function bridge(el, { steps }) {
+  // steps: [{name, value, kind: 'total'|'delta'}]
+  const t = theme();
+  const cats = steps.map(s => s.name);
+  const baseVals = [], vis = [], colors = [];
+  let run = 0;
+  for (const s of steps) {
+    if (s.kind === 'total') {
+      baseVals.push(0); vis.push(s.value); run = s.value;
+      colors.push(s.color || t.series[0]);
+    } else {
+      const next = run + s.value;
+      baseVals.push(Math.min(run, next)); vis.push(Math.abs(s.value));
+      colors.push(s.value < 0 ? t.subtle : t.series[2]);
+      run = next;
     }
-    const hit = el('rect', { class: 'hit', x: f.x0, y: cy, width: f.x1 - f.x0, height: rowH - 4 }, f.svg);
-    const ym = v => v ? `${v[0]}.${String(v[1]).padStart(2, '0')}` : '정보 없음';
-    hit.addEventListener('mousemove', ev => showTip(ev, it.label, [{ name: 'SOP', value: ym(it.start) }, { name: 'EOP', value: ym(it.end) }]));
-    hit.addEventListener('mouseleave', hideTip);
+  }
+  return mount(el, {
+    ...base(t),
+    legend: { show: false },
+    tooltip: {
+      ...base(t).tooltip,
+      formatter: p => { const i = p[0].dataIndex; const s = steps[i]; return `<b>${s.name}</b><br>${s.kind === 'total' ? fmtK(s.value) : fmtKs(s.value)} K${s.unit || 'pcs'}${s.note ? '<br><span style="opacity:.7">' + s.note + '</span>' : ''}`; },
+    },
+    grid: { ...base(t).grid, top: 28 },
+    xAxis: catAxis(t, cats, { axisLabel: { color: t.fg, fontWeight: 600, interval: 0 } }),
+    yAxis: valAxis(t),
+    series: [
+      { name: '_base', type: 'bar', stack: 'b', data: baseVals, itemStyle: { color: 'transparent' }, silent: true },
+      {
+        name: '값', type: 'bar', stack: 'b', barMaxWidth: 64,
+        data: vis.map((v, i) => ({ value: v, itemStyle: { color: colors[i], borderRadius: 6 } })),
+        label: { show: true, position: 'top', color: t.fg, fontWeight: 700, fontSize: 12,
+          formatter: p => { const s = steps[p.dataIndex]; return (s.kind === 'total' ? fmtK(s.value) : fmtKs(s.value)) + 'K'; } },
+      },
+    ],
   });
-  return f.svg;
+}
+
+/** 민감도 히트맵: 옵션율 x 자사 비중 -> 누적 수량 Gap */
+export function sensitivity(el, { steps, grid, option, share, dual }) {
+  const t = theme();
+  const xs = steps.map(d => `${Math.max(0, Math.min(100, option + d))}%`);
+  const rows = dual ? steps : [0];
+  const ys = rows.map(d => dual ? `${Math.max(0, Math.min(100, share + d))}%` : '누적 Gap');
+  const data = [];
+  const mid = steps.indexOf(0);
+  rows.forEach((d, yi) => {
+    const line = grid[steps.indexOf(d)];
+    line.forEach((v, xi) => data.push([xi, yi, v]));
+  });
+  const maxAbs = Math.max(1, ...data.map(d => Math.abs(d[2])));
+  const cells = data.map(d => {
+    const cur = d[0] === mid && rows[d[1]] === 0;
+    return { value: d, itemStyle: cur ? { borderColor: t.fg, borderWidth: 3 } : undefined,
+      label: { color: Math.abs(d[2]) / maxAbs > .55 ? '#fff' : t.fg, fontWeight: cur ? 800 : 600 } };
+  });
+  el.style.height = (dual ? 300 : 140) + 'px';
+  return mount(el, {
+    ...base(t),
+    tooltip: { ...base(t).tooltip, trigger: 'item', formatter: p => `옵션율 <b>${xs[p.value[0]]}</b>${dual ? ` · 자사 비중 <b>${ys[p.value[1]]}</b>` : ''}<br>누적 수량 Gap <b>${fmtKs(p.value[2])} Kpcs</b>` },
+    grid: { left: 8, right: 8, top: 8, bottom: 56, containLabel: true },
+    xAxis: { type: 'category', data: xs, name: '옵션율', nameLocation: 'middle', nameGap: 28, nameTextStyle: { color: t.muted }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: t.fg }, splitArea: { show: false } },
+    yAxis: { type: 'category', data: ys, name: dual ? '자사 비중' : '', nameTextStyle: { color: t.muted }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: t.fg } },
+    visualMap: {
+      min: -maxAbs, max: maxAbs, calculable: false, orient: 'horizontal', left: 'center', bottom: 0, itemWidth: 12, itemHeight: 180,
+      text: ['Opportunity', 'Risk'], textStyle: { color: t.muted, fontSize: 11 },
+      inRange: { color: [t.risk, t.raised, t.opp] },
+    },
+    series: [{
+      type: 'heatmap', data: cells,
+      label: { show: true, formatter: p => fmtKs(p.value[2]), fontSize: 12 },
+      itemStyle: { borderColor: t.bg, borderWidth: 3, borderRadius: 6 },
+    }],
+  });
+}
+
+// ---------------------------------------------------------------- 단계 화면의 작은 차트
+
+/** 차량 1,000대가 생산되면 몇 pcs 를 가져오는지 */
+export function factorFunnel(el, { option, share, dual, ppv }) {
+  const t = theme();
+  const v0 = 1000, v1 = v0 * option / 100, v2 = v1 * (dual ? share / 100 : 1), v3 = v2 * ppv;
+  const cats = ['생산 대수', '옵션 장착', dual ? '자사 몫' : '단독 공급', '가져오는 물동'];
+  const vals = [v0, v1, v2, v3];
+  const units = ['대', '대', '대', 'pcs'];
+  return mount(el, {
+    ...base(t, { toolbox: false }),
+    legend: { show: false },
+    tooltip: { show: false },
+    grid: { left: 8, right: 70, top: 4, bottom: 4, containLabel: true },
+    xAxis: { type: 'value', show: false, max: Math.max(v0, v3) },
+    yAxis: { type: 'category', data: cats, inverse: true, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: t.fg, fontWeight: 600 } },
+    series: [{
+      type: 'bar', data: vals.map((v, i) => ({ value: v, itemStyle: { color: i === 3 ? t.series[2] : t.series[0], opacity: i === 3 ? 1 : .35 + i * .2, borderRadius: 6 } })),
+      barWidth: 18, label: { show: true, position: 'right', color: t.fg, fontWeight: 700, formatter: p => `${nf0.format(p.value)}${units[p.dataIndex]}` },
+      showBackground: true, backgroundStyle: { color: t.grid, opacity: .35, borderRadius: 6 },
+    }],
+  });
+}
+
+/** 5단계 미리 보기: 예상 물동(막대)과 고객 입력(선) */
+export function preview(el, { years, expected, customer }) {
+  const t = theme();
+  return mount(el, {
+    ...base(t, { toolbox: false }),
+    tooltip: { ...base(t).tooltip, formatter: p => tipRows(p, v => fmtK(v) + ' Kpcs') },
+    grid: { ...base(t).grid, top: 32 },
+    xAxis: catAxis(t, years),
+    yAxis: valAxis(t),
+    series: [
+      { name: '예상 물동 (조사기관)', type: 'bar', data: expected, barMaxWidth: 26, itemStyle: { color: t.series[0], opacity: .85, borderRadius: [4, 4, 0, 0] } },
+      { name: '고객 물동 (입력)', type: 'line', data: customer, symbol: 'circle', symbolSize: 8, connectNulls: false, lineStyle: { color: t.series[1], width: 2.5 }, itemStyle: { color: t.series[1], borderColor: t.bg, borderWidth: 2 } },
+    ],
+  });
+}
+
+/** 차종 버튼 안의 작은 추이선 (SVG 문자열) */
+export function sparkline(values, w = 84, h = 26) {
+  const max = Math.max(...values, 1);
+  const step = w / Math.max(1, values.length - 1);
+  const pts = values.map((v, i) => `${(i * step).toFixed(1)},${(h - 2 - v / max * (h - 4)).toFixed(1)}`);
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="0,${h} ${pts.join(' ')} ${w},${h}" fill="currentColor" opacity=".14"/><polyline points="${pts.join(' ')}" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
 }
