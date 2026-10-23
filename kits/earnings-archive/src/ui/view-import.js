@@ -318,20 +318,22 @@
     var rows = C.METRICS.filter(function (m) { return n.values[m.key] !== undefined || n.ytd[m.key] !== undefined; }).map(function (m) {
       var isYtd = n.values[m.key] === undefined;
       var val = isYtd ? n.ytd[m.key] : n.values[m.key];
-      var musd = m.kind === 'money' ? C.toMusd(val, cur, S.period, fx) : null;
+      var musd = m.flow ? C.toMusd(val, cur, S.period, fx) : null;
       return h('tr', null, [
         h('td', { text: m.label + (isYtd ? ' (누계)' : '') }),
         h('td', { class: 'muted', text: n.raw[m.key] || '' }),
-        h('td', { class: 'num', text: m.kind === 'money' ? f.num(val) + ' 백만 ' + cur : f.num(val, 1) + ' 천 대' }),
+        h('td', { class: 'num', text: m.kind === 'money' ? f.num(val) + ' 백만 ' + cur : f.pct(val) }),
         h('td', { class: 'num', text: musd ? (musd.value === null ? '환율 없음' : f.musd(musd.value) + ' MUSD') : '' }),
       ]);
     });
+    var d = C.derive({ period: S.period, values: Object.assign({}, n.values) }, c, fx);
     return h('div', { class: 'preview' }, [
       h('h4', { class: 'sub__title', text: '숫자 미리보기' + (n.fiscalLabel ? ' · ' + n.fiscalLabel : '') + (n.reportDate ? ' · 발표 ' + n.reportDate : '') }),
       h('table', { class: 'table' }, [
         h('thead', null, h('tr', null, ['지표', '원문 표기', '저장 값', '달러 환산'].map(function (t) { return h('th', { class: 'th', text: t }); }))),
         h('tbody', null, rows),
       ]),
+      h('p', { class: 'muted', text: '영업이익률 ' + f.pct(d.opMargin) + ' · 부채비율 ' + f.pct(d.debtRatio) }),
       h('p', { class: 'muted small', text: '원문 표기와 저장 값의 자릿수가 맞는지 꼭 봅니다. 단위 실수가 가장 흔한 오류입니다.' }),
     ]);
   }

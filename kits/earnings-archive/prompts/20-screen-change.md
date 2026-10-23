@@ -18,7 +18,7 @@
 〈예: src/ui/view-company.js (아래에 전체 붙임)〉
 
 [바꿀 것]
-〈예: 분기 표에 "순이익률" 줄을 영업이익률 아래에 더한다. 값은 App.ea.core.derive 결과의 netMargin.〉
+〈예: 회사별 분기 표에서 "부채비율" 줄 아래에 "자본총계 (백만 발표 통화)" 줄을 더한다. 값은 d.quarter.values.totalEquity, 표기는 App.f.num.〉
 
 [지킬 것]
 - 금액은 App.f.musd, 비율은 App.f.pct 로 표기한다.

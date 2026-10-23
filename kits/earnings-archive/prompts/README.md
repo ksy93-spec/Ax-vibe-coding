@@ -10,7 +10,8 @@
 | --- | --- |
 | `10-call-summary.md` | 녹취록 -> 콜 요약 JSON. 도구를 못 쓸 때, 템플릿을 고칠 때 |
 | `11-numbers.md` | 보도자료 -> 숫자 JSON. 위와 같음 |
-| `00-project-instructions.md` | 도구 고치기 처음 한 번. ChatGPT 프로젝트 지침에 붙여 넣습니다 |
+| `../READMEChatGPT.md` | 도구 고치기 전에 먼저 읽기. 모듈 지도, 자주 하는 변경의 파일 순서, 요청 양식 |
+| `00-project-instructions.md` | 도구 고치기 처음 한 번. ChatGPT 프로젝트 지침에 붙여 넣습니다 (READMEChatGPT.md 2절이 더 자세함) |
 | `20-screen-change.md` | 화면에 표, 지표, 차트를 더할 때 |
 | `40-fix-error.md` | 테스트 실패, 콘솔 오류가 났을 때 |
 

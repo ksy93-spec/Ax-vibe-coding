@@ -74,6 +74,12 @@
       var unitSel = h('select', { class: 'input input--sm', onchange: function (e) { moneyUnit = e.target.value; draw(); } },
         MONEY_UNITS.map(function (u) { return h('option', { value: u.id, selected: u.id === moneyUnit, text: u.label + ' ' + cur }); }));
       var factor = C.MONEY_UNITS[moneyUnit];
+      var ratio = h('span', { class: 'muted num-preview' });
+      function updRatio() {
+        var d = C.derive({ period: draft.period, values: draft.values || {} }, c, App.data.fx());
+        ratio.textContent = '영업이익률 ' + f.pct(d.opMargin) + ' · 부채비율 ' + f.pct(d.debtRatio) +
+          (d.debtRatioSource === 'reported' ? ' (원문 비율)' : d.debtRatioSource === 'calc' ? ' (부채총계 / 자본총계)' : '');
+      }
       var numRows = C.METRICS.map(function (m) {
         var stored = v(m.key);
         var shown = stored === '' ? '' : m.kind === 'money' ? C.round(stored / factor, 6) : stored;
@@ -83,25 +89,27 @@
           if (n === null) {
             if (draft.values) delete draft.values[m.key];
             preview.textContent = '';
+            updRatio();
             return;
           }
           var storeVal = m.kind === 'money' ? C.round(n * factor, 6) : n;
           draft.values = draft.values || {};
           draft.values[m.key] = storeVal;
-          if (m.kind === 'money') {
+          if (m.flow) {
             var r = C.toMusd(storeVal, cur, C.normPeriod(draft.period), App.data.fx(), draft.fxOverride);
             preview.textContent = r.value === null ? '환율 없음' : '= ' + f.musd(r.value) + ' MUSD';
-          } else preview.textContent = '천 대';
+          } else preview.textContent = m.kind === 'pct' ? '%  (부채, 자본이 없을 때만 씀)' : '분기 말 잔액';
+          updRatio();
         }
         var input = h('input', { class: 'input input--num', inputmode: 'decimal', value: shown, oninput: function (e) { upd(e.target.value); } });
         upd(shown);
-        var noteName = (c.metricNotes || {})[m.key];
+        var noteName = m.key === 'operatingIncome' ? (c.metricNotes || {}).operatingIncome : '';
         return h('tr', null, [
           h('td', { class: 'rowh', text: m.label + (noteName ? ' (' + noteName + ')' : '') }),
           h('td', null, input),
           h('td', null, preview),
           h('td', null, h('input', {
-            class: 'input input--sm', placeholder: '원문 표기 (예: $48.6 billion)', value: (draft.raw || {})[m.key] || '',
+            class: 'input input--sm', placeholder: m.kind === 'pct' ? '원문 표기 (예: 부채비율 152.3%)' : '원문 표기 (예: $48.6 billion)', value: (draft.raw || {})[m.key] || '',
             oninput: function (e) { draft.raw = draft.raw || {}; draft.raw[m.key] = e.target.value; },
           })),
         ]);
@@ -109,9 +117,10 @@
       wrap.appendChild(h('h4', { class: 'sub__title', text: '숫자' }));
       wrap.appendChild(h('div', { class: 'row' }, [
         h('span', { class: 'muted', text: '금액 입력 단위' }), unitSel,
-        h('span', { class: 'muted', text: '판매 대수는 천 대. 적자는 음수.' }),
+        h('span', { class: 'muted', text: '적자는 음수. 부채비율은 % 숫자.' }),
       ]));
       wrap.appendChild(h('table', { class: 'table table--form' }, h('tbody', null, numRows)));
+      wrap.appendChild(h('div', { class: 'row' }, [ratio]));
       wrap.appendChild(h('div', { class: 'form-grid' }, [
         f.field('발표 통화', h('select', { class: 'input', onchange: function (e) { draft.currency = e.target.value; draw(); } },
           C.CURRENCIES.map(function (x) { return h('option', { value: x, selected: x === cur, text: x }); }))),

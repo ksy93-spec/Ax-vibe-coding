@@ -43,10 +43,10 @@
     eq(C.toStoreUnit(5, 'parsec', 'money'), null, '모르는 단위는 null');
   });
 
-  test('단위: 대수는 천 대로', function () {
-    eq(C.toStoreUnit(875000, 'one', 'count'), 875);
-    eq(C.toStoreUnit('991,885', 'units', 'count'), 991.885);
-    eq(C.toStoreUnit(85, '만', 'count'), 850);
+  test('단위: 비율은 퍼센트 숫자 그대로, % 기호도 받음', function () {
+    eq(C.toStoreUnit(152.3, 'percent', 'pct'), 152.3);
+    eq(C.toStoreUnit('152.3%', '', 'pct'), 152.3);
+    eq(C.toStoreUnit('1,020.5', '%', 'pct'), 1020.5);
   });
 
   test('숫자 읽기: 쉼표, 괄호 음수, 유니코드 마이너스', function () {
@@ -103,8 +103,8 @@
     var rep = {
       company: 'kmot',
       quarters: [
-        { period: '2025Q2', values: { revenue: 1000000, operatingIncome: 50000, deliveries: 900 } },
-        { period: '2026Q2', values: { revenue: 1400000, operatingIncome: 70000, deliveries: 990 } },
+        { period: '2025Q2', values: { revenue: 1000000, operatingIncome: 50000, totalLiabilities: 1500, totalEquity: 1000 } },
+        { period: '2026Q2', values: { revenue: 1400000, operatingIncome: 70000, totalLiabilities: 1200, totalEquity: 1000 } },
       ],
     };
     var fx = { rates: { KRW: { '2026Q2': 1400, '2025Q2': 1000 } } };
@@ -114,7 +114,21 @@
     eq(t[1].musd.revenue, 1000, '전년 매출도 환율이 달라 1000 MUSD');
     near(t[0].yoy.revenue, 40, 1e-9, 'USD 로는 0% 지만 원화로 40% 성장');
     near(t[0].opMargin, 5, 1e-9);
-    near(t[0].yoy.deliveries, 10, 1e-9);
+    near(t[0].debtRatio, 120, 1e-9);
+    near(t[0].debtRatioPrev, 150, 1e-9);
+  });
+
+  test('부채비율: 부채와 자본으로 계산, 없으면 원문 비율, 자본잠식이면 원문 비율이나 없음', function () {
+    var d1 = C.derive({ period: '2026Q2', values: { totalLiabilities: 300, totalEquity: 200, debtRatio: 999 } }, COMPANIES[0], FX);
+    near(d1.debtRatio, 150, 1e-9);
+    eq(d1.debtRatioSource, 'calc', '둘 다 있으면 계산 값이 우선');
+    var d2 = C.derive({ period: '2026Q2', values: { debtRatio: 152.3 } }, COMPANIES[0], FX);
+    eq(d2.debtRatio, 152.3);
+    eq(d2.debtRatioSource, 'reported');
+    var d3 = C.derive({ period: '2026Q2', values: { totalLiabilities: 300, totalEquity: -10 } }, COMPANIES[0], FX);
+    eq(d3.debtRatio, null);
+    var d4 = C.derive({ period: '2026Q2', values: { totalLiabilities: 300 } }, COMPANIES[0], FX);
+    eq(d4.debtRatio, null, '자본이 없으면 계산하지 않음');
   });
 
   test('분기 표: 환율이 없으면 missingFx 표시', function () {
@@ -237,27 +251,29 @@
       period: '2026Q2',
       currency: 'KRW',
       values: [
-        { metric: 'Revenue', value: 46.62, unit: 'trillion', text: '46조 6,200억원' },
+        { metric: 'Revenue', value: 46.62, unit: 'trillion', basis: 'ytd', text: '46조 6,200억원' },
         { metric: '영업이익', value: '28,509', unit: '억' },
-        { metric: 'deliveries', value: 991885, unit: 'units' },
-        { metric: 'netIncome', value: 3.1, unit: 'trillion', basis: 'ytd' },
+        { metric: 'Total liabilities', value: 180.5, unit: '조', basis: 'ytd' },
+        { metric: '자본총계', value: 120, unit: 'trillion' },
+        { metric: '부채비율', value: '150.4%', unit: 'percent' },
         { metric: 'ebitda margin', value: 9, unit: 'one' },
       ],
     }, { companies: COMPANIES });
     ok(r.ok, r.errors.join());
-    eq(r.numbers.values.revenue, 46620000);
+    eq(r.numbers.ytd.revenue, 46620000);
     eq(r.numbers.values.operatingIncome, 2850900);
-    eq(r.numbers.values.deliveries, 991.885);
-    eq(r.numbers.ytd.netIncome, 3100000);
+    eq(r.numbers.values.totalLiabilities, 180500000, '재무상태표 값은 ytd 라고 와도 분기 말 값으로 받음');
+    eq(r.numbers.values.totalEquity, 120000000);
+    eq(r.numbers.values.debtRatio, 150.4);
     eq(r.numbers.raw.revenue, '46조 6,200억원');
     ok(r.warnings.some(function (w) { return /ebitda margin/.test(w); }));
   });
 
   test('숫자 검사: 객체 형태 values 도 받음', function () {
-    var r = P.readNumbers({ company: 'acme', period: '2026Q2', values: { revenue: { value: 48.6, unit: 'billion' }, netIncome: 1200 } }, { companies: COMPANIES });
+    var r = P.readNumbers({ company: 'acme', period: '2026Q2', values: { revenue: { value: 48.6, unit: 'billion' }, operatingIncome: 1200 } }, { companies: COMPANIES });
     ok(r.ok);
     eq(r.numbers.values.revenue, 48600);
-    eq(r.numbers.values.netIncome, 1200, '단위가 없으면 백만으로 보고 경고');
+    eq(r.numbers.values.operatingIncome, 1200, '단위가 없으면 백만으로 보고 경고');
     ok(r.warnings.length === 1);
   });
 
@@ -299,9 +315,9 @@
 
   test('누계를 분기로: 3월 결산 회사의 2분기(7~9월) 누계에서 1분기를 뺌', function () {
     var rep = { company: 'jparts', quarters: [{ period: '2026Q2', values: { revenue: 400 } }] };
-    var res = M.applyNumbers(rep, COMPANIES[2], '2026Q3', { values: {}, ytd: { revenue: 900, netIncome: 50 }, raw: {} });
+    var res = M.applyNumbers(rep, COMPANIES[2], '2026Q3', { values: {}, ytd: { revenue: 900, operatingIncome: 50 }, raw: {} });
     eq(C.quarterOf(res.report, '2026Q3').values.revenue, 500);
-    eq(C.quarterOf(res.report, '2026Q3').values.netIncome, undefined, '앞 분기 순이익이 없어 넣지 않음');
+    eq(C.quarterOf(res.report, '2026Q3').values.operatingIncome, undefined, '앞 분기 영업이익이 없어 넣지 않음');
     eq(res.warnings.length, 1);
     ok(/2026Q2/.test(res.warnings[0]));
   });
@@ -402,12 +418,13 @@
     ok(p.indexOf('CEO said {{period}} literally.') > 0);
   });
 
-  test('숫자 프롬프트: 회사 지표 이름과 부품사 판매 대수 안내', function () {
-    var p = PR.buildNumbersPrompt(Object.assign({}, COMPANIES[0], { metricNotes: { adjOperatingIncome: 'EBIT-adjusted' } }), '2026Q2', 'Revenue $1 billion');
-    ok(p.indexOf('EBIT-adjusted') > 0);
+  test('숫자 프롬프트: 회사 영업이익 이름, 부채와 자본, 회계연도 표기', function () {
+    var p = PR.buildNumbersPrompt(Object.assign({}, COMPANIES[0], { metricNotes: { operatingIncome: 'Group EBIT' } }), '2026Q2', 'Revenue $1 billion');
+    ok(p.indexOf('Group EBIT') > 0);
     ok(p.indexOf('Revenue $1 billion') > 0);
+    ok(p.indexOf('totalLiabilities') > 0 && p.indexOf('totalEquity') > 0);
+    ok(p.indexOf('{{') < 0);
     var q = PR.buildNumbersPrompt(COMPANIES[2], '2026Q2', 'x');
-    ok(q.indexOf('부품사라 넣지 않는다') > 0);
     ok(q.indexOf('FY2027 Q1') > 0);
   });
 })(typeof window !== 'undefined' ? window : globalThis);

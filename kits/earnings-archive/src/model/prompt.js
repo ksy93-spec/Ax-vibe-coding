@@ -85,17 +85,18 @@
     '- 발표 통화: {{currency}}',
     '',
     '[찾을 숫자] (원문에 없는 것은 넣지 않는다)',
-    '- revenue: 매출 (Revenue, Net sales, 売上高, 매출액)',
+    '- revenue: 매출 (Revenue, Net sales, 売上高, 매출액). 이번 분기 값',
     '- operatingIncome: 영업이익 (Operating income, EBIT, Operating result, 営業利益). {{opNote}}',
-    '- adjOperatingIncome: 회사가 따로 강조하는 조정 영업이익 (EBIT-adjusted, Adjusted EBIT 등). {{adjNote}}',
-    '- netIncome: 지배주주 귀속 순이익 (Net income attributable to ..., 親会社株主に帰属する当期純利益)',
-    '- deliveries: 판매 또는 인도 대수. {{delNote}}',
+    '- totalLiabilities: 분기 말 연결 부채총계 (Total liabilities, 負債合計)',
+    '- totalEquity: 분기 말 연결 자본총계 (Total equity, 純資産合計). 비지배지분 포함 합계',
+    '- debtRatio: 원문에 부채비율(%)이 숫자로 적혀 있을 때만. 직접 계산하지 않는다. unit 은 "percent"',
     '',
     '[규칙]',
     '- 숫자를 계산하거나 단위를 바꾸지 않는다. 원문에 적힌 숫자와 단위를 그대로 옮긴다.',
-    '- unit 은 다음 중 하나: one, thousand, ten_thousand, million, hundred_million, billion, trillion',
-    '  예: "$48.6 billion" -> value 48.6, unit "billion" / "46조 6,200억원" -> value 46.62, unit "trillion" / "12,345億円" -> value 12345, unit "hundred_million" / "1,234百万円" -> value 1234, unit "million" / "875,000 units" -> value 875000, unit "one"',
-    '- 원문이 이번 분기만의 값이면 basis 는 "quarter", 회계연도 시작부터 쌓인 누계(예: 上期, 9M, year-to-date)면 "ytd"',
+    '- unit 은 다음 중 하나: one, thousand, ten_thousand, million, hundred_million, billion, trillion, percent',
+    '  예: "$48.6 billion" -> value 48.6, unit "billion" / "46조 6,200억원" -> value 46.62, unit "trillion" / "12,345億円" -> value 12345, unit "hundred_million" / "1,234百万円" -> value 1234, unit "million" / "부채비율 152.3%" -> value 152.3, unit "percent"',
+    '- 매출과 영업이익: 원문이 이번 분기만의 값이면 basis 는 "quarter", 회계연도 시작부터 쌓인 누계(예: 上期, 9M, year-to-date)면 "ytd"',
+    '- 부채총계, 자본총계, 부채비율: 분기 말 값이므로 basis 는 "quarter"',
     '- 적자는 음수로 적는다. 괄호 표기 (123) 은 -123',
     '- text 에는 원문 표기를 짧게 그대로 적는다.',
     '',
@@ -234,9 +235,7 @@
   function buildNumbersPrompt(company, period, text) {
     var v = baseVars(company, period);
     var notes = company.metricNotes || {};
-    v.opNote = notes.operatingIncome ? '이 회사는 "' + notes.operatingIncome + '" 를 쓴다' : '회사가 공식 영업이익으로 쓰는 값';
-    v.adjNote = notes.adjOperatingIncome ? '이 회사는 "' + notes.adjOperatingIncome + '" 를 쓴다' : '따로 없으면 넣지 않는다';
-    v.delNote = company.group === 'Tier1' ? '부품사라 넣지 않는다' : notes.deliveries ? '이 회사는 "' + notes.deliveries + '" 를 쓴다' : '회사가 공식으로 밝힌 판매 대수';
+    v.opNote = notes.operatingIncome ? '이 회사는 "' + notes.operatingIncome + '" 를 쓴다' : '회사가 공식 영업이익으로 쓰는 값. 조정(adjusted) 값이 아니라 공시 값';
     v.text = String(text || '').trim();
     return fill(NUMBERS_TEMPLATE, v);
   }

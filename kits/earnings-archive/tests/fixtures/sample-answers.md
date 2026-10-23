@@ -46,8 +46,8 @@
   "values": [
     { "metric": "revenue", "value": 52.3, "unit": "trillion", "basis": "quarter", "text": "52.3 trillion won" },
     { "metric": "operatingIncome", "value": 3.4, "unit": "trillion", "basis": "quarter", "text": "3.4 trillion won" },
-    { "metric": "netIncome", "value": 2.6, "unit": "trillion", "basis": "quarter", "text": "2.6 trillion won" },
-    { "metric": "deliveries", "value": 1020000, "unit": "one", "basis": "quarter", "text": "1,020,000 units" }
+    { "metric": "totalLiabilities", "value": 141.2, "unit": "trillion", "basis": "quarter", "text": "total liabilities 141.2 trillion won" },
+    { "metric": "totalEquity", "value": 96.5, "unit": "trillion", "basis": "quarter", "text": "total equity 96.5 trillion won" }
   ]
 }
 ```

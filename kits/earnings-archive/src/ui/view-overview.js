@@ -97,6 +97,8 @@
       .sort(function (a, b) { return b.t.musd.revenue - a.t.musd.revenue; });
     var mar = withNum.filter(function (x) { return x.t.opMargin !== null; })
       .sort(function (a, b) { return b.t.opMargin - a.t.opMargin; });
+    var debt = withNum.filter(function (x) { return x.t.debtRatio !== null; })
+      .sort(function (a, b) { return a.t.debtRatio - b.t.debtRatio; });
     var tableMode = r.view === 'table';
     main.appendChild(h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [
@@ -104,7 +106,7 @@
         h('div', { class: 'app__spacer' }),
         f.btn(tableMode ? '차트로 보기' : '표로 보기', function () { App.go({ view: tableMode ? '' : 'table' }, true); }, 'sm'),
       ]),
-      tableMode ? compareTable(withNum) : h('div', { class: 'grid2' }, [
+      tableMode ? compareTable(withNum) : h('div', { class: 'grid3' }, [
         App.chart.bars({
           title: '매출',
           unit: 'MUSD',
@@ -119,6 +121,14 @@
           format: function (v) { return f.num(v, 1); },
           data: mar.map(function (x) {
             return { label: label(x), value: x.t.opMargin, tip: ['영업이익 ' + f.musd(x.t.musd.operatingIncome) + ' MUSD'], onClick: go(x) };
+          }),
+        }),
+        App.chart.bars({
+          title: '부채비율',
+          unit: '% (낮은 순)',
+          format: function (v) { return f.num(v, 1); },
+          data: debt.map(function (x) {
+            return { label: label(x), value: x.t.debtRatio, tip: [x.t.debtRatioSource === 'reported' ? '원문에 적힌 비율' : '부채총계 / 자본총계'], onClick: go(x) };
           }),
         }),
       ]),
@@ -139,8 +149,8 @@
       body = h('dl', { class: 'kv' }, [
         h('dt', { text: '매출' }), h('dd', null, [f.musd(t.musd.revenue), yoy(t.yoy.revenue)]),
         h('dt', { text: '영업이익' }), h('dd', null, [f.musd(t.musd.operatingIncome), yoy(t.yoy.operatingIncome)]),
-        h('dt', { text: '영업이익률' }), h('dd', null, [f.pct(t.opMargin),
-          t.opMarginPrev !== null && t.opMargin !== null ? h('span', { class: 'delta', text: f.pp(t.opMargin - t.opMarginPrev) }) : null]),
+        h('dt', { text: '영업이익률' }), h('dd', null, [f.pct(t.opMargin), ppDelta(t.opMargin, t.opMarginPrev)]),
+        h('dt', { text: '부채비율' }), h('dd', null, [f.pct(t.debtRatio), ppDelta(t.debtRatio, t.debtRatioPrev)]),
       ]);
     }
     var call = q && q.call;
@@ -163,6 +173,12 @@
     ]);
   }
 
+  /** 전년 동기 대비 %p 차이 */
+  function ppDelta(cur, prev) {
+    if (cur === null || cur === undefined || prev === null || prev === undefined) return null;
+    return h('span', { class: 'delta', title: '전년 동기 대비', text: f.pp(cur - prev) });
+  }
+
   function yoy(v) {
     if (v === null || v === undefined) return null;
     return h('span', { class: 'delta ' + (v >= 0 ? 'delta--up' : 'delta--down'), text: f.pct(v, true) });
@@ -170,7 +186,7 @@
 
   function compareTable(rows) {
     var table = h('table', { class: 'table' }, [
-      h('thead', null, h('tr', null, ['회사', '매출 (MUSD)', '전년 대비', '영업이익 (MUSD)', '영업이익률', '순이익 (MUSD)', '판매 (천 대)', '환율'].map(function (t, i) {
+      h('thead', null, h('tr', null, ['회사', '매출 (MUSD)', '전년 대비', '영업이익 (MUSD)', '영업이익률', '부채비율', '환율'].map(function (t, i) {
         return h('th', { class: 'th' + (i ? ' num' : ''), text: t });
       }))),
       h('tbody', null, rows.map(function (x) {
@@ -181,8 +197,7 @@
           h('td', { class: 'num', text: f.pct(t.yoy.revenue, true) }),
           h('td', { class: 'num', text: f.musd(t.musd.operatingIncome) }),
           h('td', { class: 'num', text: f.pct(t.opMargin) }),
-          h('td', { class: 'num', text: f.musd(t.musd.netIncome) }),
-          h('td', { class: 'num', text: f.num(t.deliveries) }),
+          h('td', { class: 'num', text: f.pct(t.debtRatio) }),
           h('td', { class: 'num', text: t.currency === 'USD' ? '-' : t.currency + ' ' + f.rate(t.fx && t.fx.rate) }),
         ]);
       })),

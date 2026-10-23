@@ -113,6 +113,7 @@
 
   /**
    * 누계(year-to-date) 값을 분기 값으로. 같은 회계연도 앞 분기들의 값이 자료에 있어야 합니다.
+   * 매출, 영업이익 같은 손익(flow) 값에만 씁니다. parse.readNumbers 가 재무상태표 값은 ytd 로 보내지 않습니다.
    * @returns {{value: number|null, missing: string[]}} missing 은 값이 없는 앞 분기들
    */
   function ytdToQuarter(report, company, period, key, ytdValue) {

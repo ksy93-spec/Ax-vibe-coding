@@ -1,7 +1,8 @@
 // 자료 구조와 모델 API. 읽기 전용 참조입니다. 사내에서 이 시그니처를 바꾸지 마세요.
 
 type Period = string; // '2026Q3' 달력 분기 (분기 끝 달 기준, 7~9월 = Q3)
-type MetricKey = 'revenue' | 'operatingIncome' | 'adjOperatingIncome' | 'netIncome' | 'deliveries';
+// 금액 4개는 발표 통화 백만 단위, debtRatio 는 % 숫자(원문에 비율만 있을 때). 화면 지표는 매출, 영업이익, 영업이익률, 부채비율
+type MetricKey = 'revenue' | 'operatingIncome' | 'totalLiabilities' | 'totalEquity' | 'debtRatio';
 type Topic = '실적' | '가이던스' | '전동화' | '관세·정책' | 'SDV·전장' | '지역' | '공급망·원가' | '주주환원' | '기타';
 
 interface Company {
@@ -14,7 +15,7 @@ interface Company {
   fyEnd: number;         // 회계연도 끝 달 (12, 3)
   color: string;         // 로고가 없을 때 글자 마크 색
   logo: string;          // 'assets/logos/gm.svg' 또는 data: URL 또는 ''
-  metricNotes: Partial<Record<MetricKey, string>>; // 회사가 쓰는 지표 이름 (EBIT-adjusted 등)
+  metricNotes: { operatingIncome?: string };      // 회사가 영업이익으로 쓰는 이름 (Group EBIT 등)
   aliases: string[];
 }
 
@@ -36,7 +37,7 @@ interface Quarter {
   fiscalLabel: string;   // 회사 표기 (FY2027 Q1)
   reportDate: string;
   currency: string;
-  values: Partial<Record<MetricKey, number>>; // 금액: 발표 통화 백만, deliveries: 천 대
+  values: Partial<Record<MetricKey, number>>; // 금액: 발표 통화 백만, debtRatio: %
   raw: Partial<Record<MetricKey, string>>;    // 원문 표기
   fxOverride?: number;   // 이 분기만 쓸 환율 (1 USD 당)
   source: string;
@@ -62,21 +63,23 @@ interface Pack {
 
 interface Derived {
   period: Period; currency: string;
-  musd: Partial<Record<Exclude<MetricKey, 'deliveries'>, number | null>>;
-  local: Partial<Record<Exclude<MetricKey, 'deliveries'>, number | null>>;
-  deliveries: number | null;
-  opMargin: number | null; adjMargin: number | null; netMargin: number | null;
+  musd: { revenue: number | null; operatingIncome: number | null };   // 백만 달러
+  local: { revenue: number | null; operatingIncome: number | null };  // 발표 통화 백만
+  opMargin: number | null;                                            // 영업이익 / 매출 x 100
+  debtRatio: number | null;                                           // 부채총계 / 자본총계 x 100, 없으면 원문 비율
+  debtRatioSource: 'calc' | 'reported' | null;
   fx: { rate: number | null; source: 'usd' | 'table' | 'override' | 'missing' };
   missingFx: boolean;
-  yoy?: { revenue: number | null; operatingIncome: number | null; deliveries: number | null };
-  opMarginPrev?: number | null;
+  yoy?: { revenue: number | null; operatingIncome: number | null };  // 발표 통화 기준 %
+  opMarginPrev?: number | null;                                       // 전년 동기
+  debtRatioPrev?: number | null;                                      // 전년 동기
   quarter?: Quarter;
 }
 
 declare namespace App.ea.core {
-  const METRICS: Array<{ key: MetricKey; label: string; kind: 'money' | 'count' }>;
+  const METRICS: Array<{ key: MetricKey; label: string; kind: 'money' | 'pct'; flow: boolean }>;
   const TOPICS: Topic[];
-  function toStoreUnit(value: number | string, unit: string, kind: 'money' | 'count'): number | null;
+  function toStoreUnit(value: number | string, unit: string, kind: 'money' | 'pct'): number | null;
   function normPeriod(s: string): Period | null;
   function periodAdd(p: Period, n: number): Period;
   function fiscalLabel(p: Period, fyEnd: number): string;

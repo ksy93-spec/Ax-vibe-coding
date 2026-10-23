@@ -6,13 +6,21 @@
   var App = (global.App = global.App || {});
   var ea = (App.ea = App.ea || {});
 
-  /** 분기 자료에 들어가는 지표. money 는 발표 통화 백만 단위로 저장하고 화면에서 MUSD 로 바꿉니다. */
+  /**
+   * 분기 자료에 들어가는 지표.
+   *   money  발표 통화 백만 단위로 저장. 매출, 영업이익은 화면에서 MUSD 로 바꿉니다.
+   *   pct    퍼센트 숫자 그대로 저장 (150 = 150%)
+   *   flow   true 면 분기 동안 쌓이는 값(손익). false 면 분기 말 잔액(재무상태표). 누계를 분기로 바꿀 때 flow 만 바꿉니다.
+   * 화면에 보이는 것은 매출, 영업이익, 영업이익률, 부채비율 넷입니다.
+   * 영업이익률 = 영업이익 / 매출, 부채비율 = 부채총계 / 자본총계. 둘 다 derive() 가 계산합니다.
+   * 부채비율은 부채총계와 자본총계가 있으면 계산하고, 없으면 원문에 적힌 비율(debtRatio)을 씁니다.
+   */
   var METRICS = [
-    { key: 'revenue', label: '매출', kind: 'money' },
-    { key: 'operatingIncome', label: '영업이익', kind: 'money' },
-    { key: 'adjOperatingIncome', label: '조정 영업이익', kind: 'money' },
-    { key: 'netIncome', label: '순이익(지배)', kind: 'money' },
-    { key: 'deliveries', label: '판매 대수', kind: 'count' },
+    { key: 'revenue', label: '매출', kind: 'money', flow: true },
+    { key: 'operatingIncome', label: '영업이익', kind: 'money', flow: true },
+    { key: 'totalLiabilities', label: '부채총계', kind: 'money', flow: false },
+    { key: 'totalEquity', label: '자본총계', kind: 'money', flow: false },
+    { key: 'debtRatio', label: '부채비율 (원문 값)', kind: 'pct', flow: false },
   ];
 
   /** 하이라이트와 Q&A 주제. 프롬프트도 이 목록을 그대로 씁니다. 바꾸면 기존 자료의 주제가 '기타' 로 보입니다. */
@@ -30,17 +38,10 @@
     billion: 1000,
     trillion: 1e6,
   };
-  /** 대수 단위 -> 천 대 배수 */
-  var COUNT_UNITS = {
-    one: 1e-3,
-    thousand: 1,
-    ten_thousand: 10,
-    million: 1000,
-  };
   /** 사내 모델이 흔히 쓰는 다른 이름 -> 위 키 */
   var UNIT_ALIASES = {
-    units: 'one', unit: 'one', won: 'one', yen: 'one', dollar: 'one', dollars: 'one', '원': 'one', '대': 'one', '円': 'one',
-    k: 'thousand', thousands: 'thousand', '천': 'thousand', '千': 'thousand', '천대': 'thousand', 'thousand_units': 'thousand',
+    won: 'one', yen: 'one', dollar: 'one', dollars: 'one', '원': 'one', '円': 'one',
+    k: 'thousand', thousands: 'thousand', '천': 'thousand', '千': 'thousand',
     '만': 'ten_thousand', '万': 'ten_thousand',
     m: 'million', mn: 'million', mm: 'million', millions: 'million', '백만': 'million', '百万': 'million', '百万円': 'million', '백만원': 'million',
     '억': 'hundred_million', '億': 'hundred_million', '億円': 'hundred_million', '억원': 'hundred_million', hundred_millions: 'hundred_million',
@@ -51,21 +52,27 @@
   function normUnit(u) {
     if (u === undefined || u === null || u === '') return null;
     var s = String(u).trim().toLowerCase().replace(/\s+/g, '_');
-    if (MONEY_UNITS[s] !== undefined || COUNT_UNITS[s] !== undefined) return s;
+    if (MONEY_UNITS[s] !== undefined || s === 'percent') return s;
+    if (s === '%' || s === 'pct') return 'percent';
     return UNIT_ALIASES[s] || UNIT_ALIASES[String(u).trim()] || null;
   }
 
   /**
-   * 값을 저장 단위로 바꿉니다. money 는 백만, count 는 천 대.
+   * 값을 저장 단위로 바꿉니다. money 는 백만, pct 는 퍼센트 숫자 그대로.
    * @returns {number|null} 단위를 모르면 null
    */
   function toStoreUnit(value, unit, kind) {
-    var n = toNumber(value);
+    var n = toNumber(String(value === undefined || value === null ? '' : value).replace(/%$/, ''));
     if (n === null) return null;
+    if (kind === 'pct') return round(n, 6);
     var u = normUnit(unit);
-    var table = kind === 'count' ? COUNT_UNITS : MONEY_UNITS;
-    if (!u || table[u] === undefined) return null;
-    return round(n * table[u], 6);
+    if (!u || MONEY_UNITS[u] === undefined) return null;
+    return round(n * MONEY_UNITS[u], 6);
+  }
+
+  function metricOf(key) {
+    for (var i = 0; i < METRICS.length; i++) if (METRICS[i].key === key) return METRICS[i];
+    return null;
   }
 
   /** "1,234.5", "(120)", "−3.2" 같은 표기를 숫자로. 못 읽으면 null */
@@ -220,34 +227,40 @@
   }
 
   /**
-   * 한 분기의 화면용 숫자. 금액은 MUSD, 대수는 천 대, 비율은 %.
-   * @returns {{period, currency, fx: {rate, source}, musd: Object, local: Object, deliveries, opMargin, adjMargin, netMargin, missingFx: boolean}}
+   * 한 분기의 화면용 숫자. 매출, 영업이익은 MUSD 와 발표 통화 둘 다, 비율은 %.
+   * @returns {{period, currency, fx: {rate, source}, musd: {revenue, operatingIncome}, local: {revenue, operatingIncome},
+   *   opMargin: number|null, debtRatio: number|null, debtRatioSource: 'calc'|'reported'|null, missingFx: boolean}}
    */
   function derive(q, company, fx) {
     var currency = (q && q.currency) || (company && company.currency) || 'USD';
-    var out = { period: q.period, currency: currency, musd: {}, local: {}, deliveries: null, missingFx: false, fx: null };
     var v = q.values || {};
-    METRICS.forEach(function (m) {
-      var n = toNumber(v[m.key]);
-      if (m.kind === 'count') {
-        out.deliveries = n;
-        return;
-      }
-      out.local[m.key] = n;
+    var out = { period: q.period, currency: currency, musd: {}, local: {}, missingFx: false };
+    ['revenue', 'operatingIncome'].forEach(function (key) {
+      var n = toNumber(v[key]);
       var r = toMusd(n, currency, q.period, fx, q.fxOverride);
+      out.local[key] = n;
+      out.musd[key] = r.value;
       out.fx = { rate: r.rate, source: r.source };
       if (n !== null && r.value === null) out.missingFx = true;
-      out.musd[m.key] = r.value;
     });
-    if (!out.fx) out.fx = { rate: rateFor(fx, currency, q.period), source: 'table' };
     var rev = out.local.revenue;
-    function margin(key) {
-      var x = out.local[key];
-      return rev && x !== null && x !== undefined ? (x / rev) * 100 : null;
+    var op = out.local.operatingIncome;
+    out.opMargin = rev && op !== null ? (op / rev) * 100 : null;
+
+    // 부채비율: 부채총계 / 자본총계. 자본이 0 이하(자본잠식)면 계산하지 않습니다.
+    var liab = toNumber(v.totalLiabilities);
+    var eq = toNumber(v.totalEquity);
+    var reported = toNumber(v.debtRatio);
+    if (liab !== null && eq !== null && eq > 0) {
+      out.debtRatio = (liab / eq) * 100;
+      out.debtRatioSource = 'calc';
+    } else if (reported !== null) {
+      out.debtRatio = reported;
+      out.debtRatioSource = 'reported';
+    } else {
+      out.debtRatio = null;
+      out.debtRatioSource = null;
     }
-    out.opMargin = margin('operatingIncome');
-    out.adjMargin = margin('adjOperatingIncome');
-    out.netMargin = margin('netIncome');
     return out;
   }
 
@@ -260,7 +273,7 @@
 
   /**
    * 한 회사의 분기 표. 최근 분기부터. 전년 동기 대비(YoY)는 USD 기준이 아니라 발표 통화 기준입니다.
-   * 환율 변동이 섞이지 않게 하려는 것입니다.
+   * 환율 변동이 섞이지 않게 하려는 것입니다. 영업이익률과 부채비율은 전년 동기 값을 같이 둡니다(차이는 %p).
    */
   function table(report, company, fx) {
     var qs = ((report && report.quarters) || []).slice().sort(function (a, b) {
@@ -273,9 +286,9 @@
       d.yoy = {
         revenue: pd ? growth(d.local.revenue, pd.local.revenue) : null,
         operatingIncome: pd ? growth(d.local.operatingIncome, pd.local.operatingIncome) : null,
-        deliveries: pd ? growth(d.deliveries, pd.deliveries) : null,
       };
       d.opMarginPrev = pd ? pd.opMargin : null;
+      d.debtRatioPrev = pd ? pd.debtRatio : null;
       d.quarter = q;
       return d;
     });
@@ -308,7 +321,7 @@
     TOPICS: TOPICS,
     CURRENCIES: CURRENCIES,
     MONEY_UNITS: MONEY_UNITS,
-    COUNT_UNITS: COUNT_UNITS,
+    metricOf: metricOf,
     normUnit: normUnit,
     toStoreUnit: toStoreUnit,
     toNumber: toNumber,

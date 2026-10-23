@@ -216,8 +216,8 @@
   function exportCsv() {
     var fx = App.data.fx();
     var cols = ['company', 'name', 'group', 'period', 'fiscal_label', 'report_date', 'currency', 'fx_per_usd', 'fx_source',
-      'revenue_musd', 'operating_income_musd', 'op_margin_pct', 'adj_operating_income_musd', 'net_income_musd', 'deliveries_k',
-      'revenue_local_m', 'operating_income_local_m', 'net_income_local_m', 'status', 'source'];
+      'revenue_musd', 'operating_income_musd', 'op_margin_pct', 'debt_ratio_pct', 'debt_ratio_basis',
+      'revenue_local_m', 'operating_income_local_m', 'total_liabilities_local_m', 'total_equity_local_m', 'status', 'source'];
     var recs = [];
     App.data.companies().forEach(function (c) {
       C.table(App.data.report(c.id), c, fx).forEach(function (d) {
@@ -227,8 +227,9 @@
           company: c.id, name: c.name, group: c.group, period: d.period, fiscal_label: q.fiscalLabel || '', report_date: q.reportDate || '',
           currency: d.currency, fx_per_usd: d.currency === 'USD' ? 1 : r(d.fx.rate, 4), fx_source: d.fx.source,
           revenue_musd: r(d.musd.revenue), operating_income_musd: r(d.musd.operatingIncome), op_margin_pct: r(d.opMargin, 2),
-          adj_operating_income_musd: r(d.musd.adjOperatingIncome), net_income_musd: r(d.musd.netIncome), deliveries_k: r(d.deliveries),
-          revenue_local_m: r(d.local.revenue), operating_income_local_m: r(d.local.operatingIncome), net_income_local_m: r(d.local.netIncome),
+          debt_ratio_pct: r(d.debtRatio, 2), debt_ratio_basis: d.debtRatioSource || '',
+          revenue_local_m: r(d.local.revenue), operating_income_local_m: r(d.local.operatingIncome),
+          total_liabilities_local_m: r((q.values || {}).totalLiabilities), total_equity_local_m: r((q.values || {}).totalEquity),
           status: q.status || '', source: q.source || '',
         });
       });
@@ -387,9 +388,7 @@
         C.CURRENCIES.map(function (x) { return h('option', { value: x, selected: d.currency === x, text: x }); }))),
       f.field('회계연도 끝 달', h('input', { class: 'input', inputmode: 'numeric', value: d.fyEnd, oninput: function (e) { d.fyEnd = C.toNumber(e.target.value) || 12; } }), '12 또는 3'),
       f.field('글자 마크 색', inp('color', '#0170CE')),
-      f.field('영업이익 이름', note('operatingIncome'), '예: EBIT, Operating result'),
-      f.field('조정 영업이익 이름', note('adjOperatingIncome'), '예: EBIT-adjusted'),
-      f.field('판매 대수 정의', note('deliveries'), '예: 도매 판매, Retail sales'),
+      f.field('영업이익 이름', note('operatingIncome'), '예: EBIT, Operating result. 숫자 프롬프트가 이 이름으로 찾습니다'),
       f.field('다른 이름 (쉼표로)', h('input', { class: 'input', value: (d.aliases || []).join(', '), oninput: function (e) {
         d.aliases = e.target.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
       } }), '모델 답에 다른 이름이 와도 이 회사로 알아봅니다'),

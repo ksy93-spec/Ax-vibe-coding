@@ -86,12 +86,12 @@
     body.appendChild(h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [
         h('h3', { class: 'panel__title', text: '분기 실적' }),
-        h('span', { class: 'muted', text: '금액 백만 달러(MUSD), 판매 천 대. 전년 대비는 발표 통화 기준이라 환율 변동이 빠져 있습니다.' }),
+        h('span', { class: 'muted', text: '금액 백만 달러(MUSD). 전년 대비는 발표 통화 기준이라 환율 변동이 빠져 있습니다. 부채비율 * 표시는 원문에 적힌 비율.' }),
       ]),
       quarterTable(recent, period, c),
     ]));
 
-    body.appendChild(h('section', { class: 'grid2' }, [
+    body.appendChild(h('section', { class: 'grid3' }, [
       h('div', { class: 'panel' }, App.chart.columns({
         title: '매출',
         unit: 'MUSD',
@@ -106,6 +106,14 @@
         format: function (v) { return f.num(v, 1); },
         data: recent.map(function (d) {
           return { label: C.periodLabel(d.period), value: d.opMargin, tip: ['영업이익 ' + f.musd(d.musd.operatingIncome) + ' MUSD'] };
+        }),
+      })),
+      h('div', { class: 'panel' }, App.chart.columns({
+        title: '부채비율',
+        unit: '%',
+        format: function (v) { return f.num(v, 0); },
+        data: recent.map(function (d) {
+          return { label: C.periodLabel(d.period), value: d.debtRatio, tip: [d.debtRatioSource === 'reported' ? '원문에 적힌 비율' : '부채총계 / 자본총계'] };
         }),
       })),
     ]));
@@ -125,10 +133,9 @@
       ['매출', function (d) { return f.musd(d.musd.revenue); }],
       ['  전년 대비', function (d) { return f.pct(d.yoy.revenue, true); }, 'sub'],
       ['영업이익' + (notes.operatingIncome ? ' (' + notes.operatingIncome + ')' : ''), function (d) { return f.musd(d.musd.operatingIncome); }],
-      ['  영업이익률', function (d) { return f.pct(d.opMargin); }, 'sub'],
-      ['조정 영업이익' + (notes.adjOperatingIncome ? ' (' + notes.adjOperatingIncome + ')' : ''), function (d) { return f.musd(d.musd.adjOperatingIncome); }],
-      ['순이익(지배)', function (d) { return f.musd(d.musd.netIncome); }],
-      ['판매 대수' + (notes.deliveries ? ' (' + notes.deliveries + ')' : ''), function (d) { return f.num(d.deliveries); }],
+      ['  전년 대비', function (d) { return f.pct(d.yoy.operatingIncome, true); }, 'sub'],
+      ['영업이익률', function (d) { return f.pct(d.opMargin); }],
+      ['부채비율', function (d) { return f.pct(d.debtRatio) + (d.debtRatioSource === 'reported' ? ' *' : ''); }],
       ['환율 (' + c.currency + '/USD)', function (d) {
         if (d.currency === 'USD') return '-';
         if (d.fx.source === 'missing') return '환율 없음';

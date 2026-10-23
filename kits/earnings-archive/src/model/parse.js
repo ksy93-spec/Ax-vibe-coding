@@ -78,12 +78,13 @@
     return '기타';
   }
 
+  /** 지표 이름 별칭. 사내 모델이 다른 이름을 쓰면 여기에 소문자, 띄어쓰기 없이 더합니다. */
   var METRIC_ALIASES = {
     revenue: ['revenue', 'revenues', 'sales', 'netsales', 'totalrevenue', 'totalrevenues', '매출', '매출액', '売上高', '売上収益', '営業収益'],
     operatingIncome: ['operatingincome', 'operatingprofit', 'ebit', 'operatingresult', '영업이익', '営業利益'],
-    adjOperatingIncome: ['adjoperatingincome', 'adjustedoperatingincome', 'adjustedebit', 'ebitadjusted', 'adjustedoperatingprofit', 'adjustedebitda', '조정영업이익'],
-    netIncome: ['netincome', 'netprofit', 'netincomeattributable', 'profitattributable', '순이익', '당기순이익', '지배순이익', '純利益', '当期利益'],
-    deliveries: ['deliveries', 'unitsales', 'wholesales', 'retailsales', 'vehiclesales', '판매대수', '판매', '販売台数'],
+    totalLiabilities: ['totalliabilities', 'liabilities', '부채총계', '부채', '負債合計', '負債'],
+    totalEquity: ['totalequity', 'equity', 'shareholdersequity', 'totalshareholdersequity', 'stockholdersequity', 'netassets', '자본총계', '자본', '純資産合計', '純資産', '資本合計'],
+    debtRatio: ['debtratio', 'debttoequity', 'debttoequityratio', 'liabilitiestoequity', '부채비율', '負債比率'],
   };
   function normMetric(k) {
     var s = String(k || '').toLowerCase().replace(/[\s_\-()]/g, '');
@@ -195,7 +196,7 @@
   }
 
   /**
-   * 숫자 답을 검사하고 저장 단위(금액 백만, 대수 천 대)로 바꿉니다.
+   * 숫자 답을 검사하고 저장 단위(금액 백만, 비율 %)로 바꿉니다.
    * values 는 배열 [{metric, value, unit, basis, text}] 또는 객체 {revenue: {value, unit}} 둘 다 받습니다.
    * basis 가 'ytd'(누계)인 값은 ytd 에 따로 담고, 분기 값으로 바꾸는 일은 merge.ytdToQuarter 가 합니다.
    */
@@ -231,11 +232,11 @@
         warnings.push('values[' + i + '] 지표 "' + (x && x.metric) + '" 를 몰라 뺌');
         return;
       }
-      var kind = key === 'deliveries' ? 'count' : 'money';
+      var kind = C.metricOf(key).kind;
       var unit = x.unit;
-      if (!unit) {
-        unit = kind === 'count' ? 'one' : 'million';
-        warnings.push(key + ' 단위가 없어 ' + (kind === 'count' ? '대' : '백만') + ' 으로 봄');
+      if (!unit && kind === 'money') {
+        unit = 'million';
+        warnings.push(key + ' 단위가 없어 백만으로 봄');
       }
       var n = C.toStoreUnit(x.value, unit, kind);
       if (n === null) {
@@ -243,7 +244,8 @@
         return;
       }
       var basis = str(x.basis).toLowerCase();
-      if (basis === 'ytd' || basis === 'cumulative' || basis === '누계') ytd[key] = n;
+      // 재무상태표 값(부채, 자본, 부채비율)은 분기 말 잔액이라 누계라는 개념이 없습니다.
+      if ((basis === 'ytd' || basis === 'cumulative' || basis === '누계') && C.metricOf(key).flow) ytd[key] = n;
       else values[key] = n;
       if (x.text) raw[key] = str(x.text);
     });
