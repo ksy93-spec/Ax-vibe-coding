@@ -34,7 +34,7 @@
 | --- | --- | --- | --- |
 | `kits/mi-portal` | MI 통합 포탈 템플릿. shadcn-admin 기반 React + TypeScript (1차 프로젝트 권장 시작점) | B. 패키지 tarball 동봉 | 101MB |
 | `kits/demand-sim` | 디스플레이 수요 시뮬레이터. 주요 지역 OEM M/S trend, 외생변수 Worst/Base/Best, 디스플레이 TAM과 자사 M/S 임원 보고서 | C. npm 의존성 0개 | 3.7MB |
-| `kits/earnings-archive` | 주요 고객 실적 자료. 완성차 13곳, 부품사 4곳의 분기 실적(MUSD 환산)과 컨퍼런스콜 하이라이트, Q&A 를 쌓음. 녹취록을 붙여 넣으면 사내 모델용 프롬프트를 만들고 답(JSON)을 검사해 넣음 | C. npm 의존성 0개 | 3.7MB |
+| `kits/earnings-archive` | 주요 고객 실적 자료. 완성차 13곳, 부품사 4곳의 매출, 영업이익(MUSD), 영업이익률, 부채비율과 컨퍼런스콜 하이라이트, Q&A 를 쌓음. 녹취록을 붙여 넣으면 사내 모델용 프롬프트를 만들고 답(JSON)을 검사해 넣음 | C. npm 의존성 0개 | 3.7MB |
 | `kits/rfx-volume` | 차량 물동 적정성 평가. RFx 고객 물동을 생산 전망(IHS 형식)과 비교해 Risk/Opportunity 계산. 서버 exe 로 띄우고 브라우저로 접속 | B. PyInstaller 휠 동봉 (서버는 의존성 0개, 화면은 ECharts) | 7.5MB |
 | `kits/asset-inventory` | 사내 기존 자산의 구조만 뽑아내는 조사 도구 | C. 파이썬 파일 하나 | 30KB |
 | `kits/portal-shell` | Market Intelligence 통합 포탈 셸 (1차 프로젝트) | C. npm 의존성 0개 | 640KB |
