@@ -1,0 +1,61 @@
+[연습용 가상 녹취록. 실제 회사, 실제 인물, 실제 숫자가 아닙니다. 자료 넣기 흐름을 연습할 때만 씁니다.]
+
+Example Motor Co. (EXMP) Q2 2026 Earnings Call Transcript
+
+Operator: Good morning, and welcome to the Example Motor Company second quarter 2026 earnings conference call. All participants are in listen-only mode. After the speakers' remarks, there will be a question-and-answer session. I would now like to turn the call over to Anna Field, Head of Investor Relations.
+
+Anna Field, Head of Investor Relations: Thank you, operator. Joining me today are our CEO, Daniel Stone, and our CFO, Maria Lopez. Our remarks today include forward-looking statements. Please refer to our filings for the risk factors. With that, I will hand it over to Daniel.
+
+Daniel Stone, Chief Executive Officer: Thanks, Anna, and good morning, everyone. We delivered a solid second quarter. Revenue was 52.3 trillion won, up 6 percent from a year ago, and operating profit was 3.4 trillion won, an operating margin of 6.5 percent. Wholesale volume reached 1,020,000 units.
+
+North America remained our strongest region. Hybrid sales in the United States grew 38 percent year over year, and hybrids now represent 21 percent of our US retail mix. In Europe, demand was soft, and we cut production of two compact models to protect pricing.
+
+On electrification, our second-generation battery platform enters production in the fourth quarter. We expect the cost per kilowatt-hour to come down by around 15 percent compared with the current platform, largely from moving to LFP cells for entry trims.
+
+Tariffs remain the biggest external headwind. Tariff costs were 640 billion won in the quarter. We offset roughly half of that through local sourcing, price adjustments and logistics savings, and we expect the net tariff impact in the second half to be lower than in the first half.
+
+On software-defined vehicles, we started over-the-air updates for our infotainment and ADAS domain controllers across three models. Our new cockpit with a 27-inch pillar-to-pillar display launches next year, and we finalized the supplier for the display module this quarter.
+
+Maria Lopez, Chief Financial Officer: Thank you, Daniel. Let me go through the numbers. Revenue of 52.3 trillion won was driven by a better mix and favorable currency. Operating profit was 3.4 trillion won. Net income attributable to shareholders was 2.6 trillion won.
+
+Material cost reduction contributed 210 billion won, while incentives in North America increased by 180 billion won as competition intensified in the compact SUV segment.
+
+For the full year, we are maintaining our revenue growth guidance of 5 to 6 percent and our operating margin guidance of 6 to 7 percent. We are raising our wholesale volume target to 4.1 million units from 4.0 million units.
+
+On shareholder returns, the board approved an additional share buyback of 1 trillion won, to be executed by the end of the year, and an interim dividend of 2,500 won per share.
+
+With that, operator, please open the line for questions.
+
+Question-and-Answer Session
+
+Operator: Thank you. Our first question comes from James Park with Alpha Securities. Please go ahead.
+
+James Park, Alpha Securities: Thanks for taking my question. Could you give more detail on the tariff impact for the second half? How much of the offset is structural versus one-time?
+
+Maria Lopez, Chief Financial Officer: Sure, James. Of the offset we achieved this quarter, we see about two-thirds as structural, mainly local sourcing of steel and battery modules. The remaining third comes from logistics and timing, which may not repeat. For the second half, we expect gross tariff costs of around 1.1 trillion won, with net impact below the first half.
+
+Operator: Our next question comes from Sophie Martin with Beta Capital.
+
+Sophie Martin, Beta Capital: Hi, thank you. You mentioned soft demand in Europe. Do you expect further production cuts, and how does that affect your margin outlook?
+
+Daniel Stone, Chief Executive Officer: We do not plan additional cuts at this point. Inventory in Europe is now at about 55 days, which we think is healthy. Our margin guidance already reflects a weaker Europe in the second half.
+
+Operator: The next question is from Kenji Ito with Gamma Research.
+
+Kenji Ito, Gamma Research: Thank you. On the new cockpit display, can you talk about the content per vehicle and the sourcing strategy? Are you dual-sourcing the display?
+
+Daniel Stone, Chief Executive Officer: The pillar-to-pillar cockpit roughly doubles display content per vehicle compared with our current setup. For the first launch we have a single supplier for the main display module, with a second source qualified for the following model year. We are not disclosing supplier names.
+
+Operator: Our next question comes from Laura Chen with Delta Partners.
+
+Laura Chen, Delta Partners: Thanks. Can you comment on hybrid profitability versus internal combustion models, and whether you plan to add hybrid capacity in the US?
+
+Maria Lopez, Chief Financial Officer: Hybrid margins are now close to our internal combustion models, within about one percentage point. We will add hybrid capacity at our US plant next year, about 150,000 units annually.
+
+Operator: We have time for one last question from Peter Novak with Epsilon Bank.
+
+Peter Novak, Epsilon Bank: Thank you. With the buyback and dividend, how should we think about capital allocation over the next two years?
+
+Maria Lopez, Chief Financial Officer: Our policy is to return 35 percent of net income to shareholders on average, while keeping capital expenditure at around 6 percent of revenue. The additional buyback is consistent with that policy.
+
+Operator: That concludes today's question-and-answer session. Thank you for joining.
