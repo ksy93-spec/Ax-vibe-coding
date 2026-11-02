@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "gm",
-  "rev": 5,
+  "rev": 6,
   "quarters": [
    {
     "period": "2026Q3",
@@ -24,10 +24,135 @@
     },
     "source": "https://www.sec.gov/Archives/edgar/data/0001467858/000146785826000059/gm-20260930.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
-    "call": null,
-    "origin": "outside",
-    "updatedAt": "2026-11-02 00:00:00"
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 콜 요약과 센티먼트는 사내 ChatGPT 역할로 시험한 예시. 녹취록 원문을 열지 못해 검색 요약(일부 2차 자료)으로 만들었으므로 원문 대조 필요.",
+    "call": {
+     "date": "2026-10-20",
+     "summary": "매출 $50.02 billion, EBIT-adjusted $4.1 billion으로 시장 예상을 웃돌았으나 연간 EBIT-adjusted 가이던스는 범위만 좁히고 2027년 원자재 부담을 경고해 주가는 하락함. 신규 $20 billion 자사주 매입 승인과 자동차 부문 잉여현금흐름 가이던스 상향이 함께 발표됨.",
+     "highlights": [
+      {
+       "topic": "실적",
+       "text": "3분기 매출 $50,015 million(전년 동기 $48,591 million), EBIT-adjusted $4,106 million(전년 동기 $3,376 million, +21.6%) 기록함"
+      },
+      {
+       "topic": "실적",
+       "text": "adjusted EPS $3.70으로 컨센서스를 상회함. Adjusted Automotive Free Cash Flow $5.9 billion으로 전년 대비 $1.7 billion 증가, 이익 증가와 관세 납부 시점 영향이 반영됨"
+      },
+      {
+       "topic": "지역",
+       "text": "GMNA 매출 $41,419 million(+2.1%), EBIT-adjusted $3,592 million(+43.4%), 북미 EBIT-adjusted 마진 8.7%로 전년 대비 2.5%p 개선됨"
+      },
+      {
+       "topic": "지역",
+       "text": "GM International EBIT-adjusted(중국 지분법이익 제외)는 breakeven으로 $200 million 감소함. Momenta 투자 평가손실 $100 million 포함됨. 중국 지분법이익은 $32 million으로 전년 $80 million에서 감소함"
+      },
+      {
+       "topic": "가이던스",
+       "text": "2026 EBIT-adjusted 가이던스를 $14.5 billion to $15.5 billion으로 좁힘(기존 $14.0 billion to $16.0 billion). adjusted EPS는 $12.75 to $13.75(기존 $12.00 to $14.00)로 조정함"
+      },
+      {
+       "topic": "가이던스",
+       "text": "adjusted automotive free cash flow 가이던스를 $11.5 billion to $12.5 billion으로 상향함(기존 $9.5 billion to $11.5 billion)"
+      },
+      {
+       "topic": "관세·정책",
+       "text": "CFO Paul Jacobson은 관세 비용이 IEEPA reversal benefits 차감 후 연초 누계 약 $1.8 billion 발생했다고 밝힘"
+      },
+      {
+       "topic": "공급망·원가",
+       "text": "원자재 인플레이션 비용은 올해 약 $2 billion 전망이며 물류와 메모리 비용 상승 포함임. 최근 원자재 가격이 연간화되면 2027년 EBIT-adjusted에 $1 billion to $1.5 billion 추가 부담, 2027년 총 부담은 약 $2 billion이라고 Paul Jacobson이 언급함"
+      },
+      {
+       "topic": "전동화",
+       "text": "EV 관련 재편 비용이 2025년 하반기 이후 누적 $11.2 billion 규모로 보도됨. 3분기에도 EV realignment 조정 $238 million 반영됨(2차 자료 기준)"
+      },
+      {
+       "topic": "주주환원",
+       "text": "1월에 시작한 $6 billion 자사주 매입을 완료하고 신규 $20 billion 다년 매입 승인을 발표함. 분기 배당도 선언함"
+      },
+      {
+       "topic": "가이던스",
+       "text": "경영진은 고객 수요가 유지되고 원자재, 물류 등 비용 압박이 완화된다면 2027년이 2026년보다 좋을 것으로 기대한다고 밝혔으며 2027 가이던스는 4분기 실적 발표 때 제시할 계획임"
+      }
+     ],
+     "guidance": "2026 연간 EBIT-adjusted $14.5 billion to $15.5 billion(기존 $14.0 billion to $16.0 billion), EPS-diluted-adjusted $12.75 to $13.75(기존 $12.00 to $14.00), adjusted automotive free cash flow $11.5 billion to $12.5 billion(기존 $9.5 billion to $11.5 billion), 원자재 인플레이션 약 $2 billion 전망. 2027년은 수요 유지와 비용 압박 완화를 전제로 2026년보다 개선 기대, 단 원자재 연간화 시 $1 billion to $1.5 billion 추가 부담 가능성 있음. 2027 가이던스는 4분기 실적 발표 시 제시 예정임",
+     "qa": [],
+     "sources": [
+      "https://fortune.com/company/general-motors/earnings/q3-2026/",
+      "https://www.fool.com/earnings/call-transcripts/2026/10/20/gm-gm-q3-2026-earnings-call-transcript/",
+      "https://www.sec.gov/Archives/edgar/data/0001467858/000146785826000056/gmq32026pressreleaseandfin.htm",
+      "http://www.prnewswire.com/news-releases/gm-releases-2026-third-quarter-results-and-updates-full-year-2026-guidance-board-approves-new-20-billion-share-repurchase-authorization-declares-quarterly-dividend-302913358.html",
+      "https://www.sec.gov/Archives/edgar/data/0001467858/000146785826000059/gm-20260930.htm",
+      "https://www.morningstar.com/stocks/gm-earnings-commodity-headwinds-increase-does-buyback-program",
+      "https://betafinch.com/episodes/GM_2026_Q3_en?lang=es",
+      "https://stocktwits.com/news-articles/markets/equity/gm-stock-drops-5-despite-q3-earnings-beat-automaker-keeps-profit-outlook-unchanged-unveils-20-b-buyback/cZxqtO3RBuF",
+      "https://www.stockhub.kr/en/insights/gm-cy2026-q3-earnings-call-20261020",
+      "https://www.hl.co.uk/shares/stock-market-news/company--news/gm-q3-profits-rise,-unveils-$20bn-buyback-despite-softer-vehicle-sales",
+      "https://site.financialmodelingprep.com/market-news/general-motors-q3-2026-earnings-20-billion-buyback",
+      "https://www.dbusiness.com/daily-news/general-motors-reports-50b-in-q3-revenue-4-1b-in-ebit/"
+     ],
+     "transcript": {
+      "source": "사내 ChatGPT 검색",
+      "url": "https://fortune.com/company/general-motors/earnings/q3-2026/",
+      "stored": false
+     }
+    },
+    "origin": "inside",
+    "updatedAt": "2026-11-02 05:08:51",
+    "sentiment": {
+     "model": {
+      "volume": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "판매량 가이던스에 대한 확인된 발언이 없음",
+       "quote": ""
+      },
+      "revenue": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "매출 가이던스에 대한 확인된 발언이 없음",
+       "quote": ""
+      },
+      "profit": {
+       "score": 5,
+       "direction": "유지",
+       "reason": "EBIT-adjusted 범위를 $14.5 billion to $15.5 billion으로 좁혀 중간값이 유지됨",
+       "quote": "narrowed its 2026 adjusted EBIT guidance to $14.5bn to $15.5bn"
+      },
+      "capex": {
+       "score": 7,
+       "direction": "상향",
+       "reason": "adjusted automotive free cash flow 가이던스를 $11.5 billion to $12.5 billion으로 상향함",
+       "quote": "Adjusted Automotive Free Cash Flow -- $5.9 billion, up $1.7 billion year over year"
+      },
+      "supply": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "부품 수급이나 생산 차질에 대한 확인된 발언이 없음",
+       "quote": ""
+      },
+      "materialsFx": {
+       "score": 3,
+       "direction": "하향",
+       "reason": "원자재 인플레이션 약 $2 billion에 더해 2027년 추가 $1 billion to $1.5 billion 부담을 경고함",
+       "quote": "annualizing recent commodity inflation could add an additional $1 billion-$1.5 billion of EBIT adjusted headwind for 2027"
+      },
+      "demandPrice": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "수요와 가격에 대한 직접 발언 원문을 확인하지 못함",
+       "quote": ""
+      },
+      "tariffPolicy": {
+       "score": 6,
+       "direction": "상향",
+       "reason": "IEEPA reversal 효과로 관세 부담이 줄고 관세 납부 시점이 현금흐름에 유리하게 작용함",
+       "quote": "approximately $1.8 billion of tariff costs year-to-date, net of IEEPA reversal benefits"
+      }
+     },
+     "manual": {},
+     "summary": "실적과 현금흐름 및 주주환원은 자신감 있는 어조였으나 EBIT-adjusted는 범위만 좁히고 2027년 원자재 비용 부담을 신중하게 경고한 톤임",
+     "scoredAt": "2026-11-02 05:08:51"
+    }
    },
    {
     "period": "2026Q2",
@@ -574,6 +699,7 @@
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
    }
-  ]
+  ],
+  "savedAt": "2026-11-02 05:08:51"
  }
 });

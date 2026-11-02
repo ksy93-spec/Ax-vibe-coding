@@ -3,7 +3,7 @@
 (window.EA_FILES = window.EA_FILES || []).push({
  "kind": "companies",
  "data": {
-  "rev": 3,
+  "rev": 4,
   "companies": [
    {
     "id": "gm",
@@ -126,7 +126,7 @@
     "currency": "EUR",
     "fyEnd": 12,
     "color": "",
-    "logo": "",
+    "logo": "assets/logos/mercedes.svg",
     "metricNotes": {
      "operatingIncome": "Group EBIT",
      "deliveries": "Cars + Vans 판매"
@@ -224,7 +224,7 @@
     "currency": "GBP",
     "fyEnd": 3,
     "color": "",
-    "logo": "",
+    "logo": "assets/logos/jlr.svg",
     "metricNotes": {
      "operatingIncome": "EBIT",
      "deliveries": "Retail sales (CJLR 포함)"
@@ -264,7 +264,7 @@
     "currency": "EUR",
     "fyEnd": 12,
     "color": "",
-    "logo": "",
+    "logo": "assets/logos/aumovio.svg",
     "metricNotes": {
      "operatingIncome": "Adjusted EBIT"
     },
@@ -282,7 +282,7 @@
     "currency": "JPY",
     "fyEnd": 3,
     "color": "",
-    "logo": "",
+    "logo": "assets/logos/denso.svg",
     "metricNotes": {
      "operatingIncome": "営業利益"
     },
@@ -300,7 +300,7 @@
     "currency": "JPY",
     "fyEnd": 3,
     "color": "",
-    "logo": "",
+    "logo": "assets/logos/alps.svg",
     "metricNotes": {
      "operatingIncome": "営業利益"
     },
@@ -319,7 +319,7 @@
     "currency": "USD",
     "fyEnd": 12,
     "color": "",
-    "logo": "",
+    "logo": "assets/logos/visteon.svg",
     "metricNotes": {
      "operatingIncome": "Adjusted EBITDA (영업이익 줄이 없어 대신 씀)"
     },

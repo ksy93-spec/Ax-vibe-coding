@@ -25,7 +25,7 @@ npm 패키지 없음. 아래는 코드가 아닌 자산입니다.
 | 파일 | 출처 | 버전 | 라이선스(SPDX) | 원문 |
 | --- | --- | --- | --- | --- |
 | `assets/fonts/pretendard/` (woff2 92개, font.css) | Pretendard (Kil Hyung-jin), npm `pretendard@1.3.9` 의 공식 가변 분할 파일. `kits/demand-sim` 과 같은 파일 | 1.3.9 원본 그대로 | OFL-1.1 | `assets/fonts/pretendard/LICENSE.txt` |
-| `assets/logos/*.svg` (11개) | npm `simple-icons@16.35.0` 의 아이콘 경로에 브랜드 색 fill 만 넣음 | 16.35.0 | 아이콘 데이터 CC0-1.0. 마크 자체는 각 회사 상표 | `assets/licenses/simple-icons-CC0.txt`, `assets/licenses/simple-icons-DISCLAIMER.md`, 아이콘별 표 `assets/logos/SOURCES.md` |
+| `assets/logos/*.svg` (17개) | npm `simple-icons@16.35.0` (11개), `simple-icons@13.21.0` (벤츠, JLR), 공개 GitHub 저장소 4곳 (아우모비오, 덴소, 알프스알파인, 비스테온) | 16.35.0, 13.21.0 | simple-icons 는 CC0-1.0, 나머지는 저장소별 MIT/Apache-2.0. 마크 자체는 각 회사 상표 | `assets/licenses/simple-icons-CC0.txt`, `assets/licenses/simple-icons-DISCLAIMER.md`, 아이콘별 표 `assets/logos/SOURCES.md` |
 
 로고는 바깥에서 `scripts/build-logos.cjs` (저장소 루트, 킷에는 없음)로 만들었습니다. 회사 식별 용도로만 씁니다.
 홍보물이나 외부 배포 자료에 쓸 때는 각 회사 브랜드 지침을 따릅니다. simple-icons 에 없는 6곳(Mercedes-Benz, JLR, AUMOVIO, DENSO, ALPS ALPINE, Visteon)은 글자 마크로 나오고,
@@ -135,6 +135,12 @@ npm 패키지 없음. 아래는 코드가 아닌 자산입니다.
 - [ ] 부채비율을 부채총계 / 자본총계로 볼지, 금융 자회사를 뺀 산업 부문 기준으로 볼지 팀 기준 정하기 (지금은 연결 기준)
 
 ## 검증 기록
+
+2026-11-02 (2026.11.02.8: 로고 6개 추가, GM, 테슬라 2026 Q3 콜 요약과 센티먼트 예시), 이 저장소에서 확인.
+
+- `node tests/run.cjs`: 57/57 통과. 17개 회사 모두 로고가 나오고 글자 마크(로고 없음)는 0개
+- 자료 넣기 "ChatGPT 가 찾게 하기" 로 만든 프롬프트를 그대로 에이전트에 주고 받은 답을 화면에 붙여 넣어 검사, 미리보기, 넣기까지 확인. GM 하이라이트 11개(Q&A 0개), 테슬라 하이라이트 10개(Q&A 3개), 종합 센티먼트 GM 5.3, 테슬라 4.6
+- 이 두 분기의 콜 요약은 녹취록 원문을 열지 못하고 검색 요약으로 만든 예시라 분기 메모에 적어 둠. 테슬라 매출은 답의 반올림 값(28,050) 대신 기존 정확한 값 28,046 을 유지. 콘솔 오류 0건
 
 2026-11-02 (2026.11.02.7: 빈 분기 세 번째 보충), 이 저장소에서 확인.
 

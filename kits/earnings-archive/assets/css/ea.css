@@ -73,6 +73,7 @@ section.grid2, section.grid3 { margin-bottom: var(--sp-5); }
 :root[data-theme='dark'] .logo { background: var(--c-fg); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .logo { background: var(--c-fg); } }
 .logo img { width: 70%; height: 70%; object-fit: contain; }
+.logo--wide img { width: 94%; height: 94%; }
 .logo--sm { width: 24px; height: 24px; }
 .logo--md { width: 40px; height: 40px; }
 .logo--lg { width: 64px; height: 64px; }

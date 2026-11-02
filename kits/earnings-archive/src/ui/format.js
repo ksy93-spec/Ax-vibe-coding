@@ -45,7 +45,12 @@
   function logo(c, size) {
     var cls = 'logo logo--' + (size || 'md');
     if (c && c.logo) {
-      return h('span', { class: cls }, h('img', { src: c.logo, alt: c.name + ' 로고', loading: 'lazy' }));
+      var box = h('span', { class: cls });
+      // 가로로 긴 글자 로고(덴소, 비스테온 등)는 칸을 더 넓게 씁니다
+      box.appendChild(h('img', { src: c.logo, alt: c.name + ' 로고', loading: 'lazy', onload: function () {
+        if (this.naturalWidth > this.naturalHeight * 2.5) box.classList.add('logo--wide');
+      } }));
+      return box;
     }
     var mono = h('span', { class: cls + ' logo--mono', 'aria-label': (c && c.name) + ' (로고 없음)', text: initials(c) });
     if (c && c.color) mono.style.color = c.color;

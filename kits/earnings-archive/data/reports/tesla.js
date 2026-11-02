@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "tesla",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -17,16 +17,160 @@
      "deliveries": 486.532
     },
     "raw": {
-     "revenue": "Total revenues $28,046 million",
+     "revenue": "Total revenues $28,046 million (정확한 값 28,046 유지)",
      "operatingIncome": "Operating income $718M",
      "deliveries": "486,532"
     },
     "source": "https://www.sec.gov/Archives/edgar/data/0001318605/000162828026066738/exhibit9914.htm https://www.sec.gov/Archives/edgar/data/0001318605/000162828026066775/tsla-20260930.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Q3 2026 figures read via search summaries that also cited third-party pages; total assets 157,517 / stockholders' equity 89,289 reported there but not confirmed from filing, left null",
-    "call": null,
-    "origin": "outside",
-    "updatedAt": "2026-11-02 00:00:00"
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Q3 2026 figures read via search summaries that also cited third-party pages; total assets 157,517 / stockholders' equity 89,289 reported there but not confirmed from filing, left null 콜 요약과 센티먼트는 사내 ChatGPT 역할로 시험한 예시. 녹취록 원문을 열지 못해 검색 요약(일부 2차 자료)으로 만들었으므로 원문 대조 필요.",
+    "call": {
+     "date": "2026-10-21",
+     "summary": "매출 $28.05 billion으로 전년 동기와 비슷했고 Income from operations는 $718 million으로 부진했으나 자동차 총마진(크레딧 제외)은 18.1%로 개선됨. 배터리 공급이 판매량 제약 요인이며 로보택시, Optimus, 자체 칩 공장 등 AI 투자 확대 기조임.",
+     "highlights": [
+      {
+       "topic": "실적",
+       "text": "매출 $28.05 billion으로 전년 동기와 비슷한 수준이며 시장 예상 $28.06 billion과 유사함"
+      },
+      {
+       "topic": "실적",
+       "text": "Income from operations $718 million, 영업이익률 2.6%로 직전 분기 1.4%보다 개선, 전년 동기 5.8%보다 낮음"
+      },
+      {
+       "topic": "실적",
+       "text": "Total deliveries 486,532대로 전년 동기 대비 2.1% 감소했으나 시장 예상 상회, 에너지 저장장치 13.7 GWh 설치"
+      },
+      {
+       "topic": "실적",
+       "text": "자동차 총마진(크레딧 제외) 18.1%로 직전 분기 16.3%에서 상승, non-GAAP EPS $0.48"
+      },
+      {
+       "topic": "가이던스",
+       "text": "자본지출 Q3 $4.73 billion, 잉여현금흐름 $1.53 billion, 현금 및 투자자산 $45.4 billion 보유함"
+      },
+      {
+       "topic": "전동화",
+       "text": "신규 북미 인도분의 FSD 장착률 75% 초과, 활성 FSD 구독 1.74 million 수준으로 보도됨"
+      },
+      {
+       "topic": "기타",
+       "text": "Robotaxi 누적 무인 주행 거리 약 2 million 마일, Cybercab은 Austin 운행 중이며 연말 전 다른 도시 확대 계획"
+      },
+      {
+       "topic": "공급망·원가",
+       "text": "배터리 공급이 분기 중 자동차 판매량 증가의 제약 요인이라고 밝힘"
+      },
+      {
+       "topic": "공급망·원가",
+       "text": "Vaibhav Taneja가 원자재 가격과 금리 변화가 원가 부담과 역풍을 키운다는 취지로 언급한 것으로 요약됨"
+      },
+      {
+       "topic": "기타",
+       "text": "Terafab은 2027년 상반기 장비 시운전 계획, Musk는 2028년 3분기경 양산 목표를 언급함"
+      }
+     ],
+     "guidance": "2026년 자본지출 가이던스 more than $25 billion을 Q3 주주서한에서 갱신하지 않은 것으로 보도됨(일부 자료는 약 $20 billion으로 하향했다고 하여 불일치). 2026년 말 전 Cybercab 고객 인도 및 도시 확대 계획. 판매량·매출·이익률 수치 가이던스는 확인하지 못함",
+     "qa": [
+      {
+       "asker": "",
+       "firm": "",
+       "question": "Cybercab 운영이 Austin을 넘어 어떻게 확대되는지와 Austin 밖 규제 경로, NHTSA 안전 검토 상황 질문함",
+       "answerer": "Elon Musk",
+       "answer": "Austin에 한정될 근본적 이유가 없다고 답함. Dallas 등 연말 전 확대 계획이 요약 자료에 언급됨",
+       "topic": "전동화"
+      },
+      {
+       "asker": "",
+       "firm": "Wolfe Research",
+       "question": "Robotaxi 수익화 시점 질문함",
+       "answerer": "Elon Musk",
+       "answer": "Robotaxi 사업이 2027년 2분기에 재무적으로 눈에 띄고 같은 해 후반 더 커질 수 있다고 답한 것으로 Zacks가 요약함",
+       "topic": "기타"
+      },
+      {
+       "asker": "",
+       "firm": "Deutsche Bank",
+       "question": "TeraFab 자본지출과 Optimus 설계 변경 관련 질문함",
+       "answerer": "Elon Musk",
+       "answer": "유용한 칩을 양산 수준으로 만드는 것이 2028년 3분기경이라는 목표를 밝히고 Optimus 증산은 완만하고 다소 불규칙한 곡선이며 1년 안팎 걸린다고 답함",
+       "topic": "기타"
+      }
+     ],
+     "sources": [
+      "https://www.fool.com/earnings/call-transcripts/2026/10/22/tesla-tsla-q3-2026-earnings-call-transcript/",
+      "https://finance.yahoo.com/markets/stocks/articles/tesla-tsla-q3-2026-earnings-075846970.html",
+      "https://www.investing.com/news/transcripts/earnings-call-transcript-tesla-beats-q3-2026-estimates-as-stock-slips-after-hours-93CH-4964365",
+      "https://www.benzinga.com/news/26/10/62515021/tesla-q3-2026-earnings-call-transcript",
+      "https://evwire.com/p/tesla-tsla-q3-2026-earnings-call-full-transcript",
+      "https://singjupost.com/transcript-tesla-tsla-q3-2026-earnings-call/",
+      "https://www.zacks.com/stock/news/3017138/tsla-q3-earnings-call-highlights-autonomy-and-expansion-plans",
+      "https://electrek.co/2026/10/21/tesla-tsla-q3-2026-financial-results/",
+      "https://electrek.co/2026/10/21/tesla-battery-supply-limiting-sales-prices-falling/?extended-comments=1",
+      "https://www.sec.gov/Archives/edgar/data/0001318605/000162828026064366/exhibit991111111.htm"
+     ],
+     "transcript": {
+      "source": "사내 ChatGPT 검색",
+      "url": "https://www.fool.com/earnings/call-transcripts/2026/10/22/tesla-tsla-q3-2026-earnings-call-transcript/",
+      "stored": false
+     }
+    },
+    "origin": "inside",
+    "updatedAt": "2026-11-02 05:08:53",
+    "sentiment": {
+     "model": {
+      "volume": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "판매량 수치 전망은 확인하지 못함",
+       "quote": ""
+      },
+      "revenue": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "매출 수치 전망은 확인하지 못함",
+       "quote": ""
+      },
+      "profit": {
+       "score": null,
+       "direction": "언급 없음",
+       "reason": "이익률 가이던스는 확인하지 못함",
+       "quote": ""
+      },
+      "capex": {
+       "score": 5,
+       "direction": "유지",
+       "reason": "연간 자본지출 가이던스를 Q3 주주서한에서 갱신하지 않은 것으로 보도됨",
+       "quote": "more than $25 billion"
+      },
+      "supply": {
+       "score": 3,
+       "direction": "하향",
+       "reason": "배터리 공급이 판매량 증가의 제약 요인이라고 밝힘",
+       "quote": "battery availability continued to be the limiting factor"
+      },
+      "materialsFx": {
+       "score": 3,
+       "direction": "하향",
+       "reason": "원자재 가격과 금리 변화가 원가 부담을 키운다고 언급한 것으로 요약됨",
+       "quote": "commodity price increases and interest rate changes continue to add to our cost"
+      },
+      "demandPrice": {
+       "score": 7,
+       "direction": "상향",
+       "reason": "승용차 백로그가 4년 내 최대이고 FSD 장착률이 75%를 넘음",
+       "quote": "largest backlog for our passenger vehicles in four years"
+      },
+      "tariffPolicy": {
+       "score": 5,
+       "direction": "유지",
+       "reason": "관세 환급이 에너지 마진에 기여했으나 중국산 셀 관세 부담도 보도되어 상쇄됨",
+       "quote": ""
+      }
+     },
+     "manual": {},
+     "summary": "배터리 공급 제약과 이익 부진을 인정하면서도 백로그, FSD, Robotaxi, Optimus 등 AI 사업 확대에 낙관적인 톤임",
+     "scoredAt": "2026-11-02 05:08:53"
+    }
    },
    {
     "period": "2026Q2",
@@ -584,6 +728,7 @@
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
    }
-  ]
+  ],
+  "savedAt": "2026-11-02 05:08:53"
  }
 });
