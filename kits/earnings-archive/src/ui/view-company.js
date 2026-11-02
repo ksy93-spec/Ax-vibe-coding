@@ -82,7 +82,7 @@
     if (!rows.length) {
       body.appendChild(h('section', { class: 'panel' }, f.empty(
         c.nameKo + ' 자료가 아직 없습니다',
-        '자료 넣기에서 녹취록과 보도자료를 붙여 넣거나, 분기 추가로 숫자를 직접 적습니다.',
+        null,
         [f.btn('자료 넣기', function () { App.go({ tab: 'import', company: c.id }); }, 'primary'),
           f.btn('과거 실적 한꺼번에', function () { App.go({ edit: 'grid' }); }),
           f.btn('분기 추가', function () { App.go({ edit: 'new' }); })]
@@ -94,7 +94,7 @@
     body.appendChild(h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [
         h('h3', { class: 'panel__title', text: '분기 실적' }),
-        h('span', { class: 'muted', text: '금액 백만 달러(MUSD). 전년 대비는 발표 통화 기준이라 환율 변동이 빠져 있습니다. 부채비율 * 표시는 원문에 적힌 비율.' }),
+        h('span', { class: 'muted small', text: 'MUSD · 전년 대비는 발표 통화 기준 · * 원문에 적힌 부채비율' }),
       ]),
       quarterTable(recent, period, c),
     ]));
@@ -143,7 +143,7 @@
     var defs = [
       ['매출', function (d) { return f.musd(d.musd.revenue); }],
       ['  전년 대비', function (d) { return f.pct(d.yoy.revenue, true); }, 'sub'],
-      ['영업이익' + (notes.operatingIncome ? ' (' + notes.operatingIncome + ')' : ''), function (d) { return f.musd(d.musd.operatingIncome); }],
+      ['영업이익' + (notes.operatingIncome && notes.operatingIncome !== '영업이익' ? ' (' + notes.operatingIncome + ')' : ''), function (d) { return f.musd(d.musd.operatingIncome); }],
       ['  전년 대비', function (d) { return f.pct(d.yoy.operatingIncome, true); }, 'sub'],
       ['영업이익률', function (d) { return f.pct(d.opMargin); }],
       ['부채비율', function (d) { return f.pct(d.debtRatio) + (d.debtRatioSource === 'reported' ? ' *' : ''); }],
@@ -218,7 +218,7 @@
     }
 
     if (!call) {
-      box.appendChild(f.empty('컨퍼런스콜 요약이 없습니다', '녹취록을 붙여 넣어 요약을 만듭니다.', [
+      box.appendChild(f.empty('컨퍼런스콜 요약이 없습니다', null, [
         f.btn('콜 요약 넣기', function () { App.go({ tab: 'import', company: c.id, period: period }); }, 'primary'),
       ]));
       return box;
@@ -313,7 +313,7 @@
     return h('div', { class: 'sent-box sent-box--edit' }, [
       h('div', { class: 'panel__bar' }, [
         h('h4', { class: 'sub__title', text: '센티먼트 수정' }),
-        h('span', { class: 'muted small', text: '사람 점수를 비우면 모델 점수를 씁니다. 근거와 인용은 바로 고쳐집니다.' }),
+        h('span', { class: 'muted small', text: '사람 점수를 비우면 모델 점수를 씁니다.' }),
         h('div', { class: 'app__spacer' }),
         f.btn('취소', function () { editingSent = ''; App.render(); }, 'sm'),
         f.btn('저장', save, 'primary sm'),
@@ -347,7 +347,7 @@
     }));
     return h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [h('h3', { class: 'panel__title', text: '센티먼트 추이' }),
-        h('span', { class: 'muted', text: '실적 콜 경영진 톤, 0~10점. 종합은 요인 점수 평균' })]),
+      ]),
       f.sentLegend(),
       h('div', { class: 'table__scroll' }, h('table', { class: 'table heat' }, [h('thead', null, head), h('tbody', null, rows)])),
     ]);

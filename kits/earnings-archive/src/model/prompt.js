@@ -158,11 +158,8 @@
    * 한 번에 끝내는 프롬프트. 녹취록 전체(와 보도자료)를 넣으면 콜 요약, 숫자, 센티먼트 점수를 JSON 하나로 받습니다.
    * 녹취록 한 편(영문 6~10만 자)은 ChatGPT Enterprise 컨텍스트에 한 번에 들어갑니다. 답이 끊기면 화면의 "나눠서 하기" 를 씁니다.
    */
-  var ONE_TEMPLATE = [
-    '너는 자동차 산업 실적 자료를 정리하는 애널리스트다.',
-    '아래 [원문]은 {{companyName}} 의 {{periodLabel}} 실적 컨퍼런스콜 녹취록이고, [보도자료]는 같은 분기 실적 보도자료다(없을 수 있음).',
-    '원문을 처음부터 끝까지 읽고 [출력 형식]의 JSON 하나만 답한다. JSON 앞뒤에 설명을 붙이지 않는다.',
-    '',
+  // 두 프롬프트(붙여 넣기용, 검색용)가 함께 쓰는 할 일, 규칙, 출력 형식
+  var ONE_COMMON = [
     '[정해진 값]',
     '- company: "{{companyId}}"',
     '- period: "{{period}}" (달력 분기. 회사 표기로는 {{fiscalLabel}})',
@@ -213,15 +210,46 @@
     '  "qa": [ { "asker": "질문자", "firm": "증권사", "question": "질문 요약", "answerer": "답변자, 직책", "answer": "답변 요약", "topic": "가이던스" } ],',
     '  "values": [ { "metric": "revenue", "value": 48.6, "unit": "billion", "basis": "quarter", "text": "$48.6 billion" } ],',
     '  "sentimentSummary": "경영진 톤 한 문장",',
+    '  "sources": ["참고한 자료 주소"],',
     '  "scores": [ { "factor": "volume", "score": 4, "direction": "하향", "reason": "중국 수요 부진으로 연간 판매 전망을 낮춤", "quote": "sales outlook lowered" } ]',
     '}',
     '',
+  ];
+
+  var ONE_TEMPLATE = [
+    '너는 자동차 산업 실적 자료를 정리하는 애널리스트다.',
+    '아래 [원문]은 {{companyName}} 의 {{periodLabel}} 실적 컨퍼런스콜 녹취록이고, [보도자료]는 같은 분기 실적 보도자료다(없을 수 있음).',
+    '원문을 처음부터 끝까지 읽고 [출력 형식]의 JSON 하나만 답한다. JSON 앞뒤에 설명을 붙이지 않는다.',
+    '',
+  ].concat(ONE_COMMON, [
     '[보도자료]',
     '{{release}}',
     '',
     '[원문]',
     '{{text}}',
-  ].join('\n');
+  ]).join('\n');
+
+  /*
+   * 검색용 프롬프트. 녹취록을 붙여 넣지 않고, 검색이 되는 사내 ChatGPT 에게 녹취록과 보도자료를 직접 찾게 합니다.
+   * 답 형식은 ONE_TEMPLATE 과 같아서 자료 넣기 4번 칸에 그대로 붙여 넣습니다.
+   */
+  var SEARCH_TEMPLATE = [
+    '너는 자동차 산업 실적 자료를 정리하는 애널리스트다. 웹 검색을 쓸 수 있다.',
+    '{{companyName}} 의 {{periodLabel}} 실적 컨퍼런스콜 녹취록과 같은 분기 실적 보도자료를 직접 찾아 읽고, [출력 형식]의 JSON 하나만 답한다. JSON 앞뒤에 설명을 붙이지 않는다.',
+    '',
+    '[찾을 자료]',
+    '- 녹취록: "{{searchName}} {{fiscalLabel}} earnings call transcript" 로 찾는다. Yahoo Finance, 회사 IR 사이트, Seeking Alpha, Motley Fool 등에서 전체 녹취록을 읽는다.',
+    '- 보도자료: 회사 IR 사이트에서 같은 분기 실적 발표(earnings release, 보도자료, 決算短信)를 찾아 숫자를 확인한다.',
+    '- 분기를 헷갈리지 않는다. 달력으로 {{periodLabel}} 이고 회사 표기로는 {{fiscalLabel}} 이다.',
+    '- 녹취록을 찾지 못하면 내용을 지어내지 말고 {"error": "녹취록을 찾지 못함", "tried": ["찾아본 곳"]} 만 답한다.',
+    '- 참고한 주소를 sources 에 모두 적고, 녹취록 주소는 transcriptUrl 에 따로 적는다.',
+    '',
+  ].concat(ONE_COMMON.slice(0, -3), [
+    // 공통 형식의 마지막 줄(scores) 뒤에 transcriptUrl 을 더합니다.
+    ONE_COMMON[ONE_COMMON.length - 3] + ',',
+    '  "transcriptUrl": "녹취록 주소"',
+    '}',
+  ]).join('\n');
 
   /** 직전 분기 점수를 프롬프트 글로 */
   function prevText(prevSentiment) {
@@ -235,8 +263,8 @@
     }).join('\n');
   }
 
-  /** 한 번에 끝내는 프롬프트 (콜 요약 + 숫자 + 센티먼트) */
-  function buildOnePrompt(company, period, transcript, release, prevSentiment) {
+  /** 두 프롬프트가 같이 쓰는 자리 값 */
+  function oneVars(company, period, prevSentiment) {
     var S = ea.sentiment;
     var v = baseVars(company, period);
     var notes = company.metricNotes || {};
@@ -245,9 +273,21 @@
     v.factors = S.FACTORS.map(function (f) { return '- ' + f.key + ': ' + f.label + ' (' + f.hint + ')'; }).join('\n');
     v.scale = S.SCALE.map(function (x) { return '- ' + x; }).join('\n');
     v.prev = prevText(prevSentiment);
+    v.searchName = company.name + (company.ticker ? ' (' + company.ticker + ')' : '');
+    return v;
+  }
+
+  /** 한 번에 끝내는 프롬프트 (콜 요약 + 숫자 + 센티먼트) */
+  function buildOnePrompt(company, period, transcript, release, prevSentiment) {
+    var v = oneVars(company, period, prevSentiment);
     v.release = String(release || '').trim() || '없음';
     v.text = String(transcript || '').trim();
     return fill(ONE_TEMPLATE, v);
+  }
+
+  /** 검색용 프롬프트 (사내 ChatGPT 가 녹취록과 보도자료를 직접 찾음) */
+  function buildSearchPrompt(company, period, prevSentiment) {
+    return fill(SEARCH_TEMPLATE, oneVars(company, period, prevSentiment));
   }
 
   /**
@@ -256,11 +296,16 @@
    */
   function readAnswer(obj, ctx) {
     var P = ea.parse;
-    var out = { call: null, numbers: null, sentiment: null, errors: [], warnings: [] };
+    var out = { call: null, numbers: null, sentiment: null, transcriptUrl: '', errors: [], warnings: [] };
     if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
       out.errors.push('JSON 객체({ ... })가 아님');
       return out;
     }
+    if (obj.error) {
+      out.errors.push('모델이 자료를 찾지 못함: ' + obj.error + (obj.tried ? ' (찾아본 곳: ' + [].concat(obj.tried).join(', ') + ')' : ''));
+      return out;
+    }
+    if (obj.transcriptUrl) out.transcriptUrl = String(obj.transcriptUrl).trim();
     var kinds = P.detect(obj);
     if (kinds.indexOf('call') >= 0) {
       var rc = P.readCall(obj, ctx);
@@ -448,7 +493,9 @@
     NUMBERS_TEMPLATE: NUMBERS_TEMPLATE,
     SENTIMENT_TEMPLATE: SENTIMENT_TEMPLATE,
     ONE_TEMPLATE: ONE_TEMPLATE,
+    SEARCH_TEMPLATE: SEARCH_TEMPLATE,
     buildOnePrompt: buildOnePrompt,
+    buildSearchPrompt: buildSearchPrompt,
     readAnswer: readAnswer,
     buildSentimentPrompt: buildSentimentPrompt,
     TASK_ALL: TASK_ALL,

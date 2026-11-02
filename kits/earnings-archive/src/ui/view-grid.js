@@ -73,7 +73,7 @@
         f.btn('취소', function () { G = null; App.go({ edit: '' }); }),
         f.btn('저장', save, 'primary'),
       ]));
-      wrap.appendChild(h('p', { class: 'panel__hint', text: '엑셀에서 분기 순서(위가 오래된 분기)대로 여러 칸을 복사해 아무 칸에 붙여 넣으면 그 칸부터 채워집니다. 칸을 비우면 그 값을 지웁니다. 숫자의 쉼표, 괄호 음수(123)는 그대로 붙여 넣어도 됩니다.' }));
+      wrap.appendChild(h('p', { class: 'panel__hint', text: '엑셀에서 복사한 여러 칸을 한 칸에 붙여 넣을 수 있습니다. 위가 오래된 분기, 빈칸은 지웁니다.' }));
 
       var fromIn = h('input', { class: 'input input--sm', value: G.from, 'aria-label': '시작 분기' });
       var toIn = h('input', { class: 'input input--sm', value: G.to, 'aria-label': '끝 분기' });
@@ -155,7 +155,6 @@
       }
 
       wrap.appendChild(h('div', { class: 'table__scroll' }, h('table', { class: 'table grid-tbl' }, [h('thead', null, head), h('tbody', null, body2)])));
-      wrap.appendChild(h('p', { class: 'muted small', text: '영업이익률과 부채비율은 입력한 숫자로 바로 계산해 보여 줍니다. 부채비율 원문 칸은 부채총계, 자본총계가 없을 때만 씁니다.' }));
       wrap.appendChild(h('div', { class: 'row row--end' }, [
         f.btn('취소', function () { G = null; App.go({ edit: '' }); }),
         f.btn('저장', save, 'primary'),

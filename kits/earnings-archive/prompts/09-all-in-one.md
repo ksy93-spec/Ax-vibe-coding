@@ -73,6 +73,7 @@ ChatGPT Enterprise 대화창에 한 번 붙여 넣고, 답(JSON 하나)을 자�
   "qa": [ { "asker": "질문자", "firm": "증권사", "question": "질문 요약", "answerer": "답변자, 직책", "answer": "답변 요약", "topic": "가이던스" } ],
   "values": [ { "metric": "revenue", "value": 48.6, "unit": "billion", "basis": "quarter", "text": "$48.6 billion" } ],
   "sentimentSummary": "경영진 톤 한 문장",
+  "sources": ["참고한 자료 주소"],
   "scores": [ { "factor": "volume", "score": 4, "direction": "하향", "reason": "중국 수요 부진으로 연간 판매 전망을 낮춤", "quote": "sales outlook lowered" } ]
 }
 

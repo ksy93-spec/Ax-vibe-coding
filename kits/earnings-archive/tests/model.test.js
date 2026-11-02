@@ -613,4 +613,21 @@
     ok(r2.warnings.some(function (w) { return /숫자/.test(w); }), '숫자 없음은 경고');
     ok(r2.errors.some(function (e) { return /센티먼트/.test(e); }), '점수 범위 밖은 오류');
   });
+  test('검색용 프롬프트: 원문 없이 찾을 자료, 회사 이름과 분기, 같은 출력 형식', function () {
+    var p = PR.buildSearchPrompt(COMPANIES[2], '2026Q2', null);
+    ok(p.indexOf('J Parts (0000.T) FY2027 Q1 earnings call transcript') > 0, '회사 표기 분기로 찾음');
+    ok(p.indexOf('[원문]') < 0 && p.indexOf('{{') < 0);
+    ok(p.indexOf('"transcriptUrl"') > 0 && p.indexOf('"scores"') > 0);
+    ok(p.indexOf('[할 일 3: 센티먼트 점수]') > 0, '통합 프롬프트와 같은 할 일');
+  });
+
+  test('답 읽기: 모델이 못 찾았다고 하면 넣지 않음, 녹취록 주소는 따로 받음', function () {
+    var ctx = { companies: COMPANIES, company: 'acme', period: '2026Q2' };
+    var r = PR.readAnswer({ error: '녹취록을 찾지 못함', tried: ['Yahoo Finance'] }, ctx);
+    ok(r.errors.length === 1 && /찾지 못함/.test(r.errors[0]) && /Yahoo/.test(r.errors[0]));
+    eq(r.call, null);
+    var r2 = PR.readAnswer({ company: 'acme', period: '2026Q2', summary: 's', transcriptUrl: 'https://x/t', sources: ['https://x/t'] }, ctx);
+    eq(r2.transcriptUrl, 'https://x/t');
+    eq(r2.call.sources[0], 'https://x/t');
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

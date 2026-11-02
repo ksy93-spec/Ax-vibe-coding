@@ -63,7 +63,6 @@
       return;
     }
 
-    main.appendChild(h('p', { class: 'lead', text: '녹취록과 보도자료를 붙여 넣으면 사내 모델(ChatGPT Enterprise, Qwen)에 줄 프롬프트가 나옵니다. 모델 답을 4번 칸에 붙여 넣고 검사한 뒤 넣습니다. 프롬프트 없이 모델 답이나 손으로 쓴 JSON 만 있으면 4번부터 하면 됩니다.' }));
     main.appendChild(step1(c));
     main.appendChild(step2(c));
     main.appendChild(step3());
@@ -122,18 +121,18 @@
     return stepBox(2, '원문 붙여 넣기', [
       f.field('컨퍼런스콜 녹취록', ta),
       h('div', { class: 'row' }, [count,
-        h('label', { class: 'check' }, [h('input', { type: 'checkbox', checked: S.keep, onchange: function (e) { S.keep = e.target.checked; } }), ' 원문도 보관 (data/transcripts 에 저장, 화면에서 "원문 보기")']),
+        h('label', { class: 'check' }, [h('input', { type: 'checkbox', checked: S.keep, onchange: function (e) { S.keep = e.target.checked; } }), ' 원문도 보관']),
       ]),
       h('div', { class: 'form-grid' }, [
         f.field('원문 출처', h('select', { class: 'input', onchange: function (e) { S.source = e.target.value; } },
           SOURCES.map(function (s) { return h('option', { value: s, selected: s === S.source, text: s }); }))),
         f.field('원문 주소 (선택)', h('input', { class: 'input', value: S.url, placeholder: 'https://...', oninput: function (e) { S.url = e.target.value; } })),
         S.mode === 'split' ? f.field('조각 최대 글자 수', h('input', { class: 'input', inputmode: 'numeric', value: S.max, oninput: function (e) { S.max = C.toNumber(e.target.value) || PR.DEFAULT_MAX; } }),
-          '모델 답이 중간에 끊기면 줄입니다. 영문 약 6글자가 1토큰') : null,
+          null) : null,
       ]),
       f.field('보도자료 숫자 (선택)', rel),
       h('label', { class: 'check' }, [h('input', { type: 'checkbox', checked: S.mode === 'split', onchange: function (e) { S.mode = e.target.checked ? 'split' : 'one'; resetOutputs(); App.render(); } }),
-        ' 나눠서 하기 (모델 답이 중간에 끊기거나 "너무 길다" 고 할 때만. 프롬프트가 여러 개로 나옵니다)']),
+        ' 나눠서 하기 (답이 끊길 때만)']),
       h('div', { class: 'row' }, [
         f.btn('프롬프트 만들기', function () {
           if (!S.transcript.trim() && !S.release.trim()) {
@@ -159,6 +158,16 @@
           var el = document.getElementById('step3');
           if (el) el.scrollIntoView({ block: 'start' });
         }, 'primary'),
+        f.btn('ChatGPT 가 찾게 하기', function () {
+          var keep0 = S.answers[0] || '';
+          resetOutputs();
+          var prevQ = C.quarterOf(App.data.report(c.id), C.periodAdd(S.period, -1));
+          S.prompts = [{ title: '검색해서 한 번에', part: 'search', chars: 0, text: PR.buildSearchPrompt(c, S.period, prevQ && prevQ.sentiment) }];
+          S.answers = [keep0];
+          App.render();
+          var el = document.getElementById('step3');
+          if (el) el.scrollIntoView({ block: 'start' });
+        }, '', { title: '녹취록을 붙여 넣지 않고, 검색이 되는 사내 ChatGPT 에게 녹취록과 보도자료를 찾게 합니다' }),
       ]),
     ]);
   }
@@ -192,7 +201,7 @@
   function step3() {
     var kids = [];
     if (!S.prompts.length && !S.numPrompt) {
-      kids.push(h('p', { class: 'muted', text: '2번에서 프롬프트 만들기를 누르면 여기에 나옵니다.' }));
+      kids.push(h('p', { class: 'muted small', text: '-' }));
     } else {
       if (S.prompts.length > 1) {
         kids.push(h('div', { class: 'notice' }, '원문이 길어 ' + S.prompts.length + '개로 나눴습니다' +
@@ -200,8 +209,10 @@
           ' 조각마다 새 대화창에서 시키면 더 정확합니다.'));
       }
       S.prompts.forEach(function (p) {
-        if (p.part === 'one') {
-          kids.push(h('div', { class: 'notice' }, '프롬프트 하나에 콜 요약, 숫자, 센티먼트 점수까지 들어 있습니다. 대화창 하나에 붙여 넣고, 답 하나를 4번 칸에 붙여 넣으면 됩니다.'));
+        if (p.part === 'search') {
+          kids.push(promptCard('검색용 프롬프트', '녹취록과 보도자료를 사내 ChatGPT 가 찾음', p.text));
+          kids.push(h('p', { class: 'muted small', text: '답의 출처 주소가 이 분기 자료인지 확인하세요.' }));
+        } else if (p.part === 'one') {
           kids.push(promptCard('프롬프트 (한 번에)', '원문 ' + p.chars.toLocaleString() + '자 · 프롬프트 ' + p.text.length.toLocaleString() + '자', p.text));
         } else {
           kids.push(promptCard('콜 요약 ' + p.title, p.chars.toLocaleString() + '자', p.text));
@@ -209,7 +220,7 @@
       });
       if (S.numPrompt) kids.push(promptCard('보도자료 숫자', '', S.numPrompt));
     }
-    var box = stepBox(3, '사내 모델에 붙여 넣기', kids, '복사해서 ChatGPT Enterprise 나 Qwen 대화창에 붙여 넣습니다. 답으로 JSON 이 옵니다.');
+    var box = stepBox(3, '사내 모델에 붙여 넣기', kids);
     box.id = 'step3';
     return box;
   }
@@ -220,7 +231,7 @@
     while (S.answers.length < n) S.answers.push('');
     for (var i = 0; i < n; i++) {
       (function (i) {
-        var one = S.prompts[i] && S.prompts[i].part === 'one';
+        var one = S.prompts[i] && (S.prompts[i].part === 'one' || S.prompts[i].part === 'search');
         var label = one || !S.prompts.length ? '모델 답 (JSON)' : '콜 요약 답 ' + S.prompts[i].title;
         boxes.push(f.field(label, h('textarea', {
           class: 'input textarea mono', rows: one ? 10 : 6, placeholder: '{ "company": ..., "summary": ..., "highlights": [...], "qa": [...], "values": [...], "scores": [...] }',
@@ -236,9 +247,9 @@
     }
     boxes.push(h('div', { class: 'row' }, [
       f.btn('검사', function () { S.checked = check(c); App.render(); var el = document.getElementById('step5'); if (el) el.scrollIntoView({ block: 'start' }); }, 'primary'),
-      S.prompts.length ? null : f.btn('답 칸 더하기', function () { S.answers.push(''); S.prompts = []; App.render(); }, 'sm'),
+      S.prompts.length || S.mode !== 'split' ? null : f.btn('답 칸 더하기', function () { S.answers.push(''); S.prompts = []; App.render(); }, 'sm'),
     ]));
-    return stepBox(4, '모델 답 붙여 넣기', boxes, '앞뒤 설명이나 ``` 울타리가 붙어 있어도 됩니다.' + (S.mode === 'split' ? ' 조각이 여럿이면 순서대로 칸마다 붙여 넣습니다.' : ''));
+    return stepBox(4, '모델 답 붙여 넣기', boxes);
   }
 
   /** 붙여 넣은 답을 모두 읽고 검사합니다. 콜 요약, 숫자, 센티먼트가 한 답에 같이 와도 되고 칸마다 따로 와도 됩니다. */
@@ -261,6 +272,7 @@
         res.call = r.call;
         if (r.numbers) out.numbers = r.numbers;
         if (r.sentiment) out.sentiment = r.sentiment;
+        if (r.transcriptUrl) out.transcriptUrl = r.transcriptUrl;
       }
       if (res.errors.length) out.ok = false;
       out.parts.push(res);
@@ -280,10 +292,10 @@
     var k = S.checked;
     var kids = [];
     if (!k) {
-      kids.push(h('p', { class: 'muted', text: '4번에서 검사를 누르면 결과와 미리보기가 나옵니다.' }));
+      kids.push(h('p', { class: 'muted small', text: '-' }));
     } else {
       k.parts.forEach(function (p) {
-        var name = p.index === 'num' ? '숫자 답' : S.prompts[p.index] && S.prompts[p.index].part !== 'one' ? '콜 요약 답 ' + S.prompts[p.index].title : '모델 답';
+        var name = p.index === 'num' ? '숫자 답' : S.prompts[p.index] && /^(prepared|qa|all)$/.test(S.prompts[p.index].part) ? '콜 요약 답 ' + S.prompts[p.index].title : '모델 답';
         kids.push(h('div', { class: 'check-row ' + (p.errors.length ? 'is-bad' : 'is-good') }, [
           h('span', { class: 'check-row__name', text: name + (p.errors.length ? ' : 고칠 것 있음' : ' : 읽음') }),
           p.errors.length ? h('ul', { class: 'msgs msgs--err' }, p.errors.map(function (e) { return h('li', { text: e }); })) : null,
@@ -305,7 +317,7 @@
     if (k || (S.sentChecked && S.sentChecked.ok)) {
       kids.push(h('div', { class: 'row' }, [
         f.btn(C.periodLabel(S.period) + ' ' + (c.nameKo || c.name) + ' 에 넣기', function () { apply(c); }, 'primary', { disabled: !canApply }),
-        canApply ? h('span', { class: 'muted', text: '넣은 뒤 회사별 화면에서 고칠 수 있습니다. 상태는 "검증 필요" 로 들어갑니다.' })
+        canApply ? null
           : sentPending ? h('span', { class: 'warn', text: '센티먼트 답을 붙여 넣었으면 "점수 검사" 를 통과해야 넣을 수 있습니다. 점수 없이 넣으려면 그 칸을 비웁니다.' })
           : h('span', { class: 'warn', text: '빨간 항목을 고친 뒤 다시 검사하세요. 고칠 수 없으면 모델에게 오류 문장을 그대로 주고 다시 답하게 합니다.' }),
       ]));
@@ -330,10 +342,7 @@
     var prevQ = C.quarterOf(rep, C.periodAdd(S.period, -1));
     var prompt = PR.buildSentimentPrompt(c, S.period, call, prevQ && prevQ.sentiment);
     var kids = [
-      h('h4', { class: 'sub__title', text: '센티먼트 점수 (선택)' }),
-      h('p', { class: 'panel__hint', text: (S.checked && S.checked.call ? '위 콜 요약으로' : '저장된 ' + C.periodLabel(S.period) + ' 콜 요약으로') +
-        ' 점수 프롬프트를 만들었습니다. 요인 8개를 0~10점으로 매깁니다' + (prevQ && prevQ.sentiment ? ' (직전 분기 점수를 기준으로 함).' : '.') +
-        ' 새 대화창에 붙여 넣고 답을 아래 칸에 넣습니다.' }),
+      h('summary', { class: 'sub__title', text: '센티먼트만 따로 매기기 (답에 점수가 없을 때)' }),
       promptCard('센티먼트 점수', '요인 ' + SE.FACTORS.length + '개', prompt),
       f.field('센티먼트 답 (JSON)', h('textarea', {
         class: 'input textarea mono', rows: 5, placeholder: '{ "company": ..., "scores": [...] }',
@@ -357,7 +366,7 @@
       ]));
       if (r.ok) kids.push(h('div', { class: 'preview' }, App.f.sentTable(r.sentiment)));
     }
-    return h('div', { class: 'sent-step' }, kids);
+    return h('details', { class: 'sent-step', open: !!(S.sentAnswer || S.sentChecked) }, kids);
   }
 
   function previewCall(call) {
@@ -394,7 +403,7 @@
         h('tbody', null, rows),
       ]),
       h('p', { class: 'muted', text: '영업이익률 ' + f.pct(d.opMargin) + ' · 부채비율 ' + f.pct(d.debtRatio) }),
-      h('p', { class: 'muted small', text: '원문 표기와 저장 값의 자릿수가 맞는지 꼭 봅니다. 단위 실수가 가장 흔한 오류입니다.' }),
+      h('p', { class: 'muted small', text: '원문 표기와 저장 값의 자릿수를 꼭 확인하세요.' }),
     ]);
   }
 
@@ -412,8 +421,9 @@
         warnings = res.warnings;
       }
       if (k.call) {
-        var tr = S.transcript.trim() ? { source: S.source, url: S.url.trim(), stored: false } : null;
-        if (tr && S.keep) {
+        var tr = S.transcript.trim() ? { source: S.source, url: S.url.trim(), stored: false }
+          : k.transcriptUrl ? { source: '사내 ChatGPT 검색', url: k.transcriptUrl, stored: false } : null;
+        if (tr && S.keep && S.transcript.trim()) {
           var stored = App.data.putTranscript(c.id, S.period, {
             source: S.source,
             url: S.url.trim(),

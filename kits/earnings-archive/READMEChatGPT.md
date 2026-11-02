@@ -161,6 +161,7 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | `CALL_TEMPLATE`, `TASK_ALL`, `TASK_PREPARED`, `TASK_QA` | 콜 요약 프롬프트 글 | 문구를 바꿀 때 (6-E) |
 | `NUMBERS_TEMPLATE` | 숫자 프롬프트 글 | 문구를 바꿀 때 (6-E) |
 | `SENTIMENT_TEMPLATE` | 센티먼트 점수 프롬프트 글. 콜 요약과 직전 분기 점수를 넣음 | 문구를 바꿀 때 (6-E, 문서는 `prompts/12-sentiment.md`) |
+| `SEARCH_TEMPLATE` | 검색용 프롬프트. 사내 ChatGPT 가 녹취록과 보도자료를 찾아 같은 형식의 JSON 으로 답함 | 문구를 바꿀 때 (문서는 `prompts/08-search.md`) |
 | `ONE_TEMPLATE` | 한 번에 끝내는 프롬프트 (콜 요약 + 숫자 + 센티먼트). 자료 넣기의 기본 | 문구를 바꿀 때 (6-E, 문서는 `prompts/09-all-in-one.md`) |
 | `readAnswer(obj, ctx)` | 한 번에 받은 답에서 콜 요약, 숫자, 센티먼트를 읽음 | 아니오 |
 | `DEFAULT_MAX` | "나눠서 하기" 를 켰을 때 조각 최대 글자 수 기본값 24000 | 거의 없음 |
@@ -250,7 +251,7 @@ H 처럼 여러 파일을 고칠 때는 1번 파일을 고치고 확인한 다�
 
 사내 PC 에 Node 가 없어도 브라우저만으로 확인합니다.
 
-1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "51/51 통과" 처럼 전부 통과해야 합니다.
+1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "53/53 통과" 처럼 전부 통과해야 합니다.
    `src/model/` 을 고쳤는데 실패가 나오면, 실패한 줄의 이름과 빨간 문구를 그대로 "8. 막혔을 때" 양식에 넣습니다.
    (H 처럼 일부러 동작을 바꾼 변경이면 테스트를 고쳐야 할 수도 있습니다. 이때는 ChatGPT 에 맡기지 말고 바깥 저장소 담당에게 넘깁니다.)
 2. `index.html` 을 열고 F12 > Console 에 빨간 오류가 없는지 봅니다.

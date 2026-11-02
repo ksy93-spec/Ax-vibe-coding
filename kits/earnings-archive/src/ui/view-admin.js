@@ -83,9 +83,7 @@
     return h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [h('h2', { class: 'panel__title', text: '파일로 저장' }),
         folder ? f.chip('연결됨: ' + folder, 'ok') : null]),
-      h('p', { class: 'panel__hint', text: App.data.canWriteFolder()
-        ? '화면에서 고친 내용은 이 브라우저에만 있습니다. 킷의 data 폴더를 한 번 연결하면 파일에 바로 씁니다. 공유 폴더에 둔 킷이면 저장하는 즉시 다른 사람도 새로 고침으로 봅니다.'
-        : '이 브라우저는 폴더에 바로 쓰지 못합니다. 내려받은 파일을 data 폴더에 덮어쓰세요.' }),
+      h('p', { class: 'panel__hint', text: App.data.canWriteFolder() ? '고친 내용은 이 브라우저에만 있습니다. data 폴더를 연결하면 파일에 바로 씁니다.' : '내려받은 파일을 data 폴더에 덮어쓰세요.' }),
     ].concat(kids, [h('div', { class: 'row' }, actions)]));
   }
 
@@ -111,7 +109,6 @@
       onchange: function (e) { readPacks(Array.prototype.slice.call(e.target.files)); e.target.value = ''; },
     });
     var kids = [
-      h('p', { class: 'panel__hint', text: '바깥에서 정리해 보낸 자료 묶음(.json)이나 다른 사람이 저장한 data 파일(.js)을 가져옵니다. 사내에서 고친 분기는 덮어쓰지 않는 것이 기본입니다.' }),
       h('div', { class: 'row' }, [
         f.btn('가져올 파일 고르기', function () { fileInput.click(); }, 'primary'),
         fileInput,
@@ -291,7 +288,6 @@
     var addCur = h('input', { class: 'input input--sm', placeholder: '통화 더하기 (예: CNY)' });
     return h('section', { class: 'panel' }, [
       h('h2', { class: 'panel__title', text: '환율 (분기 평균, 1 USD 당 통화 단위)' }),
-      h('p', { class: 'panel__hint', text: '분기 실적을 그 분기 평균 환율로 달러로 바꿉니다. 예: 2026 Q2 KRW 1,380 이면 원화 1조 3,800억 = 1,000 MUSD. 빈 칸이 있으면 그 분기의 원화, 엔화 금액이 달러로 나오지 않습니다.' }),
       h('div', { class: 'table__scroll table__scroll--short' }, table),
       h('div', { class: 'row' }, [h('span', { class: 'muted', text: '출처' }), src]),
       h('div', { class: 'row' }, [
@@ -344,7 +340,7 @@
     });
     return h('section', { class: 'panel' }, [
       h('h2', { class: 'panel__title', text: '센티먼트 설정' }),
-      h('p', { class: 'panel__hint', text: '요인 이름과 설명은 화면과 점수 프롬프트에 그대로 들어갑니다. 설명을 구체적으로 쓸수록 점수가 덜 흔들립니다. 칸을 비우면 처음 값(흐린 글씨)을 씁니다. 가중치를 바꾸면 과거 분기의 종합 점수도 다시 계산됩니다. 영문 key 는 저장 이름이라 바꿀 수 없습니다.' }),
+      h('p', { class: 'panel__hint', text: '설명은 점수 프롬프트에 그대로 들어갑니다. 비운 칸은 처음 값을 씁니다.' }),
       h('div', { class: 'table__scroll' }, h('table', { class: 'table table--sent table--form' }, [
         h('thead', null, h('tr', null, ['key', '이름', '설명 (프롬프트에 들어감)', '가중치'].map(function (t) { return h('th', { class: 'th', text: t }); }))),
         h('tbody', null, rows),
@@ -378,7 +374,6 @@
         h('div', { class: 'app__spacer' }),
         f.btn('회사 추가', function () { editCompany(null); }, 'primary sm'),
       ]),
-      h('p', { class: 'panel__hint', text: '로고가 없는 회사는 글자 마크로 나옵니다. 로고 바꾸기로 SVG 나 PNG(200KB 이하)를 넣으면 회사 목록 파일에 함께 저장됩니다.' }),
       h('div', { class: 'table__scroll' }, h('table', { class: 'table' }, [
         h('thead', null, h('tr', null, ['', 'id', '이름', '구분', '종목 코드', '통화', '회계연도 끝', ''].map(function (t) { return h('th', { class: 'th', text: t }); }))),
         h('tbody', null, list.map(function (c, i) {
@@ -442,7 +437,7 @@
         C.CURRENCIES.map(function (x) { return h('option', { value: x, selected: d.currency === x, text: x }); }))),
       f.field('회계연도 끝 달', h('input', { class: 'input', inputmode: 'numeric', value: d.fyEnd, oninput: function (e) { d.fyEnd = C.toNumber(e.target.value) || 12; } }), '12 또는 3'),
       f.field('글자 마크 색', inp('color', '#0170CE')),
-      f.field('영업이익 이름', note('operatingIncome'), '예: EBIT, Operating result. 숫자 프롬프트가 이 이름으로 찾습니다'),
+      f.field('영업이익 이름', note('operatingIncome'), '예: EBIT, Operating result'),
       f.field('판매 대수 정의', note('deliveries'), '예: 도매 판매, Retail sales'),
       f.field('다른 이름 (쉼표로)', h('input', { class: 'input', value: (d.aliases || []).join(', '), oninput: function (e) {
         d.aliases = e.target.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);

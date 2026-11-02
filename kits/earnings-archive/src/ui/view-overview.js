@@ -44,7 +44,7 @@
     if (!hasAny) {
       main.appendChild(h('section', { class: 'panel' }, f.empty(
         '아직 쌓인 자료가 없습니다',
-        '자료 넣기 탭에서 녹취록을 붙여 넣으면 사내 모델용 프롬프트가 만들어지고, 답을 붙여 넣으면 이 화면에 쌓입니다. 과거 숫자는 회사별 화면의 "과거 실적 한꺼번에" 로 넣습니다.',
+        null,
         [f.btn('자료 넣기', function () { App.go({ tab: 'import' }); }, 'primary'),
           f.btn('자료 묶음 가져오기', function () { App.go({ tab: 'admin' }); })]
       )));
@@ -73,7 +73,6 @@
 
     main.appendChild(h('div', { class: 'toolbar' }, [
       h('span', { class: 'toolbar__label', text: '분기' }), periodSel, seg,
-      h('span', { class: 'toolbar__note', text: '달력 분기 기준. 3월 결산 회사도 같은 달로 맞춰 비교합니다.' }),
     ]));
     if (missingFx.length) {
       main.appendChild(h('div', { class: 'notice notice--warn' }, [
@@ -169,7 +168,7 @@
     return h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [
         h('h2', { class: 'panel__title', text: C.periodLabel(period, true) + ' 센티먼트' }),
-        h('span', { class: 'muted', text: '실적 콜 경영진 톤, 0~10점. 칸에 마우스를 올리면 근거가 나옵니다. 종합 높은 순' }),
+        h('span', { class: 'muted', text: '0~10점, 종합 높은 순' }),
       ]),
       f.sentLegend(),
       h('div', { class: 'table__scroll' }, h('table', { class: 'table heat' }, [h('thead', null, head), h('tbody', null, body)])),
@@ -199,7 +198,7 @@
       f.btn('상세 보기', function () { App.go({ tab: 'company', company: c.id, period: at ? at.period : '' }); }, 'primary'),
     ]));
     if (!rows.length) {
-      box.appendChild(f.empty('이 업체는 아직 자료가 없습니다', '자료 넣기에서 녹취록을 넣거나, 회사별 화면의 "과거 실적 한꺼번에" 로 숫자를 넣습니다.', [
+      box.appendChild(f.empty('이 업체는 아직 자료가 없습니다', null, [
         f.btn('자료 넣기', function () { App.go({ tab: 'import', company: c.id }); }, 'primary'),
         f.btn('과거 실적 넣기', function () { App.go({ tab: 'company', company: c.id, edit: 'grid' }); }),
       ]));

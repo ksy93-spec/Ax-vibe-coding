@@ -35,6 +35,7 @@ ctx.App.tests.push({
       ['11-numbers.md', '## 템플릿', P.NUMBERS_TEMPLATE],
       ['12-sentiment.md', '## 템플릿', P.SENTIMENT_TEMPLATE],
       ['09-all-in-one.md', '## 템플릿', P.ONE_TEMPLATE],
+      ['08-search.md', '## 템플릿', P.SEARCH_TEMPLATE],
     ];
     for (const [f, title, code] of pairs) {
       if (block(f, title) !== code) throw new Error(f + ' "' + title + '" 가 src/model/prompt.js 와 다릅니다');
