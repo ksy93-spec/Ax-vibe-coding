@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "audi",
-  "rev": 3,
+  "rev": 4,
   "quarters": [
    {
     "period": "2026Q3",
@@ -13,12 +13,13 @@
     "currency": "EUR",
     "values": {
      "revenue": 12886,
-     "operatingIncome": 28
+     "operatingIncome": 28,
+     "deliveries": 314.905
     },
     "raw": {},
-    "source": "https://www.audi.com/en/media-releases/challenging-first-nine-months-audi-is-strengthening-its-measures-to-increase-competitiveness-18427",
+    "source": "https://www.audi.com/en/media-releases/challenging-first-nine-months-audi-is-strengthening-its-measures-to-increase-competitiveness-18427 https://www.autohaus.de/nachrichten/autohersteller/drittes-quartal-2026-audi-absatz-bricht-fast-um-ein-fuenftel-ein-3915658 https://www.audi.com/en/media-releases/challenging-first-nine-months-audi-is-strengthening-its-measures-to-increase-competitiveness-18427",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. 9M 2026 rev 42,063 / op 1,150 minus H1. Audi brand 9M deliveries not found (Brand Group 9M 1,056,103).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. 9M 2026 rev 42,063 / op 1,150 minus H1. Audi brand 9M deliveries not found (Brand Group 9M 1,056,103). 보충: Audi brand only, from dpa report via autohaus.de (secondary). Audi Group incl. Lamborghini/Bentley/Ducati = 319,225 (-19.6%). Jan-Sep brand 1,042,150; verify against Audi Q3 release.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -30,12 +31,15 @@
     "currency": "EUR",
     "values": {
      "revenue": 14999,
-     "deliveries": 367.139
+     "deliveries": 367.139,
+     "operatingIncome": 534
     },
-    "raw": {},
-    "source": "https://www.audi.com/en/press-releases/audi-group-maintains-stable-operating-profit-in-the-first-half-of-2026-despite-challenging-markets-18148",
+    "raw": {
+     "operatingIncome": "H1 operating profit 1,122 million euros (H1 2025: 1,087), margin 3.8%"
+    },
+    "source": "https://www.audi.com/en/press-releases/audi-group-maintains-stable-operating-profit-in-the-first-half-of-2026-despite-challenging-markets-18148 https://www.audi.com/en/media-releases/audi-group-maintains-stable-operating-profit-in-the-first-half-of-2026-despite-challenging-markets-18148",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. H1 2026 rev 29,177 / op 1,122 / Audi brand deliv 727,245 minus Q1 (op uses Q1=588, see note).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. H1 2026 rev 29,177 / op 1,122 / Audi brand deliv 727,245 minus Q1 (op uses Q1=588, see note). 보충: DERIVED: H1 1,122 - Q1 588 = 534 (margin ~3.6% on revenue 29,177-~14,178). The 395 (22.7% margin) in H1 coverage refers to a Progressive sub-group, not Audi Group. Quartr summary showing 1.1bn for Q2 is the H1 figure.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -47,12 +51,15 @@
     "currency": "EUR",
     "values": {
      "revenue": 14178,
-     "deliveries": 360.106
+     "deliveries": 360.106,
+     "operatingIncome": 588
     },
-    "raw": {},
-    "source": "https://www.audi.com/en/media-releases/first-quarter-of-2026-audi-figures-shaped-by-challenging-market-conditions-growth-in-germany-and-europe-17118",
+    "raw": {
+     "operatingIncome": "Operating profit rose by nearly 10 percent to 588 million euros (Q1 2025: 537), margin 4.2 percent"
+    },
+    "source": "https://www.audi.com/en/media-releases/first-quarter-of-2026-audi-figures-shaped-by-challenging-market-conditions-growth-in-germany-and-europe-17118 https://www.audi-mediacenter.com/en/press-releases/first-quarter-of-2026-audi-figures-shaped-by-challenging-market-conditions-growth-in-germany-and-europe-17118 https://www.audi.com/en/key-financial-figures-17197",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue and Audi brand deliveries per Q1 2026 release; op 588 from secondary summary (release text showed conflicting -26, inconsistent with 4.2% margin) - verify.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue and Audi brand deliveries per Q1 2026 release; op 588 from secondary summary (release text showed conflicting -26, inconsistent with 4.2% margin) - verify. 보충: Audi Group Q1 operating result = 588 (4.2%). The -26 figure (margin -5.6%) is not Audi Group: it is inconsistent with Group H1 1,122 and Group margin; likely a Progressive/brand-level or erroneous figure. 588/4.2% implies revenue ~14.0bn, consistent with H1 revenue 29,177.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

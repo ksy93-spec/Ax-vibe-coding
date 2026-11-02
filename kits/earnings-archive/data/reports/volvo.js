@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "volvo",
-  "rev": 3,
+  "rev": 4,
   "quarters": [
    {
     "period": "2026Q3",
@@ -298,14 +298,38 @@
     "reportDate": "",
     "currency": "SEK",
     "values": {
-     "revenue": 102200
+     "revenue": 102200,
+     "operatingIncome": 5000,
+     "deliveries": 178.8
     },
     "raw": {
-     "revenue": "SEK 101.5 bn (SEK 102.2 bn in Q2 2023)"
+     "revenue": "SEK 101.5 bn (SEK 102.2 bn in Q2 2023)",
+     "operatingIncome": "Q2 EBIT margin was 4.9 per cent; reported EBIT SEK 5.0bn"
     },
-    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-record-core-operating-profit-of-sek-8-2-billion-in-q2-2024,c4014967",
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-record-core-operating-profit-of-sek-8-2-billion-in-q2-2024,c4014967 https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-q2-results--full-speed-ahead-in-transformation-with-a-solid-business-performance,c3807330",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded to SEK 0.1 bn, taken from Q2 2024 comparative.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded to SEK 0.1 bn, taken from Q2 2024 comparative. 보충: Rounded as published. EBIT incl. JVs (excl. JVs 6.4bn, 6.3%).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q1",
+    "fiscalLabel": "Q1 2023",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 95700,
+     "operatingIncome": 5100,
+     "deliveries": 162.9
+    },
+    "raw": {
+     "revenue": "Revenue SEK 95.7 bn (74.3)",
+     "operatingIncome": "Operating income (EBIT) was SEK 5.1 (6.0) bn"
+    },
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-q1-results--stable-start-to-2023--as-company-continues-delivering-on-ongoing-transformati,c3759106",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Values rounded as published in the press release (bn / thousand); exact MSEK not seen. EBIT is reported incl. JVs; 6.3bn excl. JVs/associates.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

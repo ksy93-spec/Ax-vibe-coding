@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "denso",
-  "rev": 3,
+  "rev": 4,
   "quarters": [
    {
     "period": "2026Q3",
@@ -262,12 +262,15 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "operatingIncome": 158151
+     "operatingIncome": 158151,
+     "revenue": 1765638
     },
-    "raw": {},
-    "source": "https://www2.jpx.co.jp/disc/69020/140120230202598965.pdf https://strainer.jp/companies/JP-6902/financials/OperatingIncomeLoss",
+    "raw": {
+     "revenue": "FY3/2023 6,401,320 minus 9M 4,635,682"
+    },
+    "source": "https://www2.jpx.co.jp/disc/69020/140120230202598965.pdf https://strainer.jp/companies/JP-6902/financials/OperatingIncomeLoss https://www2.jpx.co.jp/disc/69020/140120230425551991.pdf https://www2.jpx.co.jp/disc/69020/140120230202598965.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY2023 operating profit 426,099 (strainer.jp aggregator) minus 9M 267,948. Revenue omitted.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY2023 operating profit 426,099 (strainer.jp aggregator) minus 9M 267,948. Revenue omitted. 보충: Derived: full year minus 9M cumulative (IFRS). Figures read from search-result excerpts, not the PDFs directly.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -335,14 +338,16 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "operatingIncome": 84905
+     "operatingIncome": 84905,
+     "revenue": 1506464
     },
     "raw": {
-     "operatingIncome": "FY 341,179; 9M 256,274"
+     "operatingIncome": "FY 341,179; 9M 256,274",
+     "revenue": "FY3/2022 5,515,512 minus 9M 4,009,048"
     },
-    "source": "https://www2.jpx.co.jp/disc/69020/140120220131575922.pdf https://strainer.jp/companies/JP-6902/financials/OperatingIncomeLoss",
+    "source": "https://www2.jpx.co.jp/disc/69020/140120220131575922.pdf https://strainer.jp/companies/JP-6902/financials/OperatingIncomeLoss https://www2.jpx.co.jp/disc/69020/140120220425527279.pdf https://www2.jpx.co.jp/disc/69020/140120220131575922.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY2022 operating profit 341,179 (strainer.jp aggregator) minus 9M 256,274. Revenue omitted (exact FY not confirmed).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY2022 operating profit 341,179 (strainer.jp aggregator) minus 9M 256,274. Revenue omitted (exact FY not confirmed). 보충: Derived: full year minus 9M cumulative (IFRS). Figures read from search-result excerpts of the tanshin, not the PDFs directly.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "vw",
-  "rev": 3,
+  "rev": 4,
   "quarters": [
    {
     "period": "2026Q3",
@@ -244,14 +244,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 87182,
-     "deliveries": 2524
+     "deliveries": 2524,
+     "operatingIncome": 6335
     },
     "raw": {
-     "revenue": "sales revenue 87,182"
+     "revenue": "sales revenue 87,182",
+     "operatingIncome": "operating result before special items was 6,335"
     },
-    "source": "https://www.volkswagen-group.com/en/press-releases/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarter-18250",
+    "source": "https://www.volkswagen-group.com/en/press-releases/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarter-18250 https://www.automotiveworld.com/news/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarte/",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Operating result 6,335 shown in search result but whether before/after special items not confirmed; left null. Rounded deliveries.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Operating result 6,335 shown in search result but whether before/after special items not confirmed; left null. Rounded deliveries. 보충: FY2023 22,576.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -263,14 +265,15 @@
     "currency": "EUR",
     "values": {
      "revenue": 78845,
-     "deliveries": 2344
+     "deliveries": 2344,
+     "operatingIncome": 4894
     },
     "raw": {
      "revenue": "Sales revenue 78,845"
     },
-    "source": "https://www.volkswagen-group.com/en/interim-report-january-september-2023-17725",
+    "source": "https://www.volkswagen-group.com/en/interim-report-january-september-2023-17725 https://www.automotiveworld.com/news/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarte/",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Before-special-items operating result 4,894 only; reported value not confirmed. Rounded deliveries.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Before-special-items operating result 4,894 only; reported value not confirmed. Rounded deliveries. 보충: DERIVED: 9M = FY 22,576 - Q4 6,335 = 16,241; Q3 = 16,241 - 11,347. Matches 9M 16.2bn reported.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -282,14 +285,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 80059,
-     "deliveries": 2332
+     "deliveries": 2332,
+     "operatingIncome": 5600
     },
     "raw": {
-     "revenue": "Sales revenue 80,059"
+     "revenue": "Sales revenue 80,059",
+     "operatingIncome": "5,600 in Q2 2023 versus 4,722; H1 11,347"
     },
-    "source": "https://www.volkswagen-group.com/en/publications/more/half-yearly-financial-report-2023-2466/download?disposition=attachment",
+    "source": "https://www.volkswagen-group.com/en/publications/more/half-yearly-financial-report-2023-2466/download?disposition=attachment https://moreir.de/download/companies/VW/Quarterly Reports/DE0007664039-Q2-2023-EQ-E-00.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Before-special-items operating result 5,600 only; reported value not confirmed. Rounded deliveries.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Before-special-items operating result 5,600 only; reported value not confirmed. Rounded deliveries. 보충: Q2 quarterly report; H1 11,347 = 5,747 + 5,600; no special items H1 2023.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -301,14 +306,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 76198,
-     "deliveries": 2041
+     "deliveries": 2041,
+     "operatingIncome": 5747
     },
     "raw": {
-     "revenue": "Sales revenue 76,198"
+     "revenue": "Sales revenue 76,198",
+     "operatingIncome": "Operating result before special items 5,747 in Q1 2023"
     },
-    "source": "https://www.volkswagen-group.com/en/press-releases/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarter-18250",
+    "source": "https://www.volkswagen-group.com/en/press-releases/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarter-18250 https://www.automotiveworld.com/news-releases/volkswagen-group-makes-solid-start-to-fiscal-year-2023-with-strong-increase-in-revenues-and-underlying-operating-profit",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Search result showed only operating result before special items 5,747; after-special-items value not confirmed, left null. Deliveries rounded to thousand.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Search result showed only operating result before special items 5,747; after-special-items value not confirmed, left null. Deliveries rounded to thousand. 보충: No special items in Q1 2023, so equals reported operating result.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

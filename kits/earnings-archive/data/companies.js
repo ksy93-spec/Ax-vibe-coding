@@ -3,7 +3,7 @@
 (window.EA_FILES = window.EA_FILES || []).push({
  "kind": "companies",
  "data": {
-  "rev": 2,
+  "rev": 3,
   "companies": [
    {
     "id": "gm",
@@ -321,7 +321,7 @@
     "color": "",
     "logo": "",
     "metricNotes": {
-     "operatingIncome": "영업이익 미공시 (손익계산서에 줄 없음)"
+     "operatingIncome": "Adjusted EBITDA (영업이익 줄이 없어 대신 씀)"
     },
     "aliases": [
      "Visteon Corporation"

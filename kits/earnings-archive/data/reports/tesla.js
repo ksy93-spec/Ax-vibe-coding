@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "tesla",
-  "rev": 3,
+  "rev": 4,
   "quarters": [
    {
     "period": "2026Q3",
@@ -443,15 +443,16 @@
     "currency": "USD",
     "values": {
      "revenue": 13757,
-     "operatingIncome": 2004
+     "operatingIncome": 2004,
+     "deliveries": 241.3
     },
     "raw": {
      "revenue": "Total revenues 13,757",
      "operatingIncome": "575 594 1,312 2,004 2,613"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021051307/tsla-ex991_85.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021051307/tsla-ex991_85.htm https://www.sec.gov/Archives/edgar/data/1318605/000156459021049874/tsla-ex991_6.htm https://electrek.co/2021/10/02/tesla-tsla-q3-2021-deliveries/",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. stockholders' equity 27,053 excludes NCI",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. stockholders' equity 27,053 excludes NCI 보충: Tesla 8-K ex99.1; 232,025 Model3/Y + 9,275 S/X.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -505,15 +506,16 @@
     "currency": "USD",
     "values": {
      "revenue": 10744,
-     "operatingIncome": 575
+     "operatingIncome": 575,
+     "deliveries": 180.57
     },
     "raw": {
      "revenue": "2020-10-01 to 2020-12-31: $10,744 million",
      "operatingIncome": "INCOME FROM OPERATIONS 575 594 1,312 2,004 2,613"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021004599/Financial_Report.xlsx https://www.sec.gov/Archives/edgar/data/1318605/000156459021002645/tsla-ex991_99.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021004599/Financial_Report.xlsx https://www.sec.gov/Archives/edgar/data/1318605/000156459021002645/tsla-ex991_99.htm https://insideevs.com/news/463594/tesla-q4-deliveries-2020-record/ https://www.cnbc.com/2021/01/02/tesla-tsla-q4-2020-vehicle-delivery-and-production-numbers.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. stockholders' equity 22,225 excludes NCI so totalEquity left null",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. stockholders' equity 22,225 excludes NCI so totalEquity left null 보충: FY2020 499,550 consistent.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -525,15 +527,16 @@
     "currency": "USD",
     "values": {
      "revenue": 8771,
-     "operatingIncome": 809
+     "operatingIncome": 809,
+     "deliveries": 139.3
     },
     "raw": {
      "revenue": "Total revenues 8,771",
      "operatingIncome": "record level of $809M, 9.2% operating margin"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459020047108/tsla-ex991_57.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459020047108/tsla-ex991_57.htm https://insideevs.com/news/463594/tesla-q4-deliveries-2020-record/",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 보충: From trade coverage (InsideEVs) of Q4 2020 record; Tesla own release not seen.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -567,15 +570,16 @@
     "currency": "USD",
     "values": {
      "revenue": 5985,
-     "operatingIncome": 283
+     "operatingIncome": 283,
+     "deliveries": 88.4
     },
     "raw": {
      "revenue": "Total revenues 6,303 7,384 5,985 6,036 8,771",
      "operatingIncome": "Q1-2020: 283"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459020033670/Financial_Report.xlsx",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459020033670/Financial_Report.xlsx https://www.sec.gov/Archives/edgar/data/1318605/000156459020014992/tsla-ex991_6.htm https://electrek.co/2020/04/02/tesla-delivery-production-q1-2020/",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 보충: Tesla quarterly production and deliveries release (8-K ex99.1).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
