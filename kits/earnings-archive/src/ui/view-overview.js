@@ -133,7 +133,40 @@
         }),
       ]),
     ]));
+
+    var heat = sentimentHeat(rows, period);
+    if (heat) main.appendChild(heat);
   };
+
+  /** 고른 분기의 회사 x 요인 센티먼트 표. 점수가 있는 회사가 없으면 그리지 않습니다. 종합 점수 높은 순. */
+  function sentimentHeat(rows, period) {
+    var SE = App.ea.sentiment;
+    var list = rows.filter(function (x) { return x.q && x.q.sentiment; }).map(function (x) {
+      return { x: x, idx: SE.index(x.q.sentiment), e: SE.effective(x.q.sentiment) };
+    }).sort(function (a, b) { return (b.idx === null ? -1 : b.idx) - (a.idx === null ? -1 : a.idx); });
+    if (!list.length) return null;
+    var head = h('tr', null, [h('th', { class: 'th', text: '회사' }), h('th', { class: 'th', text: '종합' })].concat(SE.FACTORS.map(function (fct) {
+      return h('th', { class: 'th', text: fct.label.replace(' 가이던스', '') });
+    })));
+    var body = list.map(function (it) {
+      return h('tr', { class: 'is-clickable', onclick: function () { App.go({ tab: 'company', company: it.x.c.id, period: period }); } }, [
+        h('td', { class: 'rowh' }, h('span', { class: 'heat__co' }, [f.logo(it.x.c, 'sm'), it.x.c.nameKo || it.x.c.name])),
+        h('td', { class: 'heat__cell' }, f.sentCell(it.idx, { cls: 'sent--big' })),
+      ].concat(SE.FACTORS.map(function (fct) {
+        var v = it.e[fct.key];
+        var m = it.x.q.sentiment.model && it.x.q.sentiment.model[fct.key];
+        return h('td', { class: 'heat__cell' }, f.sentCell(v.score, { manual: v.source === 'manual', title: fct.label + ': ' + (v.score === null ? '언급 없음' : v.score + '점') + (m && m.reason ? ' / ' + m.reason : '') }));
+      })));
+    });
+    return h('section', { class: 'panel' }, [
+      h('div', { class: 'panel__bar' }, [
+        h('h2', { class: 'panel__title', text: C.periodLabel(period, true) + ' 센티먼트' }),
+        h('span', { class: 'muted', text: '실적 콜 경영진 톤, 0~10점. 칸에 마우스를 올리면 근거가 나옵니다. 종합 높은 순' }),
+      ]),
+      f.sentLegend(),
+      h('div', { class: 'table__scroll' }, h('table', { class: 'table heat' }, [h('thead', null, head), h('tbody', null, body)])),
+    ]);
+  }
 
   function card(x, period) {
     var c = x.c;

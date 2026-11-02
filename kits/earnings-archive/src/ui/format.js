@@ -134,7 +134,63 @@
     return Object.keys(set).sort().reverse();
   }
 
+  /* ---------- 센티먼트 ---------- */
+  var SE = App.ea.sentiment;
+
+  /** 점수 칸. 색은 악화(빨강)~중립(회색)~개선(파랑) 다섯 단계, 숫자를 늘 같이 씁니다. */
+  function sentCell(score, opts) {
+    var o = opts || {};
+    var b = SE.band(score);
+    return h(o.tag || 'span', {
+      class: 'sent sent--' + b + (o.manual ? ' sent--manual' : '') + (o.cls ? ' ' + o.cls : ''),
+      title: o.title || (score === null || score === undefined ? '언급 없음' : score + '점' + (o.manual ? ' (사람이 고친 점수)' : '')),
+      text: score === null || score === undefined ? '-' : (Math.round(score * 10) / 10).toString(),
+    });
+  }
+
+  function sentLegend() {
+    return h('div', { class: 'sent-legend' }, [
+      h('span', { class: 'muted small', text: '점수' }),
+      sentCell(1, { title: '0~2 크게 악화' }), h('span', { class: 'small', text: '크게 악화' }),
+      sentCell(3, { title: '3~4 악화' }), h('span', { class: 'small', text: '악화' }),
+      sentCell(5, { title: '5 중립' }), h('span', { class: 'small', text: '중립' }),
+      sentCell(7, { title: '6~7 개선' }), h('span', { class: 'small', text: '개선' }),
+      sentCell(9, { title: '8~10 크게 개선' }), h('span', { class: 'small', text: '크게 개선' }),
+      sentCell(null), h('span', { class: 'small', text: '언급 없음' }),
+      h('span', { class: 'muted small', text: '밑줄 = 사람이 고친 점수' }),
+    ]);
+  }
+
+  /** 한 분기의 요인별 점수 표 (요인, 점수, 방향, 근거) */
+  function sentTable(sent) {
+    var e = SE.effective(sent);
+    var idx = SE.index(sent);
+    return [
+      h('div', { class: 'row sent-head' }, [
+        h('span', { class: 'sub__title', text: '센티먼트 종합' }), sentCell(idx, { cls: 'sent--big' }),
+        sent.summary ? h('span', { class: 'muted', text: sent.summary }) : null,
+      ]),
+      h('table', { class: 'table table--sent' }, [
+        h('thead', null, h('tr', null, ['요인', '점수', '방향', '근거'].map(function (t) { return h('th', { class: 'th', text: t }); }))),
+        h('tbody', null, SE.FACTORS.map(function (fct) {
+          var m = (sent.model && sent.model[fct.key]) || {};
+          var ef = e[fct.key];
+          return h('tr', null, [
+            h('td', { text: fct.label }),
+            h('td', null, [sentCell(ef.score, { manual: ef.source === 'manual' }),
+              ef.source === 'manual' && m.score !== null && m.score !== undefined ? h('span', { class: 'muted small', text: ' 모델 ' + m.score }) : null]),
+            h('td', { text: m.direction || '언급 없음' }),
+            h('td', { class: 'td--wrap' }, [m.reason || '', m.quote ? h('span', { class: 'muted small', text: ' "' + m.quote + '"' }) : null]),
+          ]);
+        })),
+      ]),
+    ];
+  }
+
   App.f = {
+    sentCell: sentCell,
+    sentLegend: sentLegend,
+    sentTable: sentTable,
     musd: musd,
     num: num,
     pct: pct,

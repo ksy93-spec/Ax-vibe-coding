@@ -10,6 +10,7 @@
   var P = App.ea.parse;
   var M = App.ea.merge;
   var PR = App.ea.prompt;
+  var SE = App.ea.sentiment;
   var views = (App.views = App.views || {});
 
   var SOURCES = ['Yahoo Finance', '회사 IR', 'Seeking Alpha', '기타'];
@@ -30,6 +31,8 @@
     answers: [],
     numAnswer: '',
     checked: null,
+    sentAnswer: '',
+    sentChecked: null,
   };
 
   function resetOutputs() {
@@ -39,6 +42,8 @@
     S.answers = [];
     S.numAnswer = '';
     S.checked = null;
+    S.sentAnswer = '';
+    S.sentChecked = null;
   }
 
   views.import = function (main, r) {
@@ -289,15 +294,61 @@
       if (k.numbers && k.numbers.warnings.length && !k.parts.some(function (p) { return p.index === 'num'; })) {
         kids.push(h('ul', { class: 'msgs msgs--warn' }, k.numbers.warnings.map(function (e) { return h('li', { text: e }); })));
       }
+    }
+    var sb = sentimentBlock(c);
+    if (sb) kids.push(sb);
+    var sentPending = String(S.sentAnswer || '').trim() && !(S.sentChecked && S.sentChecked.ok);
+    var canApply = (k ? k.ok : !!(S.sentChecked && S.sentChecked.ok)) && !sentPending;
+    if (k || (S.sentChecked && S.sentChecked.ok)) {
       kids.push(h('div', { class: 'row' }, [
-        f.btn(C.periodLabel(S.period) + ' ' + (c.nameKo || c.name) + ' 에 넣기', function () { apply(c); }, 'primary', { disabled: !k.ok }),
-        k.ok ? h('span', { class: 'muted', text: '넣은 뒤 회사별 화면에서 고칠 수 있습니다. 상태는 "검증 필요" 로 들어갑니다.' })
+        f.btn(C.periodLabel(S.period) + ' ' + (c.nameKo || c.name) + ' 에 넣기', function () { apply(c); }, 'primary', { disabled: !canApply }),
+        canApply ? h('span', { class: 'muted', text: '넣은 뒤 회사별 화면에서 고칠 수 있습니다. 상태는 "검증 필요" 로 들어갑니다.' })
+          : sentPending ? h('span', { class: 'warn', text: '센티먼트 답을 붙여 넣었으면 "점수 검사" 를 통과해야 넣을 수 있습니다. 점수 없이 넣으려면 그 칸을 비웁니다.' })
           : h('span', { class: 'warn', text: '빨간 항목을 고친 뒤 다시 검사하세요. 고칠 수 없으면 모델에게 오류 문장을 그대로 주고 다시 답하게 합니다.' }),
       ]));
     }
     var box = stepBox(5, '검사와 넣기', kids);
     box.id = 'step5';
     return box;
+  }
+
+  /** 센티먼트 점수: 이번에 검사한 콜 요약, 없으면 이미 저장된 요약으로 프롬프트를 만듭니다. */
+  function sentimentBlock(c) {
+    var rep = App.data.report(c.id);
+    var saved = C.quarterOf(rep, S.period);
+    var call = (S.checked && S.checked.call) || (saved && saved.call);
+    if (!call) return null;
+    var prevQ = C.quarterOf(rep, C.periodAdd(S.period, -1));
+    var prompt = PR.buildSentimentPrompt(c, S.period, call, prevQ && prevQ.sentiment);
+    var kids = [
+      h('h4', { class: 'sub__title', text: '센티먼트 점수 (선택)' }),
+      h('p', { class: 'panel__hint', text: (S.checked && S.checked.call ? '위 콜 요약으로' : '저장된 ' + C.periodLabel(S.period) + ' 콜 요약으로') +
+        ' 점수 프롬프트를 만들었습니다. 요인 8개를 0~10점으로 매깁니다' + (prevQ && prevQ.sentiment ? ' (직전 분기 점수를 기준으로 함).' : '.') +
+        ' 새 대화창에 붙여 넣고 답을 아래 칸에 넣습니다.' }),
+      promptCard('센티먼트 점수', '요인 ' + SE.FACTORS.length + '개', prompt),
+      f.field('센티먼트 답 (JSON)', h('textarea', {
+        class: 'input textarea mono', rows: 5, placeholder: '{ "company": ..., "scores": [...] }',
+        oninput: function (e) { S.sentAnswer = e.target.value; S.sentChecked = null; },
+      }, S.sentAnswer)),
+      h('div', { class: 'row' }, [f.btn('점수 검사', function () {
+        var j = App.ea.parse.lenientJson(S.sentAnswer);
+        S.sentChecked = j.ok ? SE.read(j.value, { companies: App.data.companies(), company: c.id, period: S.period })
+          : { ok: false, errors: [j.error], warnings: [], sentiment: null };
+        App.render();
+        var el = document.getElementById('step5');
+        if (el) el.scrollIntoView({ block: 'end' });
+      }, 'sm')]),
+    ];
+    var r = S.sentChecked;
+    if (r) {
+      kids.push(h('div', { class: 'check-row ' + (r.ok ? 'is-good' : 'is-bad') }, [
+        h('span', { class: 'check-row__name', text: '센티먼트 답 : ' + (r.ok ? '읽음' : '고칠 것 있음') }),
+        r.errors.length ? h('ul', { class: 'msgs msgs--err' }, r.errors.map(function (e) { return h('li', { text: e }); })) : null,
+        r.warnings.length ? h('ul', { class: 'msgs msgs--warn' }, r.warnings.map(function (e) { return h('li', { text: e }); })) : null,
+      ]));
+      if (r.ok) kids.push(h('div', { class: 'preview' }, App.f.sentTable(r.sentiment)));
+    }
+    return h('div', { class: 'sent-step' }, kids);
   }
 
   function previewCall(call) {
@@ -339,7 +390,8 @@
   }
 
   function apply(c) {
-    var k = S.checked;
+    var k = S.checked || { parts: [], call: null, numbers: null, ok: true };
+    var sent = S.sentChecked && S.sentChecked.ok ? S.sentChecked.sentiment : null;
     var rep = App.data.report(c.id);
     var existing = C.quarterOf(rep, S.period);
     function go() {
@@ -363,6 +415,7 @@
         }
         next = M.applyCall(next, c, S.period, k.call, tr ? { transcript: tr } : null);
       }
+      if (sent) next = M.applySentiment(next, c, S.period, sent);
       App.data.putReport(c.id, next);
       warnings.forEach(function (w) { App.ui.toast(w, 'warn', 8000); });
       App.ui.toast('넣었습니다. 관리 탭에서 파일로 저장하면 다른 사람도 봅니다.', 'ok', 5000);
@@ -372,9 +425,13 @@
       resetOutputs();
       App.go({ tab: 'company', company: c.id, period: S.period });
     }
-    if (existing && ((k.call && existing.call) || (k.numbers && Object.keys(existing.values || {}).length))) {
-      App.ui.confirm(C.periodLabel(S.period) + ' 에 이미 있는 ' + [k.call && existing.call ? '콜 요약' : '', k.numbers && Object.keys(existing.values || {}).length ? '숫자' : ''].filter(Boolean).join('과 ') +
-        '을(를) 새 답으로 바꿉니다.', function (yes) { if (yes) go(); }, { okLabel: '바꾸기' });
+    var over = existing ? [
+      k.call && existing.call ? '콜 요약' : '',
+      k.numbers && Object.keys(existing.values || {}).length ? '숫자' : '',
+      sent && existing.sentiment ? '센티먼트 점수(사람이 고친 점수는 남김)' : '',
+    ].filter(Boolean) : [];
+    if (over.length) {
+      App.ui.confirm(C.periodLabel(S.period) + ' 에 이미 있는 ' + over.join(', ') + ' 을(를) 새 답으로 바꿉니다.', function (yes) { if (yes) go(); }, { okLabel: '바꾸기' });
     } else go();
   }
 })(window);

@@ -165,6 +165,25 @@
     return { report: putQuarter(r, q), warnings: warnings };
   }
 
+  /**
+   * 센티먼트 점수를 분기에 넣습니다. 모델 점수만 바꾸고, 사람이 고친 점수(manual)는 남깁니다.
+   * 분기가 없으면 새로 만듭니다.
+   */
+  function applySentiment(report, company, period, sentiment) {
+    var r = clone(report) || emptyReport(company.id);
+    var q = clone(C.quarterOf(r, period)) || newQuarter(company, period);
+    var old = q.sentiment || {};
+    q.sentiment = {
+      model: clone(sentiment.model),
+      manual: clone(old.manual || {}),
+      summary: sentiment.summary || '',
+      scoredAt: now(),
+    };
+    q.origin = 'inside';
+    q.updatedAt = now();
+    return putQuarter(r, q);
+  }
+
   /* ---------- 바깥에서 만든 자료 묶음(ea-pack) 가져오기 ---------- */
 
   function same(a, b) {
@@ -282,6 +301,7 @@
     joinCalls: joinCalls,
     applyCall: applyCall,
     applyNumbers: applyNumbers,
+    applySentiment: applySentiment,
     ytdToQuarter: ytdToQuarter,
     planPack: planPack,
     applyPack: applyPack,

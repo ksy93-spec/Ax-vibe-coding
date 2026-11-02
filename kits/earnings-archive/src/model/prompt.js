@@ -116,6 +116,81 @@
     '{{text}}',
   ].join('\n');
 
+  /* 센티먼트 점수 프롬프트. 녹취록 원문이 아니라 1단계에서 만든 콜 요약을 넣습니다(짧아서 한 번에 들어감). */
+  var SENTIMENT_TEMPLATE = [
+    '너는 자동차 산업 실적 자료를 분석하는 애널리스트다.',
+    '아래 [이번 분기 콜 요약]은 {{companyName}} 의 {{periodLabel}} 실적 컨퍼런스콜을 정리한 것이다.',
+    '요인마다 경영진 발언의 톤을 0~10점으로 매겨 [출력 형식]의 JSON 하나만 답한다. JSON 앞뒤에 설명을 붙이지 않는다.',
+    '',
+    '[요인] (factor 에는 왼쪽 영문 이름을 쓴다)',
+    '{{factors}}',
+    '',
+    '[점수 눈금]',
+    '{{scale}}',
+    '',
+    '[규칙]',
+    '- 직전 분기 점수가 있으면 그것과 비교해 나아졌는지 나빠졌는지를 기준으로 삼는다. 같은 내용이면 같은 점수를 준다.',
+    '- 가이던스를 올렸으면 6 이상, 내렸으면 4 이하, 유지했으면 5 근처로 준다.',
+    '- 점수는 정수. direction 은 상향, 유지, 하향, 언급 없음 중 하나.',
+    '- 점수마다 reason 에 근거를 한 문장으로, quote 에 요약에 있는 표현을 짧게 옮긴다.',
+    '- 요약에 없는 내용으로 점수를 매기지 않는다. 언급이 없으면 score 는 null, direction 은 "언급 없음".',
+    '- 한국어 개조식으로 쓴다. 대시(—), 이모지, 굵은 글씨를 쓰지 않는다.',
+    '',
+    '[직전 분기 점수]',
+    '{{prev}}',
+    '',
+    '[출력 형식]',
+    '{',
+    '  "company": "{{companyId}}",',
+    '  "period": "{{period}}",',
+    '  "summary": "이번 분기 경영진 톤을 한 문장으로",',
+    '  "scores": [',
+    '    { "factor": "volume", "score": 4, "direction": "하향", "reason": "중국 수요 부진으로 연간 판매 전망을 낮춤", "quote": "연간 판매 소폭 감소 전망" }',
+    '  ]',
+    '}',
+    '',
+    '[이번 분기 콜 요약]',
+    '{{text}}',
+  ].join('\n');
+
+  /** 콜 요약을 프롬프트에 넣을 글로. */
+  function callText(call) {
+    var out = [];
+    if (call.summary) out.push('총평: ' + call.summary);
+    if (call.guidance) out.push('가이던스: ' + call.guidance);
+    (call.highlights || []).forEach(function (x) {
+      out.push('하이라이트 [' + x.topic + '] ' + x.text);
+    });
+    (call.qa || []).forEach(function (x, i) {
+      out.push('Q&A ' + (i + 1) + ' 질문: ' + x.question + ' / 답변: ' + x.answer);
+    });
+    return out.join('\n');
+  }
+
+  /**
+   * 센티먼트 점수 프롬프트.
+   * @param {object} call 콜 요약 (Call)
+   * @param {object|null} prevSentiment 직전 분기 Quarter.sentiment (없으면 null)
+   */
+  function buildSentimentPrompt(company, period, call, prevSentiment) {
+    var S = ea.sentiment;
+    var v = baseVars(company, period);
+    v.factors = S.FACTORS.map(function (f) { return '- ' + f.key + ': ' + f.label + ' (' + f.hint + ')'; }).join('\n');
+    v.scale = S.SCALE.map(function (x) { return '- ' + x; }).join('\n');
+    if (prevSentiment) {
+      var e = S.effective(prevSentiment);
+      v.prev = S.FACTORS.map(function (f) {
+        var m = prevSentiment.model && prevSentiment.model[f.key];
+        var sc = e[f.key].score;
+        return '- ' + f.key + ': ' + (sc === null ? '언급 없음' : sc + '점' + (m && m.reason ? ', ' + m.reason : ''));
+      }).join('\n');
+    } else {
+      v.prev = '없음 (이번이 첫 점수)';
+    }
+    v.text = callText(call || {});
+    return fill(SENTIMENT_TEMPLATE, v);
+  }
+
   /** 질의응답이 시작되는 곳을 찾는 표지. 위에서부터 처음 맞는 곳에서 나눕니다. */
   var QA_MARKERS = [
     /^.{0,40}question[-\s]and[-\s]answer/im,
@@ -244,6 +319,8 @@
     DEFAULT_MAX: DEFAULT_MAX,
     CALL_TEMPLATE: CALL_TEMPLATE,
     NUMBERS_TEMPLATE: NUMBERS_TEMPLATE,
+    SENTIMENT_TEMPLATE: SENTIMENT_TEMPLATE,
+    buildSentimentPrompt: buildSentimentPrompt,
     TASK_ALL: TASK_ALL,
     TASK_PREPARED: TASK_PREPARED,
     TASK_QA: TASK_QA,

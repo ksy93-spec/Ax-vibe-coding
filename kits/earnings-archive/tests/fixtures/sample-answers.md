@@ -51,3 +51,25 @@
   ]
 }
 ```
+
+## 센티먼트 답
+
+콜 요약을 검사한 뒤 5번 아래에 나오는 "센티먼트 점수" 프롬프트의 답 예시입니다.
+
+```json
+{
+  "company": "hyundai",
+  "period": "2026Q2",
+  "summary": "[연습용 가상 자료] 관세 부담 속에 가이던스를 지키고 판매 목표를 올린 자신감 있는 톤",
+  "scores": [
+    { "factor": "volume", "score": 7, "direction": "상향", "reason": "연간 도매 목표를 400만 대에서 410만 대로 올림", "quote": "도매 판매 목표 410만 대로 상향" },
+    { "factor": "revenue", "score": 5, "direction": "유지", "reason": "매출 성장률 5~6% 가이던스 유지", "quote": "매출 성장률 5~6% 유지" },
+    { "factor": "profit", "score": 5, "direction": "유지", "reason": "영업이익률 6~7% 가이던스 유지", "quote": "영업이익률 6~7% 유지" },
+    { "factor": "capex", "score": 5, "direction": "유지", "reason": "설비투자 매출의 약 6% 유지, 미국 하이브리드 증설 계획", "quote": "설비투자는 매출의 약 6% 유지" },
+    { "factor": "supply", "score": null, "direction": "언급 없음", "reason": "", "quote": "" },
+    { "factor": "materialsFx", "score": 6, "direction": "상향", "reason": "재료비 절감과 우호적 환율이 이익에 도움", "quote": "재료비 절감" },
+    { "factor": "demandPrice", "score": 4, "direction": "하향", "reason": "유럽 수요 부진과 북미 인센티브 증가", "quote": "유럽 수요 부진" },
+    { "factor": "tariffPolicy", "score": 4, "direction": "하향", "reason": "분기 관세 비용 6,400억 원, 하반기 순영향은 줄어들 전망", "quote": "분기 관세 비용 6,400억 원" }
+  ]
+}
+```

@@ -45,7 +45,17 @@ interface Quarter {
   note: string;
   call: Call | null;
   origin: 'inside' | 'outside'; // 사내에서 고쳤는지, 바깥 묶음에서 왔는지
+  sentiment?: Sentiment;
   updatedAt: string;
+}
+
+type FactorKey = 'volume' | 'revenue' | 'profit' | 'capex' | 'supply' | 'materialsFx' | 'demandPrice' | 'tariffPolicy';
+interface FactorScore { score: number | null; direction: '상향' | '유지' | '하향' | '언급 없음'; reason: string; quote: string; }
+interface Sentiment {
+  model: Record<FactorKey, FactorScore>;          // 사내 모델 점수 (0~10 정수 또는 null)
+  manual: Partial<Record<FactorKey, number>>;     // 사람이 고친 점수. 있으면 화면에서 우선
+  summary: string;
+  scoredAt: string;
 }
 
 interface ReportData { company: string; rev: number; savedAt?: string; quarters: Quarter[]; }
@@ -100,7 +110,16 @@ declare namespace App.ea.merge {
   function applyNumbers(r: ReportData, c: Company, p: Period, n: any): { report: ReportData; warnings: string[] };
   function planPack(pack: Pack, reports: Record<string, ReportData>, companies: Company[]): Array<{ company: string; period: Period; action: 'add' | 'replace' | 'keep' | 'same' | 'skip'; reason: string; quarter: Quarter }>;
 }
+declare namespace App.ea.sentiment {
+  const FACTORS: Array<{ key: FactorKey; label: string; hint: string }>;
+  const WEIGHTS: Record<FactorKey, number>;
+  function read(obj: any, ctx: { companies: Company[]; company?: string; period?: Period }): { ok: boolean; errors: string[]; warnings: string[]; sentiment: Sentiment | null };
+  function effective(s: Sentiment): Record<FactorKey, { score: number | null; source: 'manual' | 'model' | null }>;
+  function index(s: Sentiment, weights?: Record<FactorKey, number>): number | null;  // 가중 평균, 소수 1자리
+  function band(score: number | null): 'neg2' | 'neg1' | 'mid' | 'pos1' | 'pos2' | 'none';
+}
 declare namespace App.ea.prompt {
+  function buildSentimentPrompt(c: Company, p: Period, call: Call, prev: Sentiment | null): string;
   function buildCallPrompts(c: Company, p: Period, transcript: string, maxChars?: number): { split: { found: boolean }; prompts: Array<{ title: string; part: 'all' | 'prepared' | 'qa'; chars: number; text: string }> };
   function buildNumbersPrompt(c: Company, p: Period, text: string): string;
 }

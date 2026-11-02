@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const files = ['core', 'files', 'parse', 'merge', 'prompt'].map((f) => path.join(root, 'src', 'model', f + '.js'));
+const files = ['core', 'files', 'parse', 'merge', 'sentiment', 'prompt'].map((f) => path.join(root, 'src', 'model', f + '.js'));
 files.push(path.join(__dirname, 'model.test.js'));
 
 const ctx = vm.createContext({ console });
@@ -33,6 +33,7 @@ ctx.App.tests.push({
       ['10-call-summary.md', '## {{task}} 발표 조각', P.TASK_PREPARED],
       ['10-call-summary.md', '## {{task}} 질의응답 조각', P.TASK_QA],
       ['11-numbers.md', '## 템플릿', P.NUMBERS_TEMPLATE],
+      ['12-sentiment.md', '## 템플릿', P.SENTIMENT_TEMPLATE],
     ];
     for (const [f, title, code] of pairs) {
       if (block(f, title) !== code) throw new Error(f + ' "' + title + '" 가 src/model/prompt.js 와 다릅니다');

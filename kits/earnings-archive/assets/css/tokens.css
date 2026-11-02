@@ -112,6 +112,13 @@
 
   --viz-grid: #e1e0d9;
   --viz-axis: #c3c2b7;
+
+  /* 센티먼트 점수 칸 배경 (악화 - 중립 - 개선). 칸 안 숫자는 --c-fg 로 쓰므로 옅게 둡니다. 중립은 회색입니다. */
+  --sent-neg2: #f2b8b5;
+  --sent-neg1: #fadedc;
+  --sent-mid: #eceef1;
+  --sent-pos1: #dbe7fb;
+  --sent-pos2: #aecbf5;
 }
 
 /* 다크 팔레트. 시스템 설정을 따르되 data-theme 로 덮어쓸 수 있습니다. */
@@ -162,6 +169,12 @@
 
     --viz-grid: #2c2c2a;
     --viz-axis: #383835;
+
+    --sent-neg2: #6e2c2b;
+    --sent-neg1: #42262a;
+    --sent-mid: #2a2f36;
+    --sent-pos1: #1f3150;
+    --sent-pos2: #2c4f82;
   }
 }
 
@@ -211,6 +224,12 @@
 
   --viz-grid: #2c2c2a;
   --viz-axis: #383835;
+
+  --sent-neg2: #6e2c2b;
+  --sent-neg1: #42262a;
+  --sent-mid: #2a2f36;
+  --sent-pos1: #1f3150;
+  --sent-pos2: #2c4f82;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -217,7 +217,8 @@
     var fx = App.data.fx();
     var cols = ['company', 'name', 'group', 'period', 'fiscal_label', 'report_date', 'currency', 'fx_per_usd', 'fx_source',
       'revenue_musd', 'operating_income_musd', 'op_margin_pct', 'debt_ratio_pct', 'debt_ratio_basis',
-      'revenue_local_m', 'operating_income_local_m', 'total_liabilities_local_m', 'total_equity_local_m', 'status', 'source'];
+      'revenue_local_m', 'operating_income_local_m', 'total_liabilities_local_m', 'total_equity_local_m', 'status', 'source',
+      'sentiment_index'].concat(App.ea.sentiment.FACTORS.map(function (x) { return 'sent_' + x.key; }));
     var recs = [];
     App.data.companies().forEach(function (c) {
       C.table(App.data.report(c.id), c, fx).forEach(function (d) {
@@ -231,7 +232,11 @@
           revenue_local_m: r(d.local.revenue), operating_income_local_m: r(d.local.operatingIncome),
           total_liabilities_local_m: r((q.values || {}).totalLiabilities), total_equity_local_m: r((q.values || {}).totalEquity),
           status: q.status || '', source: q.source || '',
+          sentiment_index: q.sentiment ? r(App.ea.sentiment.index(q.sentiment)) : '',
         });
+        var rec = recs[recs.length - 1];
+        var eff = q.sentiment ? App.ea.sentiment.effective(q.sentiment) : null;
+        App.ea.sentiment.FACTORS.forEach(function (x) { rec['sent_' + x.key] = eff && eff[x.key].score !== null ? eff[x.key].score : ''; });
       });
     });
     if (!recs.length) {

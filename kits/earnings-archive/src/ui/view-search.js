@@ -13,6 +13,9 @@
     var q = r.q || '';
     var topic = r.topic || '';
     var group = r.group || '';
+    var SE = App.ea.sentiment;
+    var sf = r.sf || '';
+    var smax = r.smax === undefined || r.smax === '' ? '' : String(r.smax);
     var input = h('input', {
       class: 'input input--grow', type: 'search', value: q, placeholder: '낱말 (예: 관세, 가이던스, 하이브리드, 중국)', 'aria-label': '찾을 낱말',
       onkeydown: function (e) { if (e.key === 'Enter') App.go({ q: e.target.value.trim() }, true); },
@@ -25,8 +28,30 @@
       h('select', { class: 'input input--sm', 'aria-label': '회사 구분', onchange: function (e) { App.go({ group: e.target.value }, true); } },
         [['', '회사 전체'], ['OEM', '완성차'], ['Tier1', '부품사']].map(function (g) { return h('option', { value: g[0], selected: g[0] === group, text: g[1] }); })),
     ]));
+    main.appendChild(h('div', { class: 'toolbar' }, [
+      h('span', { class: 'toolbar__label', text: '센티먼트로 찾기' }),
+      h('select', { class: 'input input--sm', 'aria-label': '센티먼트 요인', onchange: function (e) { App.go({ sf: e.target.value }, true); } },
+        [h('option', { value: '', text: '요인 고르기' }), h('option', { value: 'index', selected: sf === 'index', text: '종합' })].concat(SE.FACTORS.map(function (fct) {
+          return h('option', { value: fct.key, selected: fct.key === sf, text: fct.label });
+        }))),
+      h('select', { class: 'input input--sm', 'aria-label': '점수 이하', onchange: function (e) { App.go({ smax: e.target.value }, true); } },
+        [h('option', { value: '', text: '점수 조건' })].concat([2, 3, 4, 5].map(function (n) {
+          return h('option', { value: String(n), selected: smax === String(n), text: n + '점 이하' });
+        })).concat([6, 7, 8].map(function (n) {
+          return h('option', { value: 'ge' + n, selected: smax === 'ge' + n, text: n + '점 이상' });
+        }))),
+    ]));
+
+    if (sf && smax) {
+      main.appendChild(sentimentHits(sf, smax, group));
+      return;
+    }
 
     if (!q && !topic) {
+      if (sf || smax) {
+        main.appendChild(h('section', { class: 'panel' }, f.empty('요인과 점수 조건을 둘 다 고르세요', '예: 공급망, 3점 이하')));
+        return;
+      }
       main.appendChild(h('section', { class: 'panel' }, f.empty('낱말이나 주제를 고르세요', '하이라이트, 가이던스, Q&A 질문과 답변, 질문자 이름, 증권사 이름에서 찾습니다.')));
       setTimeout(function () { input.focus(); }, 0);
       return;
@@ -74,4 +99,36 @@
       hits.length ? list : f.empty('찾은 것이 없습니다', '낱말을 줄이거나 주제를 전체로 바꿔 보세요.'),
     ]));
   };
+  /** 센티먼트 요인 점수 조건에 맞는 분기 (최근부터) */
+  function sentimentHits(sf, smax, group) {
+    var SE = App.ea.sentiment;
+    var ge = smax.indexOf('ge') === 0;
+    var lim = +smax.replace('ge', '');
+    var fct = sf === 'index' ? { key: 'index', label: '종합' } : SE.FACTORS.filter(function (x) { return x.key === sf; })[0];
+    var hits = [];
+    App.data.companies().forEach(function (c) {
+      if (group && c.group !== group) return;
+      (App.data.report(c.id).quarters || []).forEach(function (qq) {
+        if (!qq.sentiment) return;
+        var v = sf === 'index' ? { score: SE.index(qq.sentiment), source: null } : SE.effective(qq.sentiment)[sf];
+        if (v.score === null) return;
+        if (ge ? v.score >= lim : v.score <= lim) {
+          var m = sf === 'index' ? null : qq.sentiment.model && qq.sentiment.model[sf];
+          hits.push({ c: c, p: qq.period, v: v, reason: m ? m.reason : qq.sentiment.summary });
+        }
+      });
+    });
+    hits.sort(function (a, b) { return a.p < b.p ? 1 : a.p > b.p ? -1 : 0; });
+    var list = h('div', { class: 'hits' }, hits.map(function (x) {
+      return h('button', { type: 'button', class: 'hit', onclick: function () { App.go({ tab: 'company', company: x.c.id, period: x.p }); } }, [
+        h('div', { class: 'hit__head' }, [f.logo(x.c, 'sm'), h('span', { class: 'hit__co', text: x.c.nameKo || x.c.name }),
+          h('span', { class: 'muted', text: C.periodLabel(x.p) }), f.chip(fct.label), f.sentCell(x.v.score, { manual: x.v.source === 'manual' })]),
+        x.reason ? h('div', { class: 'hit__text', text: x.reason }) : null,
+      ]);
+    }));
+    return h('section', { class: 'panel' }, [
+      h('div', { class: 'panel__bar' }, [h('h2', { class: 'panel__title', text: fct.label + ' ' + (ge ? lim + '점 이상' : lim + '점 이하') + ' ' + hits.length + '건' })]),
+      hits.length ? list : f.empty('맞는 분기가 없습니다', '점수 조건을 바꿔 보세요.'),
+    ]);
+  }
 })(window);

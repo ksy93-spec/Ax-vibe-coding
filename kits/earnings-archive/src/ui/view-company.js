@@ -6,6 +6,7 @@
   var f = App.f;
   var C = App.ea.core;
   var M = App.ea.merge;
+  var SE = App.ea.sentiment;
   var views = (App.views = App.views || {});
 
   var SHOW_QUARTERS = 8;
@@ -118,6 +119,9 @@
       })),
     ]));
 
+    var heat = sentimentTrend(recent, period);
+    if (heat) body.appendChild(heat);
+
     if (period) body.appendChild(quarterDetail(c, rep, period));
   }
 
@@ -187,6 +191,19 @@
       q.updatedAt ? h('span', null, '고친 때 ' + q.updatedAt) : null,
     ]));
     if (q.note) box.appendChild(h('p', { class: 'note', text: q.note }));
+    if (q.sentiment) {
+      box.appendChild(h('div', { class: 'sent-box' }, f.sentTable(q.sentiment).concat([
+        h('div', { class: 'row' }, [
+          h('span', { class: 'muted small', text: '점수 매긴 때 ' + (q.sentiment.scoredAt || '-') + '. 점수 고치기는 편집, 다시 매기기는 ' }),
+          h('button', { type: 'button', class: 'link small', text: '자료 넣기', onclick: function () { App.go({ tab: 'import', company: c.id, period: period }); } }),
+        ]),
+      ])));
+    } else if (q.call) {
+      box.appendChild(h('div', { class: 'row' }, [
+        h('span', { class: 'muted', text: '센티먼트 점수가 없습니다.' }),
+        f.btn('점수 매기기', function () { App.go({ tab: 'import', company: c.id, period: period }); }, 'sm'),
+      ]));
+    }
 
     if (!call) {
       box.appendChild(f.empty('컨퍼런스콜 요약이 없습니다', '녹취록을 붙여 넣어 요약을 만듭니다.', [
@@ -236,6 +253,33 @@
     });
     box.appendChild(qa);
     return box;
+  }
+
+  /** 요인별 점수 추이 (최근 분기, 오래된 것부터). 점수가 하나도 없으면 그리지 않습니다. */
+  function sentimentTrend(cols, period) {
+    if (!cols.some(function (d) { return d.quarter.sentiment; })) return null;
+    var head = h('tr', null, [h('th', { class: 'th', text: '요인' })].concat(cols.map(function (d) {
+      return h('th', { class: 'th num' + (d.period === period ? ' is-sel' : ''), text: C.periodLabel(d.period) });
+    })));
+    function row(label, getter, strong) {
+      return h('tr', null, [h('td', { class: 'rowh', text: label })].concat(cols.map(function (d) {
+        var sent = d.quarter.sentiment;
+        var cell = h('td', { class: 'heat__cell' });
+        if (!sent) { cell.appendChild(h('span', { class: 'muted small', text: '' })); return cell; }
+        var v = getter(sent);
+        cell.appendChild(f.sentCell(v.score, { manual: v.source === 'manual', cls: strong ? 'sent--big' : '' }));
+        return cell;
+      })));
+    }
+    var rows = [row('종합', function (sent) { return { score: SE.index(sent), source: null }; }, true)].concat(SE.FACTORS.map(function (fct) {
+      return row(fct.label, function (sent) { return SE.effective(sent)[fct.key]; });
+    }));
+    return h('section', { class: 'panel' }, [
+      h('div', { class: 'panel__bar' }, [h('h3', { class: 'panel__title', text: '센티먼트 추이' }),
+        h('span', { class: 'muted', text: '실적 콜 경영진 톤, 0~10점. 종합은 요인 점수 평균' })]),
+      f.sentLegend(),
+      h('div', { class: 'table__scroll' }, h('table', { class: 'table heat' }, [h('thead', null, head), h('tbody', null, rows)])),
+    ]);
   }
 
   function transcriptBlock(c, period, call) {

@@ -10,6 +10,7 @@
   var P = App.ea.parse;
   var M = App.ea.merge;
   var PR = App.ea.prompt;
+  var SE = App.ea.sentiment;
   var tests = (App.tests = App.tests || []);
 
   function test(name, fn) {
@@ -426,5 +427,82 @@
     ok(p.indexOf('{{') < 0);
     var q = PR.buildNumbersPrompt(COMPANIES[2], '2026Q2', 'x');
     ok(q.indexOf('FY2027 Q1') > 0);
+  });
+  /* ---------- 센티먼트 ---------- */
+
+  test('센티먼트 검사: 요인 이름 별칭, 정수 반올림, 언급 없음은 빈칸, 빠진 요인도 빈칸으로 채움', function () {
+    var r = SE.read({
+      company: 'acme', period: '2026Q2', summary: '신중한 톤',
+      scores: [
+        { factor: 'volume', score: 3.6, direction: 'down', reason: '중국 판매 전망 하향', quote: '판매 소폭 감소' },
+        { factor: '수익성 가이던스', score: 5, direction: '유지', reason: '이익률 범위 유지' },
+        { factor: 'supply', score: 7, direction: '언급 없음', reason: 'x' },
+        { factor: 'weather', score: 9, reason: 'x' },
+      ],
+    }, { companies: COMPANIES, company: 'acme', period: '2026Q2' });
+    ok(r.ok, r.errors.join());
+    eq(r.sentiment.model.volume.score, 4);
+    eq(r.sentiment.model.volume.direction, '하향');
+    eq(r.sentiment.model.profit.score, 5);
+    eq(r.sentiment.model.supply.score, null, '언급 없음이면 점수를 버림');
+    eq(r.sentiment.model.tariffPolicy.direction, '언급 없음');
+    eq(Object.keys(r.sentiment.model).length, 8);
+    ok(r.warnings.some(function (w) { return /weather/.test(w); }));
+  });
+
+  test('센티먼트 검사: 범위 밖 점수, 근거 없는 점수, 다른 회사는 오류', function () {
+    var ctx = { companies: COMPANIES, company: 'acme', period: '2026Q2' };
+    ok(!SE.read({ scores: [{ factor: 'volume', score: 11, reason: 'x' }] }, ctx).ok);
+    ok(!SE.read({ scores: [{ factor: 'volume', score: 6 }] }, ctx).ok);
+    ok(!SE.read({ company: 'kmot', scores: [{ factor: 'volume', score: 6, reason: 'x' }] }, ctx).ok);
+    ok(!SE.read({ scores: [{ factor: 'volume', score: null, direction: '언급 없음' }] }, ctx).ok, '점수가 하나도 없으면 오류');
+  });
+
+  test('센티먼트 검사: 방향과 점수가 어긋나면 경고, 방향이 없으면 점수로 정함', function () {
+    var r = SE.read({ scores: { volume: { score: 8, direction: '하향', reason: 'x' }, revenue: { score: 3, reason: 'y' } } }, { companies: COMPANIES });
+    ok(r.ok);
+    ok(r.warnings.some(function (w) { return /어긋남/.test(w); }));
+    eq(r.sentiment.model.revenue.direction, '하향');
+  });
+
+  test('센티먼트 종합 점수: 사람 점수 우선, 빈칸 제외 평균, 가중치 반영', function () {
+    var sent = { model: { volume: { score: 2 }, revenue: { score: 6 }, profit: { score: null } }, manual: { volume: 4 } };
+    var e = SE.effective(sent);
+    eq(e.volume.score, 4);
+    eq(e.volume.source, 'manual');
+    eq(e.profit.score, null);
+    eq(SE.index(sent), 5, '(4 + 6) / 2');
+    var w = Object.assign({}, SE.WEIGHTS, { revenue: 3 });
+    eq(SE.index(sent, w), 5.5, '(4 + 6 x 3) / 4');
+    eq(SE.index({ model: {} }), null);
+  });
+
+  test('센티먼트 색 구간: 반올림한 점수 기준', function () {
+    eq(SE.band(0), 'neg2'); eq(SE.band(2.4), 'neg2'); eq(SE.band(3), 'neg1'); eq(SE.band(4.4), 'neg1'); eq(SE.band(4.9), 'mid', '종합 4.9 는 반올림해 중립');
+    eq(SE.band(5), 'mid'); eq(SE.band(6), 'pos1'); eq(SE.band(8), 'pos2'); eq(SE.band(null), 'none');
+  });
+
+  test('센티먼트 넣기: 모델 점수는 바꾸고 사람 점수는 남김', function () {
+    var rep = { company: 'acme', quarters: [{ period: '2026Q2', values: { revenue: 1 }, sentiment: { model: { volume: { score: 2 } }, manual: { volume: 4 } } }] };
+    var r = M.applySentiment(rep, COMPANIES[0], '2026Q2', { model: { volume: { score: 7 } }, summary: 's' });
+    var q = C.quarterOf(r, '2026Q2');
+    eq(q.sentiment.model.volume.score, 7);
+    eq(q.sentiment.manual.volume, 4);
+    eq(q.values.revenue, 1);
+    ok(q.sentiment.scoredAt);
+  });
+
+  test('센티먼트 프롬프트: 요인 8개, 눈금, 직전 분기 점수, 콜 요약이 들어감', function () {
+    var call = { summary: '총평', guidance: '연간 이익률 6~8%', highlights: [{ topic: '지역', text: '중국 부진' }], qa: [{ question: '관세?', answer: '하반기 축소' }] };
+    var prev = { model: { volume: { score: 4, reason: '판매 하향' } }, manual: {} };
+    var p = PR.buildSentimentPrompt(COMPANIES[0], '2026Q2', call, prev);
+    SE.FACTORS.forEach(function (f) { ok(p.indexOf('- ' + f.key + ': ') >= 0, f.key); });
+    ok(p.indexOf('0~2: 크게 악화') > 0);
+    ok(p.indexOf('- volume: 4점, 판매 하향') > 0);
+    ok(p.indexOf('- revenue: 언급 없음') > 0);
+    ok(p.indexOf('하이라이트 [지역] 중국 부진') > 0);
+    ok(p.indexOf('Q&A 1 질문: 관세?') > 0);
+    ok(p.indexOf('{{') < 0);
+    ok(PR.buildSentimentPrompt(COMPANIES[0], '2026Q2', call, null).indexOf('없음 (이번이 첫 점수)') > 0);
   });
 })(typeof window !== 'undefined' ? window : globalThis);

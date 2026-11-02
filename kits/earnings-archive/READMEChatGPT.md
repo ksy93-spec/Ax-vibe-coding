@@ -46,8 +46,9 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
     core.js    App.ea.core    지표 목록(METRICS), 주제 목록(TOPICS), 단위 환산, 분기 계산, 환율 환산, derive(), table()
     files.js   App.ea.files   data/*.js 파일 형식, 판 번호(rev)
     parse.js   App.ea.parse   사내 모델 답(JSON) 읽기와 검사, 지표 이름 별칭(METRIC_ALIASES)
-    merge.js   App.ea.merge   분기 자료 합치기, 누계를 분기로, 자료 묶음 가져오기
-    prompt.js  App.ea.prompt  콜 요약, 숫자 프롬프트 템플릿, 녹취록 나누기
+    merge.js   App.ea.merge   분기 자료 합치기, 누계를 분기로, 자료 묶음 가져오기, 센티먼트 넣기
+    sentiment.js App.ea.sentiment 센티먼트 요인 8개(FACTORS), 가중치(WEIGHTS), 점수 검사, 종합 점수(index)
+    prompt.js  App.ea.prompt  콜 요약, 숫자, 센티먼트 프롬프트 템플릿, 녹취록 나누기
 - src/ui/  화면.
     state.js   App.data       자료 읽기, 작업본(localStorage), 저장. 화면은 자료를 이 API 로만 읽고 쓴다
     format.js  App.f          숫자 표기(musd, pct, pp, num), 로고, 버튼, 입력 칸
@@ -140,12 +141,26 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | `readCall(obj, ctx)` | 콜 요약 답 검사 | 아니오 |
 | `readNumbers(obj, ctx)` | 숫자 답 검사, 단위 환산 | 아니오 |
 
+### src/model/sentiment.js (App.ea.sentiment)
+
+실적 콜 경영진 톤을 요인 8개, 0~10점으로 매깁니다. 분기 자료의 `sentiment` 에 `model`(사내 모델 점수)과 `manual`(사람이 고친 점수)이 따로 저장되고, 화면은 `manual` 이 있으면 그것을 씁니다.
+
+| 이름 | 하는 일 | 고칠 일 |
+| --- | --- | --- |
+| `FACTORS` | 요인 목록. key(저장 이름), label(화면 이름), hint(프롬프트에 들어가는 설명) | 설명을 다듬을 때 hint 만. key 는 바꾸지 않음 (6-K) |
+| `WEIGHTS` | 종합 점수 가중치. 지금은 모두 1 | 특정 요인을 더 중요하게 볼 때 (6-J) |
+| `SCALE` | 점수 눈금 설명. 프롬프트에 그대로 들어감 | 거의 없음 |
+| `read(obj, ctx)` | 모델 답 검사 (0~10 범위, 근거 필수, 방향) | 아니오 |
+| `effective(sent)` | 요인별 점수 (사람 점수 우선) | 아니오 |
+| `index(sent)` | 종합 점수 = 점수가 있는 요인의 가중 평균 | 아니오 |
+
 ### src/model/prompt.js (App.ea.prompt)
 
 | 이름 | 하는 일 | 고칠 일 |
 | --- | --- | --- |
 | `CALL_TEMPLATE`, `TASK_ALL`, `TASK_PREPARED`, `TASK_QA` | 콜 요약 프롬프트 글 | 문구를 바꿀 때 (6-E) |
 | `NUMBERS_TEMPLATE` | 숫자 프롬프트 글 | 문구를 바꿀 때 (6-E) |
+| `SENTIMENT_TEMPLATE` | 센티먼트 점수 프롬프트 글. 콜 요약과 직전 분기 점수를 넣음 | 문구를 바꿀 때 (6-E, 문서는 `prompts/12-sentiment.md`) |
 | `DEFAULT_MAX` | 조각 최대 글자 수 기본값 24000 | 사내 모델 답이 자주 끊기면 줄임 |
 | `QA_MARKERS` | 녹취록에서 질의응답이 시작되는 줄을 찾는 표지 | 나누기가 잘 안 되는 녹취록 형식이 있을 때 |
 
@@ -190,6 +205,8 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | 환율 넣기, 통화 더하기 | 관리 탭 > 환율 |
 | 숫자, 하이라이트, Q&A 고치기 | 회사별 탭 > 분기 > 편집 |
 | 분기 지우기 | 회사별 탭 > 분기 > 삭제 |
+| 센티먼트 점수 고치기 | 회사별 탭 > 분기 > 편집 > 센티먼트 점수 (사람이 고치기). 비우면 모델 점수로 돌아감 |
+| 센티먼트 다시 매기기 | 자료 넣기에서 회사와 분기를 고르면 저장된 콜 요약으로 점수 프롬프트가 나옴 |
 
 ## 6. 자주 하는 변경
 
@@ -199,11 +216,14 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | B | 회사별 표에 줄 더하기, 빼기, 순서 바꾸기 | `src/ui/view-company.js` 의 `quarterTable()` 안 `defs` | 회사별 |
 | C | 하이라이트 주제 더하기 (예: "자율주행") | `src/model/core.js` 의 `TOPICS` (맨 끝 '기타' 앞에 넣기). 프롬프트에는 저절로 들어감 | tests/index.html, 자료 넣기 프롬프트 |
 | D | 모델이 지표 이름을 다르게 써서 "지표를 몰라 뺌" 경고가 남 | `src/model/parse.js` 의 `METRIC_ALIASES` 에 별칭 더하기 | tests/index.html, 자료 넣기 검사 |
-| E | 프롬프트 문구 바꾸기 | 1) `src/model/prompt.js` 2) `prompts/10-call-summary.md` 또는 `prompts/11-numbers.md` 의 같은 블록을 똑같이 | tests/index.html, 자료 넣기 프롬프트 |
+| E | 프롬프트 문구 바꾸기 | 1) `src/model/prompt.js` 2) `prompts/10-call-summary.md`, `11-numbers.md`, `12-sentiment.md` 중 맞는 문서의 같은 블록을 똑같이 | tests/index.html, 자료 넣기 프롬프트 |
 | F | 색, 글자 크기, 간격 | `assets/css/ea.css` (변수만). 회사 전체 색은 `assets/css/tokens.css` 의 `--c-accent` 세 개만 | 화면 |
 | G | CSV 내보내기 열 바꾸기 | `src/ui/view-admin.js` 의 `exportCsv()` | 관리 탭 CSV |
 | H | 새 지표 더하기 (예: 순이익, 순이익률) | 1) `src/model/core.js` 의 `METRICS` 에 `{ key: 'netIncome', label: '순이익', kind: 'money', flow: true }`, 비율이면 `derive()` 에 계산 추가 2) `src/model/parse.js` 의 `METRIC_ALIASES` 에 별칭 3) `src/model/prompt.js` 의 `NUMBERS_TEMPLATE` [찾을 숫자] 에 한 줄 4) 같은 줄을 `prompts/11-numbers.md` 에 5) 보일 화면 파일 (A, B) | 단계마다 tests/index.html |
 | I | 녹취록 나누기가 엉뚱한 곳에서 됨 | `src/model/prompt.js` 의 `QA_MARKERS` 에 그 녹취록의 질의응답 시작 줄 형식을 더함 | 자료 넣기 3번 안내 문구 |
+| J | 센티먼트 종합 점수 가중치 바꾸기 (예: 수익성을 2배로) | `src/model/sentiment.js` 의 `WEIGHTS` 에서 숫자만 (`profit: 2`). 과거 분기도 같은 식으로 다시 계산됨 | tests/index.html, 한눈에 보기 센티먼트 표 |
+| K | 같은 요약인데 점수가 자꾸 흔들리는 요인이 있음 | `src/model/sentiment.js` 의 그 요인 `hint` 를 더 구체적으로 (무엇이면 높고 무엇이면 낮은지). 그다음 `prompts/12-sentiment.md` 표의 같은 칸 | 같은 요약으로 두 번 매겨 1점 안쪽인지 |
+| L | 센티먼트 요인 더하기 | 1) `src/model/sentiment.js` 의 `FACTORS` 끝에 `{ key, label, hint }` 와 `WEIGHTS` 에 같은 key 2) `prompts/12-sentiment.md` 요인 표. 프롬프트와 화면은 저절로 따라감. 이미 매긴 분기는 새 요인이 "언급 없음" 으로 보임 | tests/index.html |
 
 H 처럼 여러 파일을 고칠 때는 1번 파일을 고치고 확인한 다음 2번으로 넘어갑니다. 한꺼번에 다섯 파일을 붙여 넣지 않습니다.
 
@@ -227,7 +247,7 @@ H 처럼 여러 파일을 고칠 때는 1번 파일을 고치고 확인한 다�
 
 사내 PC 에 Node 가 없어도 브라우저만으로 확인합니다.
 
-1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "37/37 통과" 처럼 전부 통과해야 합니다.
+1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "44/44 통과" 처럼 전부 통과해야 합니다.
    `src/model/` 을 고쳤는데 실패가 나오면, 실패한 줄의 이름과 빨간 문구를 그대로 "8. 막혔을 때" 양식에 넣습니다.
    (H 처럼 일부러 동작을 바꾼 변경이면 테스트를 고쳐야 할 수도 있습니다. 이때는 ChatGPT 에 맡기지 말고 바깥 저장소 담당에게 넘깁니다.)
 2. `index.html` 을 열고 F12 > Console 에 빨간 오류가 없는지 봅니다.
