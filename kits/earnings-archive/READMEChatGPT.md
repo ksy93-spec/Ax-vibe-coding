@@ -54,7 +54,7 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
     format.js  App.f          숫자 표기(musd, pct, pp, num), 로고, 버튼, 입력 칸
     chart.js   App.chart      columns(세로 막대), bars(가로 막대)
     view-overview.js  한눈에 보기 탭     view-company.js  회사별 탭     view-edit.js  분기 편집 화면     view-grid.js  과거 실적 한꺼번에 넣기 (App.editGrid)
-    view-import.js    자료 넣기 탭       view-search.js   찾기 탭       view-admin.js 관리 탭
+    view-import.js    자료 넣기 탭       view-admin.js 관리 탭
 - src/main.js  머리글, 탭, 화면 이동. 탭 화면은 App.views.<탭 id> = function (main, route) 로 그린다.
   화면 이동은 App.go({ tab: 'company', company: 'gm', period: '2026Q2' }).
 - src/lib/  DOM 헬퍼 App.dom.h(tag, props, children), 토스트와 모달 App.ui.toast / modal / confirm, CSV App.csv.
@@ -161,7 +161,9 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | `CALL_TEMPLATE`, `TASK_ALL`, `TASK_PREPARED`, `TASK_QA` | 콜 요약 프롬프트 글 | 문구를 바꿀 때 (6-E) |
 | `NUMBERS_TEMPLATE` | 숫자 프롬프트 글 | 문구를 바꿀 때 (6-E) |
 | `SENTIMENT_TEMPLATE` | 센티먼트 점수 프롬프트 글. 콜 요약과 직전 분기 점수를 넣음 | 문구를 바꿀 때 (6-E, 문서는 `prompts/12-sentiment.md`) |
-| `DEFAULT_MAX` | 조각 최대 글자 수 기본값 24000 | 사내 모델 답이 자주 끊기면 줄임 |
+| `ONE_TEMPLATE` | 한 번에 끝내는 프롬프트 (콜 요약 + 숫자 + 센티먼트). 자료 넣기의 기본 | 문구를 바꿀 때 (6-E, 문서는 `prompts/09-all-in-one.md`) |
+| `readAnswer(obj, ctx)` | 한 번에 받은 답에서 콜 요약, 숫자, 센티먼트를 읽음 | 아니오 |
+| `DEFAULT_MAX` | "나눠서 하기" 를 켰을 때 조각 최대 글자 수 기본값 24000 | 거의 없음 |
 | `QA_MARKERS` | 녹취록에서 질의응답이 시작되는 줄을 찾는 표지 | 나누기가 잘 안 되는 녹취록 형식이 있을 때 |
 
 `{{companyName}}` 처럼 중괄호 두 개로 싼 자리는 도구가 채웁니다. 자리 이름을 바꾸거나 지우지 않습니다.
@@ -182,11 +184,10 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 
 | 파일 | 화면 | 주로 고치는 곳 |
 | --- | --- | --- |
-| `src/ui/view-overview.js` | 한눈에 보기 | `card()` 카드 안 항목, `compareTable()` 표 열, `views.overview` 안 `App.chart.bars(...)` 비교 차트 |
+| `src/ui/view-overview.js` | 한눈에 보기 (업체 대시보드는 `dashboard()`) | `card()` 카드 안 항목, `compareTable()` 표 열, `views.overview` 안 `App.chart.bars(...)` 비교 차트 |
 | `src/ui/view-company.js` | 회사별 | `quarterTable()` 의 `defs` 배열 (표 줄), `detail()` 안 `App.chart.columns(...)` (차트), `quarterDetail()` (콜 요약 보기) |
 | `src/ui/view-edit.js` | 분기 편집 | `METRICS` 를 돌며 입력 줄을 만듦. 지표를 더하면 저절로 줄이 생김 |
 | `src/ui/view-import.js` | 자료 넣기 | 안내 문구, `previewNumbers()` |
-| `src/ui/view-search.js` | 찾기 | 찾는 범위 |
 | `src/ui/view-admin.js` | 관리 | `exportCsv()` 의 열 (`cols`, `recs.push`), 회사 고치기 창 `editCompany()` |
 | `assets/css/ea.css` | 스타일 | 변수만 씀 |
 
@@ -249,7 +250,7 @@ H 처럼 여러 파일을 고칠 때는 1번 파일을 고치고 확인한 다�
 
 사내 PC 에 Node 가 없어도 브라우저만으로 확인합니다.
 
-1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "49/49 통과" 처럼 전부 통과해야 합니다.
+1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "51/51 통과" 처럼 전부 통과해야 합니다.
    `src/model/` 을 고쳤는데 실패가 나오면, 실패한 줄의 이름과 빨간 문구를 그대로 "8. 막혔을 때" 양식에 넣습니다.
    (H 처럼 일부러 동작을 바꾼 변경이면 테스트를 고쳐야 할 수도 있습니다. 이때는 ChatGPT 에 맡기지 말고 바깥 저장소 담당에게 넘깁니다.)
 2. `index.html` 을 열고 F12 > Console 에 빨간 오류가 없는지 봅니다.

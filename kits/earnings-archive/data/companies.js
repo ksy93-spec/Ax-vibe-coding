@@ -3,7 +3,7 @@
 (window.EA_FILES = window.EA_FILES || []).push({
  "kind": "companies",
  "data": {
-  "rev": 1,
+  "rev": 2,
   "companies": [
    {
     "id": "gm",
@@ -16,7 +16,8 @@
     "color": "#0170CE",
     "logo": "assets/logos/gm.svg",
     "metricNotes": {
-     "adjOperatingIncome": "EBIT-adjusted"
+     "operatingIncome": "EBIT-adjusted",
+     "deliveries": "도매 판매 (GMNA+GMI, 중국 JV 제외)"
     },
     "aliases": [
      "GM",
@@ -50,6 +51,7 @@
     "color": "#002C5E",
     "logo": "assets/logos/hyundai.svg",
     "metricNotes": {
+     "operatingIncome": "영업이익",
      "deliveries": "도매 판매"
     },
     "aliases": [
@@ -69,6 +71,7 @@
     "color": "#05141F",
     "logo": "assets/logos/kia.svg",
     "metricNotes": {
+     "operatingIncome": "영업이익",
      "deliveries": "도매 판매"
     },
     "aliases": [
@@ -87,6 +90,7 @@
     "color": "#EB0A1E",
     "logo": "assets/logos/toyota.svg",
     "metricNotes": {
+     "operatingIncome": "営業利益 (IFRS)",
      "deliveries": "連結車両販売台数"
     },
     "aliases": [
@@ -106,7 +110,7 @@
     "color": "#E40521",
     "logo": "assets/logos/honda.svg",
     "metricNotes": {
-     "deliveries": "四輪 グループ販売台数"
+     "operatingIncome": "Operating profit (IFRS)"
     },
     "aliases": [
      "Honda",
@@ -124,8 +128,8 @@
     "color": "",
     "logo": "",
     "metricNotes": {
-     "operatingIncome": "EBIT",
-     "adjOperatingIncome": "Adjusted EBIT"
+     "operatingIncome": "Group EBIT",
+     "deliveries": "Cars + Vans 판매"
     },
     "aliases": [
      "Mercedes",
@@ -145,7 +149,8 @@
     "color": "#0066B1",
     "logo": "assets/logos/bmw.svg",
     "metricNotes": {
-     "operatingIncome": "Group EBIT (profit before financial result)"
+     "operatingIncome": "Group EBIT",
+     "deliveries": "BMW+MINI+RR 인도"
     },
     "aliases": [
      "BMW AG"
@@ -162,7 +167,8 @@
     "color": "#151F5D",
     "logo": "assets/logos/vw.svg",
     "metricNotes": {
-     "operatingIncome": "Operating result"
+     "operatingIncome": "Operating result",
+     "deliveries": "Group deliveries"
     },
     "aliases": [
      "Volkswagen",
@@ -182,7 +188,8 @@
     "color": "#BB0A30",
     "logo": "assets/logos/audi.svg",
     "metricNotes": {
-     "operatingIncome": "Operating result"
+     "operatingIncome": "Operating result (2023~ Brand Group Progressive)",
+     "deliveries": "Audi 브랜드 인도"
     },
     "aliases": [
      "Audi AG",
@@ -200,7 +207,8 @@
     "color": "#B12B28",
     "logo": "assets/logos/porsche.svg",
     "metricNotes": {
-     "operatingIncome": "Group operating profit"
+     "operatingIncome": "Operating profit",
+     "deliveries": "Deliveries"
     },
     "aliases": [
      "Porsche",
@@ -218,7 +226,8 @@
     "color": "",
     "logo": "",
     "metricNotes": {
-     "operatingIncome": "EBIT"
+     "operatingIncome": "EBIT",
+     "deliveries": "Retail sales (CJLR 포함)"
     },
     "aliases": [
      "Jaguar Land Rover",
@@ -257,8 +266,7 @@
     "color": "",
     "logo": "",
     "metricNotes": {
-     "operatingIncome": "EBIT",
-     "adjOperatingIncome": "Adjusted EBIT"
+     "operatingIncome": "Adjusted EBIT"
     },
     "aliases": [
      "Aumovio SE",
@@ -275,7 +283,9 @@
     "fyEnd": 3,
     "color": "",
     "logo": "",
-    "metricNotes": {},
+    "metricNotes": {
+     "operatingIncome": "営業利益"
+    },
     "aliases": [
      "Denso",
      "デンソー"
@@ -291,7 +301,9 @@
     "fyEnd": 3,
     "color": "",
     "logo": "",
-    "metricNotes": {},
+    "metricNotes": {
+     "operatingIncome": "営業利益"
+    },
     "aliases": [
      "Alps Alpine",
      "アルプスアルパイン",
@@ -309,7 +321,7 @@
     "color": "",
     "logo": "",
     "metricNotes": {
-     "adjOperatingIncome": "Adjusted EBITDA"
+     "operatingIncome": "영업이익 미공시 (손익계산서에 줄 없음)"
     },
     "aliases": [
      "Visteon Corporation"

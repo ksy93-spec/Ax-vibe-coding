@@ -44,7 +44,7 @@
     if (!hasAny) {
       main.appendChild(h('section', { class: 'panel' }, f.empty(
         '아직 쌓인 자료가 없습니다',
-        '자료 넣기 탭에서 컨퍼런스콜 녹취록이나 보도자료를 붙여 넣으면 사내 모델용 프롬프트가 만들어지고, 답을 붙여 넣으면 이 화면에 쌓입니다. 바깥에서 만든 자료 묶음(.json)이 있으면 관리 탭에서 가져옵니다.',
+        '자료 넣기 탭에서 녹취록을 붙여 넣으면 사내 모델용 프롬프트가 만들어지고, 답을 붙여 넣으면 이 화면에 쌓입니다. 과거 숫자는 회사별 화면의 "과거 실적 한꺼번에" 로 넣습니다.',
         [f.btn('자료 넣기', function () { App.go({ tab: 'import' }); }, 'primary'),
           f.btn('자료 묶음 가져오기', function () { App.go({ tab: 'admin' }); })]
       )));
@@ -82,10 +82,18 @@
       ]));
     }
 
-    // 회사 카드
+    // 고른 업체 대시보드. 업체를 안 골랐으면 자료가 있는 첫 업체
+    var focus = App.data.company(r.focus) && (!group || App.data.company(r.focus).group === group) ? r.focus : '';
+    if (!focus) {
+      var first = rows.filter(function (x) { return x.latest; })[0];
+      focus = first ? first.c.id : '';
+    }
+    if (focus) main.appendChild(dashboard(App.data.company(focus), period));
+
+    // 회사 카드. 누르면 위 대시보드가 그 업체로 바뀝니다.
     var grid = h('section', { class: 'cards', 'aria-label': '회사별 요약' });
     rows.forEach(function (x) {
-      grid.appendChild(card(x, period));
+      grid.appendChild(card(x, period, x.c.id === focus));
     });
     main.appendChild(grid);
 
@@ -168,7 +176,94 @@
     ]);
   }
 
-  function card(x, period) {
+  /** 짧은 분기 이름 (25Q3) */
+  function shortP(p) {
+    return p.slice(2, 4) + 'Q' + p.slice(5);
+  }
+
+  /** 업체 한 곳의 대시보드: 고른 분기 숫자, 최근 12개 분기 추이, 센티먼트 */
+  function dashboard(c, period) {
+    var SE = App.ea.sentiment;
+    var rep = App.data.report(c.id);
+    var rows = C.table(rep, c, App.data.fx());
+    var box = h('section', { class: 'panel dash', id: 'dash' });
+    var at = rows.filter(function (d) { return d.period === period; })[0] || rows[0];
+    box.appendChild(h('div', { class: 'dash__head' }, [
+      f.logo(c, 'lg'),
+      h('div', null, [
+        h('h2', { class: 'dash__name', text: c.nameKo || c.name }),
+        h('div', { class: 'muted small', text: c.name + ' · ' + (c.group === 'Tier1' ? '부품사' : '완성차') + ' · 발표 통화 ' + c.currency +
+          (rows.length ? ' · 자료 ' + C.periodLabel(rows[rows.length - 1].period) + ' ~ ' + C.periodLabel(rows[0].period) + ' (' + rows.length + '개 분기)' : '') }),
+      ]),
+      h('div', { class: 'app__spacer' }),
+      f.btn('상세 보기', function () { App.go({ tab: 'company', company: c.id, period: at ? at.period : '' }); }, 'primary'),
+    ]));
+    if (!rows.length) {
+      box.appendChild(f.empty('이 업체는 아직 자료가 없습니다', '자료 넣기에서 녹취록을 넣거나, 회사별 화면의 "과거 실적 한꺼번에" 로 숫자를 넣습니다.', [
+        f.btn('자료 넣기', function () { App.go({ tab: 'import', company: c.id }); }, 'primary'),
+        f.btn('과거 실적 넣기', function () { App.go({ tab: 'company', company: c.id, edit: 'grid' }); }),
+      ]));
+      return box;
+    }
+
+    // 고른 분기(없으면 최근 분기) 숫자
+    var sent = at.quarter.sentiment;
+    function tile(label, value, sub, extra) {
+      return h('div', { class: 'tile' }, [
+        h('div', { class: 'tile__label', text: label }),
+        h('div', { class: 'tile__value' }, value),
+        sub ? h('div', { class: 'tile__sub', text: sub }) : null,
+        extra || null,
+      ]);
+    }
+    box.appendChild(h('div', { class: 'muted small dash__at', text: C.periodLabel(at.period, true) + (at.quarter.fiscalLabel ? ' · ' + at.quarter.fiscalLabel : '') + (at.period !== period ? ' (고른 분기 자료가 없어 최근 분기)' : '') + ' · 전년 동기 대비' }));
+    box.appendChild(h('div', { class: 'tiles' }, [
+      tile('매출 (MUSD)', f.musd(at.musd.revenue), f.pct(at.yoy.revenue, true)),
+      tile('영업이익 (MUSD)', f.musd(at.musd.operatingIncome), f.pct(at.yoy.operatingIncome, true)),
+      tile('영업이익률', f.pct(at.opMargin), at.opMarginPrev !== null && at.opMargin !== null ? f.pp(at.opMargin - at.opMarginPrev) : ''),
+      tile('부채비율', f.pct(at.debtRatio) + (at.debtRatioSource === 'reported' ? ' *' : ''), at.debtRatioPrev !== null && at.debtRatio !== null ? f.pp(at.debtRatio - at.debtRatioPrev) : ''),
+      c.group === 'Tier1' ? null : tile('판매 대수 (천 대)', f.num(at.deliveries), f.pct(at.yoy.deliveries, true)),
+      tile('센티먼트', sent ? f.sentCell(SE.index(sent), { cls: 'sent--big' }) : '-', sent ? '' : '콜 요약 없음'),
+    ]));
+
+    // 최근 12개 분기 추이. 숫자가 하나도 없는 지표는 그리지 않습니다.
+    var recent = rows.slice(0, 12).reverse();
+    var specs = [
+      ['매출', 'MUSD', f.musd, function (d) { return d.musd.revenue; }],
+      ['영업이익', 'MUSD', f.musd, function (d) { return d.musd.operatingIncome; }],
+      ['영업이익률', '%', function (v) { return f.num(v, 1); }, function (d) { return d.opMargin; }],
+      ['부채비율', '%', function (v) { return f.num(v, 0); }, function (d) { return d.debtRatio; }],
+      ['판매 대수', '천 대', function (v) { return f.num(v); }, function (d) { return d.deliveries; }],
+    ];
+    var charts = h('div', { class: 'grid3 dash__charts' });
+    specs.forEach(function (sp) {
+      if (!recent.some(function (d) { var v = sp[3](d); return v !== null && v !== undefined; })) return;
+      charts.appendChild(h('div', { class: 'dash__chart' }, App.chart.columns({
+        title: sp[0], unit: sp[1], format: sp[2], height: 170,
+        data: recent.map(function (d) { return { label: shortP(d.period), value: sp[3](d), tip: [C.periodLabel(d.period) + (d.quarter.fiscalLabel ? ' · ' + d.quarter.fiscalLabel : '')] }; }),
+      })));
+    });
+
+    // 센티먼트: 분기별 종합 점수와 가장 최근 콜 총평
+    var scored = recent.filter(function (d) { return d.quarter.sentiment; });
+    var lastCall = rows.filter(function (d) { return d.quarter.call; })[0];
+    charts.appendChild(h('div', { class: 'dash__chart dash__sent' }, [
+      h('div', { class: 'chart__head' }, [h('span', { class: 'chart__title', text: '컨퍼런스콜 센티먼트' }), h('span', { class: 'chart__unit', text: '종합, 0~10점' })]),
+      scored.length ? h('div', { class: 'sent-strip' }, recent.map(function (d) {
+        var se = d.quarter.sentiment;
+        return h('div', { class: 'sent-strip__q' }, [f.sentCell(se ? SE.index(se) : null), h('span', { class: 'small muted', text: shortP(d.period) })]);
+      })) : h('div', { class: 'chart__empty', text: '센티먼트 점수가 있는 분기가 없습니다' }),
+      lastCall ? h('div', { class: 'dash__call' }, [
+        h('div', { class: 'small muted', text: C.periodLabel(lastCall.period) + ' 콜' }),
+        h('div', { text: lastCall.quarter.call.summary || '' }),
+        h('ul', { class: 'hl__list small' }, (lastCall.quarter.call.highlights || []).slice(0, 3).map(function (x) { return h('li', { text: x.text }); })),
+      ]) : null,
+    ]));
+    box.appendChild(charts);
+    return box;
+  }
+
+  function card(x, period, focused) {
     var c = x.c;
     var t = x.t;
     var q = x.q;
@@ -189,8 +284,13 @@
     var call = q && q.call;
     return h('button', {
       type: 'button',
-      class: 'card',
-      onclick: function () { App.go({ tab: 'company', company: c.id, period: t ? period : x.latest || '' }); },
+      class: 'card' + (focused ? ' is-focus' : ''),
+      'aria-pressed': focused ? 'true' : 'false',
+      onclick: function () {
+        App.go({ focus: c.id }, true);
+        var d = document.getElementById('dash');
+        if (d) d.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      },
     }, [
       h('div', { class: 'card__head' }, [
         f.logo(c, 'md'),

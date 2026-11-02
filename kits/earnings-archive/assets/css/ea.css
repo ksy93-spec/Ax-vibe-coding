@@ -262,6 +262,22 @@ mark { background: var(--c-warn-bg); color: inherit; padding: 0 1px; border-radi
 .table--fx .input--num { width: 110px; }
 .plan { margin-top: var(--sp-4); }
 
+/* 한눈에 보기 대시보드 */
+.dash__head { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-3); }
+.dash__name { font-size: var(--text-2xl); }
+.dash__at { margin-bottom: var(--sp-2); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--sp-3); margin-bottom: var(--sp-4); }
+.tile { border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: var(--sp-3); background: var(--c-bg); }
+.tile__label { font-size: var(--text-xs); color: var(--c-fg-muted); }
+.tile__value { font-size: var(--text-xl); font-weight: var(--weight-semibold); font-variant-numeric: tabular-nums; margin-top: var(--sp-1); }
+.tile__sub { font-size: var(--text-xs); color: var(--c-fg-muted); font-variant-numeric: tabular-nums; }
+.dash__charts { margin-bottom: 0; }
+.dash__chart { border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: var(--sp-3); min-width: 0; }
+.sent-strip { display: flex; gap: var(--sp-1); flex-wrap: wrap; margin: var(--sp-2) 0; }
+.sent-strip__q { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.dash__call { border-top: 1px solid var(--c-border); padding-top: var(--sp-2); margin-top: var(--sp-2); font-size: var(--text-sm); }
+.card.is-focus { border-color: var(--c-accent); box-shadow: var(--focus-ring); }
+
 /* 센티먼트 */
 .sent {
   display: inline-block; min-width: 30px; padding: 1px var(--sp-1); border-radius: var(--radius-sm);

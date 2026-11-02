@@ -154,6 +154,137 @@
     '{{text}}',
   ].join('\n');
 
+  /*
+   * 한 번에 끝내는 프롬프트. 녹취록 전체(와 보도자료)를 넣으면 콜 요약, 숫자, 센티먼트 점수를 JSON 하나로 받습니다.
+   * 녹취록 한 편(영문 6~10만 자)은 ChatGPT Enterprise 컨텍스트에 한 번에 들어갑니다. 답이 끊기면 화면의 "나눠서 하기" 를 씁니다.
+   */
+  var ONE_TEMPLATE = [
+    '너는 자동차 산업 실적 자료를 정리하는 애널리스트다.',
+    '아래 [원문]은 {{companyName}} 의 {{periodLabel}} 실적 컨퍼런스콜 녹취록이고, [보도자료]는 같은 분기 실적 보도자료다(없을 수 있음).',
+    '원문을 처음부터 끝까지 읽고 [출력 형식]의 JSON 하나만 답한다. JSON 앞뒤에 설명을 붙이지 않는다.',
+    '',
+    '[정해진 값]',
+    '- company: "{{companyId}}"',
+    '- period: "{{period}}" (달력 분기. 회사 표기로는 {{fiscalLabel}})',
+    '- 발표 통화: {{currency}}',
+    '',
+    '[할 일 1: 콜 요약]',
+    '- summary: 이번 분기 총평 1~2문장',
+    '- highlights: 경영진 발표의 요점 6~10개. 실적 숫자, 가이던스 변경, 지역별 흐름, 전동화, 관세와 정책, 원가, 주주환원 순으로 찾는다.',
+    '- guidance: 회사가 밝힌 연간 또는 다음 분기 전망. 숫자 그대로. 없으면 빈 문자열',
+    '- qa: 애널리스트 질문 하나마다 항목 하나. 질문과 답변을 각각 1~3문장으로 요약한다. 사회자 안내와 인사말은 뺀다.',
+    '',
+    '[할 일 2: 숫자] 원문이나 보도자료에 적힌 것만 values 에 넣는다.',
+    '- revenue: 매출. operatingIncome: 영업이익 ({{opNote}}). deliveries: 판매 대수 ({{delNote}})',
+    '- totalLiabilities, totalEquity: 분기 말 연결 부채총계, 자본총계. debtRatio: 부채비율이 % 숫자로 적혀 있을 때만',
+    '- 숫자를 계산하거나 단위를 바꾸지 않는다. 원문 숫자와 단위를 그대로 옮긴다. unit 은 one, thousand, ten_thousand, million, hundred_million, billion, trillion, percent 중 하나',
+    '  예: "$48.6 billion" -> value 48.6, unit "billion" / "46조 6,200억원" -> value 46.62, unit "trillion" / "12,345億円" -> value 12345, unit "hundred_million" / "875,000 units" -> value 875000, unit "one"',
+    '- 이번 분기만의 값이면 basis "quarter", 회계연도 누계(上期, 9M, year-to-date)면 "ytd". 부채, 자본, 부채비율은 "quarter"',
+    '- 적자는 음수. text 에 원문 표기를 짧게 그대로 적는다.',
+    '',
+    '[할 일 3: 센티먼트 점수] 경영진 발언의 톤을 요인마다 0~10점으로 매겨 scores 에 넣는다. factor 에는 왼쪽 영문 이름을 쓴다.',
+    '{{factors}}',
+    '점수 눈금:',
+    '{{scale}}',
+    '- 직전 분기 점수가 있으면 그것과 비교해 나아졌는지 나빠졌는지를 기준으로 삼는다. 가이던스를 올렸으면 6 이상, 내렸으면 4 이하, 유지했으면 5 근처.',
+    '- 점수는 정수. direction 은 상향, 유지, 하향, 언급 없음 중 하나. reason 에 근거 한 문장, quote 에 원문 표현을 짧게.',
+    '- 언급이 없으면 score 는 null, direction 은 "언급 없음".',
+    '- sentimentSummary: 이번 분기 경영진 톤을 한 문장으로',
+    '',
+    '[직전 분기 점수]',
+    '{{prev}}',
+    '',
+    '[공통 규칙]',
+    '- 원문에 없는 내용, 숫자, 사람 이름을 만들지 않는다. 확실하지 않으면 뺀다.',
+    '- 한국어 개조식으로 쓴다. 문장 끝은 "~함", "~임", "~ 전망", "~ 계획" 같은 명사형으로 끝낸다.',
+    '- 문장 속 숫자는 원문의 통화와 단위를 그대로 쓴다. 환율 환산을 하지 않는다.',
+    '- topic 은 다음 중 하나만 쓴다: {{topics}}',
+    '- 사람 이름과 회사 이름은 원문 철자(영문)를 그대로 쓴다.',
+    '- 대시(—), 이모지, 굵은 글씨(**)를 쓰지 않는다.',
+    '',
+    '[출력 형식]',
+    '{',
+    '  "company": "{{companyId}}",',
+    '  "period": "{{period}}",',
+    '  "callDate": "YYYY-MM-DD (원문에 있으면)",',
+    '  "summary": "이번 분기 총평 1~2문장",',
+    '  "highlights": [ { "topic": "실적", "text": "북미 픽업 판매 호조로 영업이익률 8.1% 기록함" } ],',
+    '  "guidance": "회사가 밝힌 전망. 없으면 빈 문자열",',
+    '  "qa": [ { "asker": "질문자", "firm": "증권사", "question": "질문 요약", "answerer": "답변자, 직책", "answer": "답변 요약", "topic": "가이던스" } ],',
+    '  "values": [ { "metric": "revenue", "value": 48.6, "unit": "billion", "basis": "quarter", "text": "$48.6 billion" } ],',
+    '  "sentimentSummary": "경영진 톤 한 문장",',
+    '  "scores": [ { "factor": "volume", "score": 4, "direction": "하향", "reason": "중국 수요 부진으로 연간 판매 전망을 낮춤", "quote": "sales outlook lowered" } ]',
+    '}',
+    '',
+    '[보도자료]',
+    '{{release}}',
+    '',
+    '[원문]',
+    '{{text}}',
+  ].join('\n');
+
+  /** 직전 분기 점수를 프롬프트 글로 */
+  function prevText(prevSentiment) {
+    var S = ea.sentiment;
+    if (!prevSentiment) return '없음 (이번이 첫 점수)';
+    var e = S.effective(prevSentiment);
+    return S.FACTORS.map(function (f) {
+      var m = prevSentiment.model && prevSentiment.model[f.key];
+      var sc = e[f.key].score;
+      return '- ' + f.key + ': ' + (sc === null ? '언급 없음' : sc + '점' + (m && m.reason ? ', ' + m.reason : ''));
+    }).join('\n');
+  }
+
+  /** 한 번에 끝내는 프롬프트 (콜 요약 + 숫자 + 센티먼트) */
+  function buildOnePrompt(company, period, transcript, release, prevSentiment) {
+    var S = ea.sentiment;
+    var v = baseVars(company, period);
+    var notes = company.metricNotes || {};
+    v.opNote = notes.operatingIncome ? '이 회사는 "' + notes.operatingIncome + '" 를 쓴다' : '회사가 공식 영업이익으로 쓰는 값';
+    v.delNote = company.group === 'Tier1' ? '부품사라 넣지 않는다' : notes.deliveries ? '이 회사는 "' + notes.deliveries + '" 를 쓴다' : '회사가 공식으로 밝힌 판매(인도) 대수';
+    v.factors = S.FACTORS.map(function (f) { return '- ' + f.key + ': ' + f.label + ' (' + f.hint + ')'; }).join('\n');
+    v.scale = S.SCALE.map(function (x) { return '- ' + x; }).join('\n');
+    v.prev = prevText(prevSentiment);
+    v.release = String(release || '').trim() || '없음';
+    v.text = String(transcript || '').trim();
+    return fill(ONE_TEMPLATE, v);
+  }
+
+  /**
+   * 한 번에 받은 답 읽기. 콜 요약, 숫자, 센티먼트 중 들어 있는 것만 읽습니다.
+   * @returns {{call: object|null, numbers: object|null, sentiment: object|null, errors: string[], warnings: string[]}}
+   */
+  function readAnswer(obj, ctx) {
+    var P = ea.parse;
+    var out = { call: null, numbers: null, sentiment: null, errors: [], warnings: [] };
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) {
+      out.errors.push('JSON 객체({ ... })가 아님');
+      return out;
+    }
+    var kinds = P.detect(obj);
+    if (kinds.indexOf('call') >= 0) {
+      var rc = P.readCall(obj, ctx);
+      out.errors = out.errors.concat(rc.errors);
+      out.warnings = out.warnings.concat(rc.warnings);
+      out.call = rc.call;
+    }
+    if (kinds.indexOf('numbers') >= 0) {
+      var rn = P.readNumbers(obj, ctx);
+      // 숫자가 하나도 없는 것은 오류가 아니라 경고 (녹취록에 숫자가 없을 수 있음)
+      if (rn.ok) out.numbers = rn;
+      else out.warnings = out.warnings.concat(rn.errors.map(function (e) { return '숫자: ' + e; }));
+      out.warnings = out.warnings.concat(rn.warnings.map(function (w) { return '숫자: ' + w; }));
+    }
+    if (obj.scores) {
+      var rs = ea.sentiment.read({ company: obj.company, period: obj.period, summary: obj.sentimentSummary, scores: obj.scores }, ctx);
+      if (rs.ok) out.sentiment = rs.sentiment;
+      else out.errors = out.errors.concat(rs.errors.map(function (e) { return '센티먼트: ' + e; }));
+      out.warnings = out.warnings.concat(rs.warnings.map(function (w) { return '센티먼트: ' + w; }));
+    }
+    if (!out.call && !out.numbers && !out.sentiment && !out.errors.length) out.errors.push('summary, highlights, qa, values, scores 중 아무것도 없음');
+    return out;
+  }
+
   /** 콜 요약을 프롬프트에 넣을 글로. */
   function callText(call) {
     var out = [];
@@ -178,16 +309,7 @@
     var v = baseVars(company, period);
     v.factors = S.FACTORS.map(function (f) { return '- ' + f.key + ': ' + f.label + ' (' + f.hint + ')'; }).join('\n');
     v.scale = S.SCALE.map(function (x) { return '- ' + x; }).join('\n');
-    if (prevSentiment) {
-      var e = S.effective(prevSentiment);
-      v.prev = S.FACTORS.map(function (f) {
-        var m = prevSentiment.model && prevSentiment.model[f.key];
-        var sc = e[f.key].score;
-        return '- ' + f.key + ': ' + (sc === null ? '언급 없음' : sc + '점' + (m && m.reason ? ', ' + m.reason : ''));
-      }).join('\n');
-    } else {
-      v.prev = '없음 (이번이 첫 점수)';
-    }
+    v.prev = prevText(prevSentiment);
     v.text = callText(call || {});
     return fill(SENTIMENT_TEMPLATE, v);
   }
@@ -250,13 +372,16 @@
   }
 
   function fill(tpl, vars) {
-    // 원문({{text}})은 마지막에 넣습니다. 원문 안에 {{ 같은 글자가 있어도 다시 바뀌지 않게 하려는 것입니다.
+    // 사용자가 붙여 넣은 글({{release}}, {{text}})은 마지막에 넣습니다.
+    // 원문 안에 {{ 같은 글자가 있어도 다시 바뀌지 않게 하려는 것입니다. release 를 먼저, text 를 맨 끝에 넣습니다.
     var out = tpl;
     Object.keys(vars).forEach(function (k) {
-      if (k === 'text') return;
+      if (k === 'text' || k === 'release') return;
       out = out.split('{{' + k + '}}').join(vars[k]);
     });
-    return out.split('{{text}}').join(vars.text || '');
+    var parts = out.split('{{text}}');
+    parts = parts.map(function (x) { return x.split('{{release}}').join(vars.release || ''); });
+    return parts.join(vars.text || '');
   }
 
   function baseVars(company, period) {
@@ -322,6 +447,9 @@
     CALL_TEMPLATE: CALL_TEMPLATE,
     NUMBERS_TEMPLATE: NUMBERS_TEMPLATE,
     SENTIMENT_TEMPLATE: SENTIMENT_TEMPLATE,
+    ONE_TEMPLATE: ONE_TEMPLATE,
+    buildOnePrompt: buildOnePrompt,
+    readAnswer: readAnswer,
     buildSentimentPrompt: buildSentimentPrompt,
     TASK_ALL: TASK_ALL,
     TASK_PREPARED: TASK_PREPARED,

@@ -9,7 +9,6 @@
     { id: 'overview', label: '한눈에 보기' },
     { id: 'company', label: '회사별' },
     { id: 'import', label: '자료 넣기' },
-    { id: 'search', label: '찾기' },
     { id: 'admin', label: '관리' },
   ];
 
@@ -23,7 +22,7 @@
     return out;
   }
   function writeHash(r) {
-    var keep = ['tab', 'company', 'period', 'edit', 'q', 'group', 'topic', 'view', 'sf', 'smax'];
+    var keep = ['tab', 'company', 'period', 'edit', 'group', 'view', 'focus'];
     var s = keep.filter(function (k) {
       return r[k];
     }).map(function (k) {
@@ -33,7 +32,7 @@
   }
 
   var current = readHash();
-  /** 지금 화면 상태 {tab, company, period, edit, q, group, topic, view} */
+  /** 지금 화면 상태 {tab, company, period, edit, group, view, focus} */
   App.where = function () {
     return current;
   };

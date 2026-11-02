@@ -577,4 +577,40 @@
     eq(c.settings.rev, 2);
     eq(F.fromText(F.toText('settings', { rev: 1 })).kind, 'settings');
   });
+  /* ---------- 한 번에 끝내는 프롬프트 ---------- */
+
+  test('통합 프롬프트: 콜 요약, 숫자, 센티먼트 할 일과 원문, 보도자료, 직전 점수가 한 번에 들어감', function () {
+    var co = Object.assign({}, COMPANIES[0], { metricNotes: { operatingIncome: 'EBIT-adjusted' } });
+    var long = new Array(4000).join('CEO: Revenue grew in North America. ');
+    var p = PR.buildOnePrompt(co, '2026Q2', long + ' {{period}} end', 'Revenue $48.6 billion', { model: { volume: { score: 4, reason: '판매 하향' } } });
+    ok(p.indexOf('[할 일 1: 콜 요약]') > 0 && p.indexOf('[할 일 2: 숫자]') > 0 && p.indexOf('[할 일 3: 센티먼트 점수]') > 0);
+    ok(p.indexOf('EBIT-adjusted') > 0);
+    ok(p.indexOf('- volume: 4점, 판매 하향') > 0);
+    ok(p.indexOf('Revenue $48.6 billion') > 0);
+    ok(p.indexOf(' {{period}} end') > 0, '원문 안 {{ }} 는 그대로');
+    ok(p.indexOf(long) > 0, '원문을 자르지 않음');
+    ok(p.lastIndexOf('[원문]') > p.indexOf('[보도자료]'));
+    eq(p.split('{{').length - 1, 1, '남은 자리표시는 원문 안의 것 하나뿐');
+    ok(PR.buildOnePrompt(COMPANIES[2], '2026Q2', 'x', '', null).indexOf('[보도자료]\n없음') > 0);
+  });
+
+  test('통합 답 읽기: 콜 요약, 숫자, 센티먼트를 한 번에, 숫자가 없어도 통과', function () {
+    var ctx = { companies: COMPANIES, company: 'kmot', period: '2026Q2' };
+    var r = PR.readAnswer({
+      company: 'kmot', period: '2026Q2', summary: '총평', highlights: [{ topic: '실적', text: '매출 증가' }], qa: [],
+      values: [{ metric: 'revenue', value: 52.3, unit: 'trillion' }, { metric: 'deliveries', value: 1020000, unit: 'one' }],
+      sentimentSummary: '자신감', scores: [{ factor: 'volume', score: 7, direction: '상향', reason: '목표 상향' }],
+    }, ctx);
+    eq(r.errors.length, 0, r.errors.join());
+    eq(r.call.summary, '총평');
+    eq(r.numbers.numbers.values.revenue, 52300000);
+    eq(r.numbers.numbers.values.deliveries, 1020);
+    eq(r.sentiment.model.volume.score, 7);
+    eq(r.sentiment.summary, '자신감');
+    var r2 = PR.readAnswer({ company: 'kmot', period: '2026Q2', summary: '총평', values: [], scores: [{ factor: 'volume', score: 11, reason: 'x' }] }, ctx);
+    ok(r2.call, '콜 요약은 읽힘');
+    eq(r2.numbers, null);
+    ok(r2.warnings.some(function (w) { return /숫자/.test(w); }), '숫자 없음은 경고');
+    ok(r2.errors.some(function (e) { return /센티먼트/.test(e); }), '점수 범위 밖은 오류');
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

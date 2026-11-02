@@ -19,7 +19,7 @@
 - IIFE 구조와 'use strict' 를 유지하고 전역 App 네임스페이스에 붙인다.
 - src/model/ 는 DOM 을 쓰지 않는다. 브라우저와 Node 테스트 양쪽에서 읽힌다.
 - src/model/ 를 고쳤으면 tests/index.html 을 열어 전부 통과하는지 확인한다.
-- src/model/prompt.js 의 템플릿을 고치면 prompts/10-call-summary.md, prompts/11-numbers.md 의 같은 블록도 고친다.
+- src/model/prompt.js 의 템플릿을 고치면 prompts/09~12 문서의 같은 블록도 고친다.
 - 색과 간격은 var(--c-*), var(--sp-*), var(--text-*), var(--viz-*) 만 쓴다.
 - 새 화면 파일은 App.views.<탭 id> 에 그리기 함수를 붙이고 index.html 의 main.js 앞에 클래식 <script> 로 추가한다.
 - 자료를 바꿀 때는 App.data.putReport / putCompanies / putFx / putSettings 만 쓴다. localStorage 를 직접 만지지 않는다.

@@ -25,6 +25,7 @@
     url: '',
     keep: true,
     max: PR.DEFAULT_MAX,
+    mode: 'one', // 'one' 한 번에, 'split' 나눠서 (답이 끊길 때만)
     prompts: [],
     split: null,
     numPrompt: '',
@@ -115,7 +116,7 @@
     var count = h('span', { class: 'muted', text: S.transcript.length.toLocaleString() + '자' });
     var rel = h('textarea', {
       class: 'input textarea', rows: 5,
-      placeholder: '(선택) 실적 보도자료의 요약표나 첫 장을 붙여 넣으면 숫자 프롬프트가 따로 나옵니다.',
+      placeholder: '(선택) 실적 보도자료의 요약표나 첫 장. 녹취록에 없는 숫자(부채, 자본, 판매 대수)를 채울 때 씁니다.',
       oninput: function (e) { S.release = e.target.value; },
     }, S.release);
     return stepBox(2, '원문 붙여 넣기', [
@@ -127,10 +128,12 @@
         f.field('원문 출처', h('select', { class: 'input', onchange: function (e) { S.source = e.target.value; } },
           SOURCES.map(function (s) { return h('option', { value: s, selected: s === S.source, text: s }); }))),
         f.field('원문 주소 (선택)', h('input', { class: 'input', value: S.url, placeholder: 'https://...', oninput: function (e) { S.url = e.target.value; } })),
-        f.field('조각 최대 글자 수', h('input', { class: 'input', inputmode: 'numeric', value: S.max, oninput: function (e) { S.max = C.toNumber(e.target.value) || PR.DEFAULT_MAX; } }),
-          '모델 답이 중간에 끊기면 줄입니다. 영문 약 6글자가 1토큰'),
+        S.mode === 'split' ? f.field('조각 최대 글자 수', h('input', { class: 'input', inputmode: 'numeric', value: S.max, oninput: function (e) { S.max = C.toNumber(e.target.value) || PR.DEFAULT_MAX; } }),
+          '모델 답이 중간에 끊기면 줄입니다. 영문 약 6글자가 1토큰') : null,
       ]),
       f.field('보도자료 숫자 (선택)', rel),
+      h('label', { class: 'check' }, [h('input', { type: 'checkbox', checked: S.mode === 'split', onchange: function (e) { S.mode = e.target.checked ? 'split' : 'one'; resetOutputs(); App.render(); } }),
+        ' 나눠서 하기 (모델 답이 중간에 끊기거나 "너무 길다" 고 할 때만. 프롬프트가 여러 개로 나옵니다)']),
       h('div', { class: 'row' }, [
         f.btn('프롬프트 만들기', function () {
           if (!S.transcript.trim() && !S.release.trim()) {
@@ -139,13 +142,19 @@
           }
           var keepAnswers = S.answers;
           resetOutputs();
-          if (S.transcript.trim()) {
+          if (S.mode === 'one' && S.transcript.trim()) {
+            var rep0 = App.data.report(c.id);
+            var prevQ = C.quarterOf(rep0, C.periodAdd(S.period, -1));
+            var text1 = PR.buildOnePrompt(c, S.period, S.transcript, S.release, prevQ && prevQ.sentiment);
+            S.prompts = [{ title: '한 번에', part: 'one', chars: S.transcript.length, text: text1 }];
+            S.answers = [keepAnswers[0] || ''];
+          } else if (S.transcript.trim()) {
             var built = PR.buildCallPrompts(c, S.period, S.transcript, S.max);
             S.prompts = built.prompts;
             S.split = built.split;
             S.answers = S.prompts.map(function (_, i) { return keepAnswers[i] || ''; });
           }
-          if (S.release.trim()) S.numPrompt = PR.buildNumbersPrompt(c, S.period, S.release);
+          if (S.release.trim() && (S.mode === 'split' || !S.transcript.trim())) S.numPrompt = PR.buildNumbersPrompt(c, S.period, S.release);
           App.render();
           var el = document.getElementById('step3');
           if (el) el.scrollIntoView({ block: 'start' });
@@ -191,7 +200,12 @@
           ' 조각마다 새 대화창에서 시키면 더 정확합니다.'));
       }
       S.prompts.forEach(function (p) {
-        kids.push(promptCard('콜 요약 ' + p.title, p.chars.toLocaleString() + '자', p.text));
+        if (p.part === 'one') {
+          kids.push(h('div', { class: 'notice' }, '프롬프트 하나에 콜 요약, 숫자, 센티먼트 점수까지 들어 있습니다. 대화창 하나에 붙여 넣고, 답 하나를 4번 칸에 붙여 넣으면 됩니다.'));
+          kids.push(promptCard('프롬프트 (한 번에)', '원문 ' + p.chars.toLocaleString() + '자 · 프롬프트 ' + p.text.length.toLocaleString() + '자', p.text));
+        } else {
+          kids.push(promptCard('콜 요약 ' + p.title, p.chars.toLocaleString() + '자', p.text));
+        }
       });
       if (S.numPrompt) kids.push(promptCard('보도자료 숫자', '', S.numPrompt));
     }
@@ -206,70 +220,59 @@
     while (S.answers.length < n) S.answers.push('');
     for (var i = 0; i < n; i++) {
       (function (i) {
-        var label = S.prompts.length ? '콜 요약 답 ' + S.prompts[i].title : '콜 요약 답 (JSON)';
+        var one = S.prompts[i] && S.prompts[i].part === 'one';
+        var label = one || !S.prompts.length ? '모델 답 (JSON)' : '콜 요약 답 ' + S.prompts[i].title;
         boxes.push(f.field(label, h('textarea', {
-          class: 'input textarea mono', rows: 6, placeholder: '{ "company": ..., "highlights": [...], "qa": [...] }',
+          class: 'input textarea mono', rows: one ? 10 : 6, placeholder: '{ "company": ..., "summary": ..., "highlights": [...], "qa": [...], "values": [...], "scores": [...] }',
           oninput: function (e) { S.answers[i] = e.target.value; S.checked = null; },
         }, S.answers[i] || '')));
       })(i);
     }
-    boxes.push(f.field('보도자료 숫자 답 (JSON, 선택)', h('textarea', {
-      class: 'input textarea mono', rows: 5, placeholder: '{ "company": ..., "values": [...] }',
-      oninput: function (e) { S.numAnswer = e.target.value; S.checked = null; },
-    }, S.numAnswer)));
+    if (S.mode === 'split' || S.numPrompt) {
+      boxes.push(f.field('보도자료 숫자 답 (JSON, 선택)', h('textarea', {
+        class: 'input textarea mono', rows: 5, placeholder: '{ "company": ..., "values": [...] }',
+        oninput: function (e) { S.numAnswer = e.target.value; S.checked = null; },
+      }, S.numAnswer)));
+    }
     boxes.push(h('div', { class: 'row' }, [
       f.btn('검사', function () { S.checked = check(c); App.render(); var el = document.getElementById('step5'); if (el) el.scrollIntoView({ block: 'start' }); }, 'primary'),
       S.prompts.length ? null : f.btn('답 칸 더하기', function () { S.answers.push(''); S.prompts = []; App.render(); }, 'sm'),
     ]));
-    return stepBox(4, '모델 답 붙여 넣기', boxes, '앞뒤 설명이나 ``` 울타리가 붙어 있어도 됩니다. 조각이 여럿이면 순서대로 칸마다 붙여 넣습니다.');
+    return stepBox(4, '모델 답 붙여 넣기', boxes, '앞뒤 설명이나 ``` 울타리가 붙어 있어도 됩니다.' + (S.mode === 'split' ? ' 조각이 여럿이면 순서대로 칸마다 붙여 넣습니다.' : ''));
   }
 
-  /** 붙여 넣은 답을 모두 읽고 검사합니다. */
+  /** 붙여 넣은 답을 모두 읽고 검사합니다. 콜 요약, 숫자, 센티먼트가 한 답에 같이 와도 되고 칸마다 따로 와도 됩니다. */
   function check(c) {
     var ctx = { companies: App.data.companies(), company: c.id, period: S.period };
-    var out = { parts: [], numbers: null, call: null, ok: true };
-    S.answers.forEach(function (text, i) {
-      if (!String(text || '').trim()) return;
-      var res = { index: i, errors: [], warnings: [], fixed: [] };
-      var j = P.lenientJson(text);
+    var out = { parts: [], numbers: null, call: null, sentiment: null, ok: true };
+    var texts = S.answers.map(function (t, i) { return { index: i, text: t }; });
+    if (String(S.numAnswer || '').trim()) texts.push({ index: 'num', text: S.numAnswer });
+    texts.forEach(function (x) {
+      if (!String(x.text || '').trim()) return;
+      var res = { index: x.index, errors: [], warnings: [], fixed: [] };
+      var j = P.lenientJson(x.text);
       if (!j.ok) {
         res.errors.push(j.error);
       } else {
         res.fixed = j.fixed;
-        var kinds = P.detect(j.value);
-        if (kinds.indexOf('call') >= 0) {
-          var rc = P.readCall(j.value, ctx);
-          res.errors = res.errors.concat(rc.errors);
-          res.warnings = res.warnings.concat(rc.warnings);
-          res.call = rc.call;
-        }
-        // 콜 요약 칸에 숫자가 같이 오면 그것도 씁니다.
-        if (kinds.indexOf('numbers') >= 0 && !out.numbers) {
-          var rn = P.readNumbers(j.value, ctx);
-          if (rn.ok) out.numbers = rn;
-        }
-        if (!kinds.length) res.errors.push('highlights, qa, values 중 아무것도 없습니다. 콜 요약 답이 맞는지 보세요.');
+        var r = PR.readAnswer(j.value, ctx);
+        res.errors = r.errors;
+        res.warnings = r.warnings;
+        res.call = r.call;
+        if (r.numbers) out.numbers = r.numbers;
+        if (r.sentiment) out.sentiment = r.sentiment;
       }
       if (res.errors.length) out.ok = false;
       out.parts.push(res);
     });
-    if (String(S.numAnswer || '').trim()) {
-      var j2 = P.lenientJson(S.numAnswer);
-      var res2 = { index: 'num', errors: [], warnings: [], fixed: [] };
-      if (!j2.ok) res2.errors.push(j2.error);
-      else {
-        res2.fixed = j2.fixed;
-        var rn2 = P.readNumbers(j2.value, ctx);
-        res2.errors = rn2.errors;
-        res2.warnings = rn2.warnings;
-        if (rn2.ok) out.numbers = rn2;
-      }
-      if (res2.errors.length) out.ok = false;
-      out.parts.push(res2);
-    }
     var calls = out.parts.map(function (p) { return p.call; }).filter(Boolean);
     if (calls.length) out.call = M.joinCalls(calls);
-    if (!calls.length && !out.numbers) out.ok = false;
+    if (!calls.length && !out.numbers && !out.sentiment) out.ok = false;
+    // 답에 점수가 같이 왔으면 따로 점수를 매길 필요가 없습니다.
+    if (out.sentiment) {
+      S.sentChecked = { ok: true, errors: [], warnings: [], sentiment: out.sentiment };
+      S.sentAnswer = '';
+    }
     return out;
   }
 
@@ -280,7 +283,7 @@
       kids.push(h('p', { class: 'muted', text: '4번에서 검사를 누르면 결과와 미리보기가 나옵니다.' }));
     } else {
       k.parts.forEach(function (p) {
-        var name = p.index === 'num' ? '숫자 답' : '콜 요약 답 ' + (S.prompts[p.index] ? S.prompts[p.index].title : p.index + 1);
+        var name = p.index === 'num' ? '숫자 답' : S.prompts[p.index] && S.prompts[p.index].part !== 'one' ? '콜 요약 답 ' + S.prompts[p.index].title : '모델 답';
         kids.push(h('div', { class: 'check-row ' + (p.errors.length ? 'is-bad' : 'is-good') }, [
           h('span', { class: 'check-row__name', text: name + (p.errors.length ? ' : 고칠 것 있음' : ' : 읽음') }),
           p.errors.length ? h('ul', { class: 'msgs msgs--err' }, p.errors.map(function (e) { return h('li', { text: e }); })) : null,
@@ -318,6 +321,12 @@
     var saved = C.quarterOf(rep, S.period);
     var call = (S.checked && S.checked.call) || (saved && saved.call);
     if (!call) return null;
+    if (S.checked && S.checked.sentiment) {
+      return h('div', { class: 'sent-step' }, [
+        h('h4', { class: 'sub__title', text: '센티먼트 점수 (답에 함께 옴)' }),
+        h('div', { class: 'preview' }, App.f.sentTable(S.checked.sentiment)),
+      ]);
+    }
     var prevQ = C.quarterOf(rep, C.periodAdd(S.period, -1));
     var prompt = PR.buildSentimentPrompt(c, S.period, call, prevQ && prevQ.sentiment);
     var kids = [
