@@ -84,6 +84,7 @@
     operatingIncome: ['operatingincome', 'operatingprofit', 'ebit', 'operatingresult', '영업이익', '営業利益'],
     totalLiabilities: ['totalliabilities', 'liabilities', '부채총계', '부채', '負債合計', '負債'],
     totalEquity: ['totalequity', 'equity', 'shareholdersequity', 'totalshareholdersequity', 'stockholdersequity', 'netassets', '자본총계', '자본', '純資産合計', '純資産', '資本合計'],
+    deliveries: ['deliveries', 'unitsales', 'wholesales', 'wholesale', 'retailsales', 'vehiclesales', 'sales volume', 'salesvolume', '판매대수', '판매량', '도매판매', '販売台数'],
     debtRatio: ['debtratio', 'debttoequity', 'debttoequityratio', 'liabilitiestoequity', '부채비율', '負債比率'],
   };
   function normMetric(k) {
@@ -196,7 +197,7 @@
   }
 
   /**
-   * 숫자 답을 검사하고 저장 단위(금액 백만, 비율 %)로 바꿉니다.
+   * 숫자 답을 검사하고 저장 단위(금액 백만, 대수 천 대, 비율 %)로 바꿉니다.
    * values 는 배열 [{metric, value, unit, basis, text}] 또는 객체 {revenue: {value, unit}} 둘 다 받습니다.
    * basis 가 'ytd'(누계)인 값은 ytd 에 따로 담고, 분기 값으로 바꾸는 일은 merge.ytdToQuarter 가 합니다.
    */
@@ -237,6 +238,10 @@
       if (!unit && kind === 'money') {
         unit = 'million';
         warnings.push(key + ' 단위가 없어 백만으로 봄');
+      }
+      if (!unit && kind === 'count') {
+        unit = 'one';
+        warnings.push(key + ' 단위가 없어 대(1대 단위)로 봄');
       }
       var n = C.toStoreUnit(x.value, unit, kind);
       if (n === null) {

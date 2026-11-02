@@ -10,8 +10,9 @@
    * 분기 자료에 들어가는 지표.
    *   money  발표 통화 백만 단위로 저장. 매출, 영업이익은 화면에서 MUSD 로 바꿉니다.
    *   pct    퍼센트 숫자 그대로 저장 (150 = 150%)
+   *   count  판매 대수. 천 대 단위로 저장
    *   flow   true 면 분기 동안 쌓이는 값(손익). false 면 분기 말 잔액(재무상태표). 누계를 분기로 바꿀 때 flow 만 바꿉니다.
-   * 화면에 보이는 것은 매출, 영업이익, 영업이익률, 부채비율 넷입니다.
+   * 화면에 보이는 것은 매출, 영업이익, 영업이익률, 부채비율, 판매 대수입니다.
    * 영업이익률 = 영업이익 / 매출, 부채비율 = 부채총계 / 자본총계. 둘 다 derive() 가 계산합니다.
    * 부채비율은 부채총계와 자본총계가 있으면 계산하고, 없으면 원문에 적힌 비율(debtRatio)을 씁니다.
    */
@@ -21,6 +22,7 @@
     { key: 'totalLiabilities', label: '부채총계', kind: 'money', flow: false },
     { key: 'totalEquity', label: '자본총계', kind: 'money', flow: false },
     { key: 'debtRatio', label: '부채비율 (원문 값)', kind: 'pct', flow: false },
+    { key: 'deliveries', label: '판매 대수', kind: 'count', flow: true },
   ];
 
   /** 하이라이트와 Q&A 주제. 프롬프트도 이 목록을 그대로 씁니다. 바꾸면 기존 자료의 주제가 '기타' 로 보입니다. */
@@ -29,6 +31,14 @@
   var CURRENCIES = ['USD', 'EUR', 'JPY', 'KRW', 'GBP', 'SEK', 'CNY', 'CHF'];
 
   /** 금액 단위 -> 백만 배수 */
+  /** 대수 단위 -> 천 대 배수 */
+  var COUNT_UNITS = {
+    one: 1e-3,
+    thousand: 1,
+    ten_thousand: 10,
+    million: 1000,
+  };
+
   var MONEY_UNITS = {
     one: 1e-6,
     thousand: 1e-3,
@@ -40,6 +50,7 @@
   };
   /** 사내 모델이 흔히 쓰는 다른 이름 -> 위 키 */
   var UNIT_ALIASES = {
+    units: 'one', unit: 'one', '대': 'one', '천대': 'thousand', '천_대': 'thousand', thousand_units: 'thousand', '만대': 'ten_thousand',
     won: 'one', yen: 'one', dollar: 'one', dollars: 'one', '원': 'one', '円': 'one',
     k: 'thousand', thousands: 'thousand', '천': 'thousand', '千': 'thousand',
     '만': 'ten_thousand', '万': 'ten_thousand',
@@ -52,13 +63,13 @@
   function normUnit(u) {
     if (u === undefined || u === null || u === '') return null;
     var s = String(u).trim().toLowerCase().replace(/\s+/g, '_');
-    if (MONEY_UNITS[s] !== undefined || s === 'percent') return s;
+    if (MONEY_UNITS[s] !== undefined || COUNT_UNITS[s] !== undefined || s === 'percent') return s;
     if (s === '%' || s === 'pct') return 'percent';
     return UNIT_ALIASES[s] || UNIT_ALIASES[String(u).trim()] || null;
   }
 
   /**
-   * 값을 저장 단위로 바꿉니다. money 는 백만, pct 는 퍼센트 숫자 그대로.
+   * 값을 저장 단위로 바꿉니다. money 는 백만, count 는 천 대, pct 는 퍼센트 숫자 그대로.
    * @returns {number|null} 단위를 모르면 null
    */
   function toStoreUnit(value, unit, kind) {
@@ -66,6 +77,7 @@
     if (n === null) return null;
     if (kind === 'pct') return round(n, 6);
     var u = normUnit(unit);
+    if (kind === 'count') return u && COUNT_UNITS[u] !== undefined ? round(n * COUNT_UNITS[u], 6) : null;
     if (!u || MONEY_UNITS[u] === undefined) return null;
     return round(n * MONEY_UNITS[u], 6);
   }
@@ -261,6 +273,7 @@
       out.debtRatio = null;
       out.debtRatioSource = null;
     }
+    out.deliveries = toNumber(v.deliveries);
     return out;
   }
 
@@ -286,6 +299,7 @@
       d.yoy = {
         revenue: pd ? growth(d.local.revenue, pd.local.revenue) : null,
         operatingIncome: pd ? growth(d.local.operatingIncome, pd.local.operatingIncome) : null,
+        deliveries: pd ? growth(d.deliveries, pd.deliveries) : null,
       };
       d.opMarginPrev = pd ? pd.opMargin : null;
       d.debtRatioPrev = pd ? pd.debtRatio : null;
@@ -321,6 +335,7 @@
     TOPICS: TOPICS,
     CURRENCIES: CURRENCIES,
     MONEY_UNITS: MONEY_UNITS,
+    COUNT_UNITS: COUNT_UNITS,
     metricOf: metricOf,
     normUnit: normUnit,
     toStoreUnit: toStoreUnit,

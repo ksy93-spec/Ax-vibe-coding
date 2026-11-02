@@ -10,6 +10,7 @@
   var views = (App.views = App.views || {});
 
   var SHOW_QUARTERS = 8;
+  var editingSent = ''; // 센티먼트 수정 모드인 '회사|분기'
 
   views.company = function (main, r) {
     var companies = App.data.companies();
@@ -24,6 +25,10 @@
     layout.appendChild(body);
     main.appendChild(layout);
 
+    if (r.edit === 'grid') {
+      App.editGrid(body, c);
+      return;
+    }
     if (r.edit) {
       App.editQuarter(body, c, r.period, r.edit === 'new');
       return;
@@ -70,6 +75,7 @@
       ]),
       h('div', { class: 'app__spacer' }),
       f.btn('콜 요약 넣기', function () { App.go({ tab: 'import', company: c.id, period: period || '' }); }),
+      f.btn('과거 실적 한꺼번에', function () { App.go({ edit: 'grid', period: '' }); }),
       f.btn('분기 추가', function () { App.go({ edit: 'new', period: '' }); }, 'primary'),
     ]));
 
@@ -78,6 +84,7 @@
         c.nameKo + ' 자료가 아직 없습니다',
         '자료 넣기에서 녹취록과 보도자료를 붙여 넣거나, 분기 추가로 숫자를 직접 적습니다.',
         [f.btn('자료 넣기', function () { App.go({ tab: 'import', company: c.id }); }, 'primary'),
+          f.btn('과거 실적 한꺼번에', function () { App.go({ edit: 'grid' }); }),
           f.btn('분기 추가', function () { App.go({ edit: 'new' }); })]
       )));
       return;
@@ -140,6 +147,8 @@
       ['  전년 대비', function (d) { return f.pct(d.yoy.operatingIncome, true); }, 'sub'],
       ['영업이익률', function (d) { return f.pct(d.opMargin); }],
       ['부채비율', function (d) { return f.pct(d.debtRatio) + (d.debtRatioSource === 'reported' ? ' *' : ''); }],
+      ['판매 대수 (천 대)' + (notes.deliveries ? ' (' + notes.deliveries + ')' : ''), function (d) { return f.num(d.deliveries); }],
+      ['  전년 대비', function (d) { return d.deliveries === null ? '-' : f.pct(d.yoy.deliveries, true); }, 'sub'],
       ['환율 (' + c.currency + '/USD)', function (d) {
         if (d.currency === 'USD') return '-';
         if (d.fx.source === 'missing') return '환율 없음';
@@ -191,11 +200,14 @@
       q.updatedAt ? h('span', null, '고친 때 ' + q.updatedAt) : null,
     ]));
     if (q.note) box.appendChild(h('p', { class: 'note', text: q.note }));
-    if (q.sentiment) {
+    if (q.sentiment && editingSent === c.id + '|' + period) {
+      box.appendChild(sentEditor(c, rep, q));
+    } else if (q.sentiment) {
       box.appendChild(h('div', { class: 'sent-box' }, f.sentTable(q.sentiment).concat([
         h('div', { class: 'row' }, [
-          h('span', { class: 'muted small', text: '점수 매긴 때 ' + (q.sentiment.scoredAt || '-') + '. 점수 고치기는 편집, 다시 매기기는 ' }),
-          h('button', { type: 'button', class: 'link small', text: '자료 넣기', onclick: function () { App.go({ tab: 'import', company: c.id, period: period }); } }),
+          f.btn('수정', function () { editingSent = c.id + '|' + period; App.render(); }, 'sm'),
+          f.btn('다시 매기기', function () { App.go({ tab: 'import', company: c.id, period: period }); }, 'ghost sm'),
+          h('span', { class: 'muted small', text: '점수 매긴 때 ' + (q.sentiment.scoredAt || '-') + (q.sentiment.editedAt ? ', 사람이 고친 때 ' + q.sentiment.editedAt : '') }),
         ]),
       ])));
     } else if (q.call) {
@@ -253,6 +265,65 @@
     });
     box.appendChild(qa);
     return box;
+  }
+
+  /**
+   * 센티먼트 수정 모드. 총평, 요인별 방향, 근거, 인용은 그 자리에서 고치고,
+   * 점수는 사람 점수(manual)로 저장합니다. 모델 점수는 그대로 남아 옆에 보입니다.
+   */
+  function sentEditor(c, rep, q) {
+    var SE2 = App.ea.sentiment;
+    var draft = JSON.parse(JSON.stringify(q.sentiment));
+    draft.manual = draft.manual || {};
+    draft.model = draft.model || {};
+    function inp(val, ph, onInput, cls) {
+      return h('input', { class: 'input input--sm' + (cls ? ' ' + cls : ''), value: val || '', placeholder: ph, oninput: function (e) { onInput(e.target.value); } });
+    }
+    var rows = SE2.FACTORS.map(function (fct) {
+      var m = draft.model[fct.key] = draft.model[fct.key] || { score: null, direction: '언급 없음', reason: '', quote: '' };
+      var man = draft.manual[fct.key];
+      return h('tr', null, [
+        h('td', { class: 'rowh', text: fct.label }),
+        h('td', null, f.sentCell(m.score, { title: '모델 점수' })),
+        h('td', null, h('input', {
+          class: 'input input--num input--sm', inputmode: 'numeric', placeholder: '0~10', value: man === undefined || man === null ? '' : man,
+          'aria-label': fct.label + ' 사람 점수',
+          oninput: function (e) {
+            var n = C.toNumber(e.target.value);
+            if (n === null || n < 0 || n > 10) delete draft.manual[fct.key];
+            else draft.manual[fct.key] = Math.round(n);
+          },
+        })),
+        h('td', null, h('select', { class: 'input input--sm', 'aria-label': fct.label + ' 방향', onchange: function (e) { m.direction = e.target.value; } },
+          SE2.DIRECTIONS.map(function (d) { return h('option', { value: d, selected: d === m.direction, text: d }); }))),
+        h('td', { class: 'td--wrap' }, h('textarea', { class: 'input textarea', rows: 2, 'aria-label': fct.label + ' 근거', oninput: function (e) { m.reason = e.target.value; } }, m.reason || '')),
+        h('td', { class: 'td--wrap' }, inp(m.quote, '짧은 인용', function (v) { m.quote = v; })),
+      ]);
+    });
+    function save() {
+      draft.editedAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      var nq = JSON.parse(JSON.stringify(q));
+      nq.sentiment = draft;
+      nq.origin = 'inside';
+      nq.updatedAt = draft.editedAt;
+      editingSent = '';
+      App.data.putReport(c.id, M.putQuarter(App.data.report(c.id), nq));
+      App.ui.toast('센티먼트를 고쳤습니다. 파일 반영은 관리 탭에서 합니다.', 'ok');
+    }
+    return h('div', { class: 'sent-box sent-box--edit' }, [
+      h('div', { class: 'panel__bar' }, [
+        h('h4', { class: 'sub__title', text: '센티먼트 수정' }),
+        h('span', { class: 'muted small', text: '사람 점수를 비우면 모델 점수를 씁니다. 근거와 인용은 바로 고쳐집니다.' }),
+        h('div', { class: 'app__spacer' }),
+        f.btn('취소', function () { editingSent = ''; App.render(); }, 'sm'),
+        f.btn('저장', save, 'primary sm'),
+      ]),
+      f.field('총평', h('textarea', { class: 'input textarea', rows: 2, oninput: function (e) { draft.summary = e.target.value; } }, draft.summary || '')),
+      h('div', { class: 'table__scroll' }, h('table', { class: 'table table--sent table--form' }, [
+        h('thead', null, h('tr', null, ['요인', '모델 점수', '사람 점수', '방향', '근거', '인용'].map(function (t) { return h('th', { class: 'th', text: t }); }))),
+        h('tbody', null, rows),
+      ])),
+    ]);
   }
 
   /** 요인별 점수 추이 (최근 분기, 오래된 것부터). 점수가 하나도 없으면 그리지 않습니다. */

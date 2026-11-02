@@ -16,6 +16,7 @@
     main.appendChild(savePanel());
     main.appendChild(packPanel());
     main.appendChild(fxPanel());
+    main.appendChild(sentimentPanel());
     main.appendChild(companyPanel());
   };
 
@@ -91,6 +92,7 @@
   function describe(it) {
     if (it.kind === 'companies') return '회사 목록 ' + it.data.companies.length + '곳';
     if (it.kind === 'fx') return '환율 표';
+    if (it.kind === 'settings') return '설정 (센티먼트 요인 이름, 설명, 가중치)';
     var c = App.data.company(it.id);
     var name = c ? c.nameKo || c.name : it.id;
     if (it.kind === 'report') return name + ' 분기 ' + (it.data.quarters || []).length + '개';
@@ -216,7 +218,7 @@
   function exportCsv() {
     var fx = App.data.fx();
     var cols = ['company', 'name', 'group', 'period', 'fiscal_label', 'report_date', 'currency', 'fx_per_usd', 'fx_source',
-      'revenue_musd', 'operating_income_musd', 'op_margin_pct', 'debt_ratio_pct', 'debt_ratio_basis',
+      'revenue_musd', 'operating_income_musd', 'op_margin_pct', 'debt_ratio_pct', 'debt_ratio_basis', 'deliveries_k',
       'revenue_local_m', 'operating_income_local_m', 'total_liabilities_local_m', 'total_equity_local_m', 'status', 'source',
       'sentiment_index'].concat(App.ea.sentiment.FACTORS.map(function (x) { return 'sent_' + x.key; }));
     var recs = [];
@@ -228,7 +230,7 @@
           company: c.id, name: c.name, group: c.group, period: d.period, fiscal_label: q.fiscalLabel || '', report_date: q.reportDate || '',
           currency: d.currency, fx_per_usd: d.currency === 'USD' ? 1 : r(d.fx.rate, 4), fx_source: d.fx.source,
           revenue_musd: r(d.musd.revenue), operating_income_musd: r(d.musd.operatingIncome), op_margin_pct: r(d.opMargin, 2),
-          debt_ratio_pct: r(d.debtRatio, 2), debt_ratio_basis: d.debtRatioSource || '',
+          debt_ratio_pct: r(d.debtRatio, 2), debt_ratio_basis: d.debtRatioSource || '', deliveries_k: r(d.deliveries),
           revenue_local_m: r(d.local.revenue), operating_income_local_m: r(d.local.operatingIncome),
           total_liabilities_local_m: r((q.values || {}).totalLiabilities), total_equity_local_m: r((q.values || {}).totalEquity),
           status: q.status || '', source: q.source || '',
@@ -319,6 +321,53 @@
     ]);
   }
 
+  /* ---------- 센티먼트 설정 ---------- */
+
+  function sentimentPanel() {
+    var SE = App.ea.sentiment;
+    var cur = JSON.parse(JSON.stringify((App.data.settings() || {}).sentiment || {}));
+    cur.factors = cur.factors || {};
+    cur.weights = cur.weights || {};
+    var rows = SE.FACTORS.map(function (fct, i) {
+      var d = SE.DEFAULTS[i];
+      var o = cur.factors[fct.key] = cur.factors[fct.key] || {};
+      return h('tr', null, [
+        h('td', { class: 'mono', text: fct.key }),
+        h('td', null, h('input', { class: 'input input--sm', value: o.label || '', placeholder: d.label, 'aria-label': fct.key + ' 이름', oninput: function (e) { o.label = e.target.value; } })),
+        h('td', { class: 'td--wrap' }, h('textarea', { class: 'input textarea', rows: 2, placeholder: d.hint, 'aria-label': fct.key + ' 설명', oninput: function (e) { o.hint = e.target.value; } }, o.hint || '')),
+        h('td', null, h('input', {
+          class: 'input input--num input--sm', inputmode: 'decimal', placeholder: String(SE.DEFAULT_WEIGHTS[fct.key]), value: cur.weights[fct.key] === undefined ? '' : cur.weights[fct.key],
+          'aria-label': fct.key + ' 가중치',
+          oninput: function (e) { var n = C.toNumber(e.target.value); if (n === null || n < 0) delete cur.weights[fct.key]; else cur.weights[fct.key] = n; },
+        })),
+      ]);
+    });
+    return h('section', { class: 'panel' }, [
+      h('h2', { class: 'panel__title', text: '센티먼트 설정' }),
+      h('p', { class: 'panel__hint', text: '요인 이름과 설명은 화면과 점수 프롬프트에 그대로 들어갑니다. 설명을 구체적으로 쓸수록 점수가 덜 흔들립니다. 칸을 비우면 처음 값(흐린 글씨)을 씁니다. 가중치를 바꾸면 과거 분기의 종합 점수도 다시 계산됩니다. 영문 key 는 저장 이름이라 바꿀 수 없습니다.' }),
+      h('div', { class: 'table__scroll' }, h('table', { class: 'table table--sent table--form' }, [
+        h('thead', null, h('tr', null, ['key', '이름', '설명 (프롬프트에 들어감)', '가중치'].map(function (t) { return h('th', { class: 'th', text: t }); }))),
+        h('tbody', null, rows),
+      ])),
+      h('div', { class: 'row' }, [
+        f.btn('설정 저장', function () {
+          var s = Object.assign({}, App.data.settings() || { rev: 0 });
+          s.sentiment = cur;
+          App.data.putSettings(s);
+          App.ui.toast('설정을 저장했습니다. 파일 반영은 위 "파일로 저장" 에서.', 'ok');
+        }, 'primary'),
+        f.btn('처음 값으로', function () {
+          App.ui.confirm('센티먼트 요인 이름, 설명, 가중치를 모두 처음 값으로 되돌립니다.', function (yes) {
+            if (!yes) return;
+            var s = Object.assign({}, App.data.settings() || { rev: 0 });
+            s.sentiment = { factors: {}, weights: {} };
+            App.data.putSettings(s);
+          }, { okLabel: '되돌리기' });
+        }, 'ghost'),
+      ]),
+    ]);
+  }
+
   /* ---------- 회사 목록 ---------- */
 
   function companyPanel() {
@@ -394,6 +443,7 @@
       f.field('회계연도 끝 달', h('input', { class: 'input', inputmode: 'numeric', value: d.fyEnd, oninput: function (e) { d.fyEnd = C.toNumber(e.target.value) || 12; } }), '12 또는 3'),
       f.field('글자 마크 색', inp('color', '#0170CE')),
       f.field('영업이익 이름', note('operatingIncome'), '예: EBIT, Operating result. 숫자 프롬프트가 이 이름으로 찾습니다'),
+      f.field('판매 대수 정의', note('deliveries'), '예: 도매 판매, Retail sales'),
       f.field('다른 이름 (쉼표로)', h('input', { class: 'input', value: (d.aliases || []).join(', '), oninput: function (e) {
         d.aliases = e.target.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
       } }), '모델 답에 다른 이름이 와도 이 회사로 알아봅니다'),

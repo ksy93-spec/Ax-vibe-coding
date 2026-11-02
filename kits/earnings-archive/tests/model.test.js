@@ -505,4 +505,76 @@
     ok(p.indexOf('{{') < 0);
     ok(PR.buildSentimentPrompt(COMPANIES[0], '2026Q2', call, null).indexOf('없음 (이번이 첫 점수)') > 0);
   });
+  /* ---------- 판매 대수, 일괄 입력, 설정 ---------- */
+
+  test('판매 대수: 대, 천 대, 만 대를 천 대로 저장하고 전년 대비 계산', function () {
+    eq(C.toStoreUnit(875000, 'one', 'count'), 875);
+    eq(C.toStoreUnit('991,885', 'units', 'count'), 991.885);
+    eq(C.toStoreUnit(85, '만대', 'count'), 850);
+    eq(C.toStoreUnit(5, 'billion', 'count'), null, '금액 단위는 대수에 못 씀');
+    var rep = { company: 'kmot', quarters: [
+      { period: '2025Q2', values: { deliveries: 900 } },
+      { period: '2026Q2', values: { deliveries: 990 } },
+    ] };
+    var t = C.table(rep, COMPANIES[1], FX);
+    eq(t[0].deliveries, 990);
+    near(t[0].yoy.deliveries, 10, 1e-9);
+  });
+
+  test('숫자 검사: 판매 대수 별칭과 단위 없음 경고, 누계 분리', function () {
+    var r = P.readNumbers({ company: 'acme', period: '2026Q2', values: [
+      { metric: 'Wholesale', value: 1020000 },
+      { metric: 'revenue', value: 1, unit: 'billion' },
+    ] }, { companies: COMPANIES });
+    ok(r.ok, r.errors.join());
+    eq(r.numbers.values.deliveries, 1020);
+    ok(r.warnings.some(function (w) { return /대\(1대 단위\)/.test(w); }));
+    var y = P.readNumbers({ company: 'acme', period: '2026Q2', values: [{ metric: '판매 대수', value: 2.1, unit: 'million', basis: 'ytd' }] }, { companies: COMPANIES });
+    eq(y.numbers.ytd.deliveries, 2100);
+  });
+
+  test('일괄 입력: 값 넣기, 빈칸은 지우기, 없는 지표는 그대로, 바뀐 분기만 표시', function () {
+    var rep = { company: 'acme', rev: 1, quarters: [
+      { period: '2026Q1', values: { revenue: 10, operatingIncome: 1, deliveries: 5 }, origin: 'outside', updatedAt: 'old' },
+      { period: '2025Q4', values: { revenue: 9 }, origin: 'outside', updatedAt: 'old' },
+    ] };
+    var res = M.applyGrid(rep, COMPANIES[0], [
+      { period: '2026Q1', values: { revenue: 11, operatingIncome: null } },
+      { period: '2025Q4', values: { revenue: 9 } },
+      { period: '2025Q3', values: { revenue: 8, deliveries: 4 }, fiscalLabel: 'Q3 2025' },
+      { period: '2025Q2', values: { revenue: null } },
+      { period: 'bad', values: { revenue: 1 } },
+    ]);
+    eq(res.changed.join(), '2026Q1,2025Q3');
+    var q1 = C.quarterOf(res.report, '2026Q1');
+    eq(q1.values.revenue, 11);
+    eq(q1.values.operatingIncome, undefined, '빈칸은 지움');
+    eq(q1.values.deliveries, 5, '보내지 않은 지표는 그대로');
+    eq(q1.origin, 'inside');
+    eq(C.quarterOf(res.report, '2025Q4').updatedAt, 'old', '같은 값이면 안 바뀜');
+    eq(C.quarterOf(res.report, '2025Q3').fiscalLabel, 'Q3 2025');
+    eq(C.quarterOf(res.report, '2025Q2'), null, '값 없는 새 분기는 만들지 않음');
+    eq(rep.quarters.length, 2, '원본 그대로');
+  });
+
+  test('센티먼트 설정: 이름, 설명, 가중치 덮기와 되돌리기, 프롬프트에 반영', function () {
+    SE.configure({ factors: { supply: { label: '부품 수급', hint: '반도체만 본다' } }, weights: { profit: 3, volume: '' } });
+    var f = SE.FACTORS.filter(function (x) { return x.key === 'supply'; })[0];
+    eq(f.label, '부품 수급');
+    eq(SE.WEIGHTS.profit, 3);
+    eq(SE.WEIGHTS.volume, 1, '빈 가중치는 처음 값');
+    eq(SE.index({ model: { profit: { score: 8 }, volume: { score: 4 } } }), 7, '(8 x 3 + 4) / 4');
+    var p = PR.buildSentimentPrompt(COMPANIES[0], '2026Q2', { summary: 's' }, null);
+    ok(p.indexOf('- supply: 부품 수급 (반도체만 본다)') >= 0);
+    SE.configure(null);
+    eq(f.label, '공급망');
+    eq(SE.WEIGHTS.profit, 1);
+  });
+
+  test('설정 파일: settings 종류 읽기와 경로', function () {
+    eq(F.pathOf('settings'), 'settings.js');
+    var c = F.collect([{ kind: 'settings', data: { rev: 2, sentiment: {} } }, { kind: 'settings', data: { rev: 1 } }]);
+    eq(c.settings.rev, 2);
+    eq(F.fromText(F.toText('settings', { rev: 1 })).kind, 'settings');
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

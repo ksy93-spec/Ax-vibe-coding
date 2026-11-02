@@ -219,7 +219,7 @@
 
   function compareTable(rows) {
     var table = h('table', { class: 'table' }, [
-      h('thead', null, h('tr', null, ['회사', '매출 (MUSD)', '전년 대비', '영업이익 (MUSD)', '영업이익률', '부채비율', '환율'].map(function (t, i) {
+      h('thead', null, h('tr', null, ['회사', '매출 (MUSD)', '전년 대비', '영업이익 (MUSD)', '영업이익률', '부채비율', '판매 (천 대)', '환율'].map(function (t, i) {
         return h('th', { class: 'th' + (i ? ' num' : ''), text: t });
       }))),
       h('tbody', null, rows.map(function (x) {
@@ -231,6 +231,7 @@
           h('td', { class: 'num', text: f.musd(t.musd.operatingIncome) }),
           h('td', { class: 'num', text: f.pct(t.opMargin) }),
           h('td', { class: 'num', text: f.pct(t.debtRatio) }),
+          h('td', { class: 'num', text: f.num(t.deliveries) }),
           h('td', { class: 'num', text: t.currency === 'USD' ? '-' : t.currency + ' ' + f.rate(t.fx && t.fx.rate) }),
         ]);
       })),

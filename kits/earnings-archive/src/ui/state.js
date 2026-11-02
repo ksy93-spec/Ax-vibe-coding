@@ -15,11 +15,17 @@
   var WORK_KEY = 'ea.work.v1';
   var listeners = [];
 
-  var base = { companies: null, fx: null, reports: {}, transcripts: {} };
-  var work = { companies: null, fx: null, reports: {}, transcripts: {} };
+  var base = { companies: null, fx: null, settings: null, reports: {}, transcripts: {} };
+  var work = { companies: null, fx: null, settings: null, reports: {}, transcripts: {} };
   var dirHandle = null;
 
+  /** 설정(센티먼트 요인 이름, 설명, 가중치)을 계산 모듈에 적용합니다. 화면을 다시 그리기 전에 부릅니다. */
+  function applySettings() {
+    App.ea.sentiment.configure((settings() || {}).sentiment);
+  }
+
   function emit() {
+    applySettings();
     listeners.forEach(function (fn) {
       fn();
     });
@@ -48,6 +54,7 @@
     var c = F.collect(global.EA_FILES || []);
     base.companies = c.companies || base.companies || { rev: 0, companies: [] };
     base.fx = c.fx || base.fx || { rev: 0, rates: {} };
+    base.settings = c.settings || base.settings || { rev: 0, sentiment: {} };
     Object.assign(base.reports, c.reports);
     Object.assign(base.transcripts, c.transcripts);
   }
@@ -64,6 +71,7 @@
     })).then(function () {
       refreshBase();
       dropStale();
+      applySettings();
       return restoreHandle();
     });
   }
@@ -87,6 +95,7 @@
         work = {
           companies: w.companies || null,
           fx: w.fx || null,
+          settings: w.settings || null,
           reports: w.reports || {},
           transcripts: w.transcripts || {},
         };
@@ -115,6 +124,10 @@
     }
     if (work.fx && !F.isAhead(work.fx, base.fx)) {
       work.fx = null;
+      changed = true;
+    }
+    if (work.settings && !F.isAhead(work.settings, base.settings)) {
+      work.settings = null;
       changed = true;
     }
     ['reports', 'transcripts'].forEach(function (k) {
@@ -147,6 +160,9 @@
   function fx() {
     return pick(work.fx, base.fx);
   }
+  function settings() {
+    return pick(work.settings, base.settings);
+  }
   function report(id) {
     return pick(work.reports[id], base.reports[id]) || App.ea.merge.emptyReport(id);
   }
@@ -166,6 +182,11 @@
   function putCompanies(list) {
     var cur = companiesData();
     work.companies = F.bump(Object.assign({}, cur, { companies: list }), base.companies);
+    writeWork();
+    emit();
+  }
+  function putSettings(data) {
+    work.settings = F.bump(data, base.settings);
     writeWork();
     emit();
   }
@@ -199,6 +220,7 @@
     var out = [];
     if (F.isAhead(work.companies, base.companies)) out.push({ kind: 'companies', id: '', data: work.companies });
     if (F.isAhead(work.fx, base.fx)) out.push({ kind: 'fx', id: '', data: work.fx });
+    if (F.isAhead(work.settings, base.settings)) out.push({ kind: 'settings', id: '', data: work.settings });
     Object.keys(work.reports).forEach(function (id) {
       if (F.isAhead(work.reports[id], base.reports[id])) out.push({ kind: 'report', id: id, data: work.reports[id] });
     });
@@ -213,7 +235,7 @@
 
   /** 작업본 버리기 (파일 상태로 돌아감) */
   function discard(item) {
-    if (item.kind === 'companies' || item.kind === 'fx') work[item.kind] = null;
+    if (item.kind === 'companies' || item.kind === 'fx' || item.kind === 'settings') work[item.kind] = null;
     else delete work[item.kind === 'report' ? 'reports' : 'transcripts'][item.id];
     writeWork();
     emit();
@@ -359,6 +381,8 @@
     companies: companies,
     company: company,
     fx: fx,
+    settings: settings,
+    putSettings: putSettings,
     report: report,
     reports: reports,
     transcriptsOf: transcriptsOf,

@@ -30,6 +30,29 @@
   /** 종합 점수 가중치. 모두 1 이면 단순 평균입니다. 바꾸려면 이 숫자만 고칩니다. */
   var WEIGHTS = { volume: 1, revenue: 1, profit: 1, capex: 1, supply: 1, materialsFx: 1, demandPrice: 1, tariffPolicy: 1 };
 
+  // 처음 값. configure() 가 설정 파일(data/settings.js)의 이름, 설명, 가중치로 덮었다가 되돌릴 때 씁니다.
+  var DEFAULTS = FACTORS.map(function (f) { return { key: f.key, label: f.label, hint: f.hint }; });
+  var DEFAULT_WEIGHTS = Object.assign({}, WEIGHTS);
+
+  /**
+   * 관리 탭에서 고친 요인 이름, 설명, 가중치를 적용합니다. 빈 값은 처음 값으로 둡니다.
+   * FACTORS, WEIGHTS 객체를 그 자리에서 바꾸므로 다른 파일이 들고 있는 참조도 같이 바뀝니다.
+   * @param {{factors?: Object<string, {label?: string, hint?: string}>, weights?: Object<string, number>}} cfg
+   */
+  function configure(cfg) {
+    var c = cfg || {};
+    var fs = c.factors || {};
+    var ws = c.weights || {};
+    FACTORS.forEach(function (f, i) {
+      var d = DEFAULTS[i];
+      var o = fs[f.key] || {};
+      f.label = String(o.label || '').trim() || d.label;
+      f.hint = String(o.hint || '').trim() || d.hint;
+      var w = C.toNumber(ws[f.key]);
+      WEIGHTS[f.key] = w !== null && w >= 0 ? w : DEFAULT_WEIGHTS[f.key];
+    });
+  }
+
   /** 점수 눈금. 프롬프트에 그대로 들어갑니다. */
   var SCALE = [
     '0~2: 크게 악화 (가이던스 큰 폭 하향이나 철회, 심각한 차질)',
@@ -183,6 +206,9 @@
   ea.sentiment = {
     FACTORS: FACTORS,
     WEIGHTS: WEIGHTS,
+    DEFAULTS: DEFAULTS,
+    DEFAULT_WEIGHTS: DEFAULT_WEIGHTS,
+    configure: configure,
     SCALE: SCALE,
     DIRECTIONS: DIRECTIONS,
     factorOf: factorOf,

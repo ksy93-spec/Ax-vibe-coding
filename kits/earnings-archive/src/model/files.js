@@ -10,6 +10,7 @@
  *   fx          { rev, basis, source, rates: { EUR: { '2026Q2': 0.86 } } }
  *   report      { company, rev, quarters: Quarter[] }           data/reports/<회사 id>.js
  *   transcripts { company, rev, items: { '2026Q2': {...} } }   data/transcripts/<회사 id>.js
+ *   settings    { rev, sentiment: { factors: { volume: {label, hint} }, weights: { volume: 1 } } }   data/settings.js
  *
  * rev 는 저장할 때마다 1씩 오릅니다. 브라우저에 남은 작업본의 rev 가 파일보다 크면 아직 파일로 저장하지 않은 변경입니다.
  */
@@ -18,19 +19,21 @@
   var App = (global.App = global.App || {});
   var ea = (App.ea = App.ea || {});
 
-  var KINDS = ['companies', 'fx', 'report', 'transcripts'];
+  var KINDS = ['companies', 'fx', 'report', 'transcripts', 'settings'];
 
   var HEADER = {
     companies: '회사 목록. 관리 탭에서 고치고 저장하면 이 파일을 다시 씁니다.',
     fx: '분기 평균 환율 (1 USD 당 통화 단위). 관리 탭에서 고치고 저장하면 이 파일을 다시 씁니다.',
     report: '회사 하나의 분기 실적과 컨퍼런스콜 요약. 금액은 발표 통화 백만 단위, 판매 대수는 천 대.',
     transcripts: '컨퍼런스콜 원문 보관. 화면에서 "원문 보기" 를 누를 때만 읽습니다.',
+    settings: '설정 (센티먼트 요인 이름, 설명, 가중치). 관리 탭에서 고치고 저장하면 이 파일을 다시 씁니다.',
   };
 
   /** kind 와 회사 id 로 data 폴더 기준 경로 */
   function pathOf(kind, id) {
     if (kind === 'companies') return 'companies.js';
     if (kind === 'fx') return 'fx.js';
+    if (kind === 'settings') return 'settings.js';
     if (kind === 'report') return 'reports/' + id + '.js';
     if (kind === 'transcripts') return 'transcripts/' + id + '.js';
     throw new Error('모르는 파일 종류: ' + kind);
@@ -58,14 +61,14 @@
 
   /**
    * window.EA_FILES 배열을 종류별로 모읍니다. 같은 파일이 두 번 들어오면 rev 가 큰 쪽을 씁니다.
-   * @returns {{companies: object|null, fx: object|null, reports: Object<string, object>, transcripts: Object<string, object>}}
+   * @returns {{companies: object|null, fx: object|null, settings: object|null, reports: Object<string, object>, transcripts: Object<string, object>}}
    */
   function collect(list) {
-    var out = { companies: null, fx: null, reports: {}, transcripts: {} };
+    var out = { companies: null, fx: null, settings: null, reports: {}, transcripts: {} };
     (list || []).forEach(function (f) {
       if (!f || !f.data) return;
       var d = f.data;
-      if (f.kind === 'companies' || f.kind === 'fx') {
+      if (f.kind === 'companies' || f.kind === 'fx' || f.kind === 'settings') {
         if (!out[f.kind] || revOf(d) >= revOf(out[f.kind])) out[f.kind] = d;
       } else if (f.kind === 'report' || f.kind === 'transcripts') {
         var bucket = f.kind === 'report' ? out.reports : out.transcripts;

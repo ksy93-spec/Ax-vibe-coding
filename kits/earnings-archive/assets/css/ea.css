@@ -279,6 +279,15 @@ mark { background: var(--c-warn-bg); color: inherit; padding: 0 1px; border-radi
 .sent-legend { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin: var(--sp-2) 0; }
 .sent-head { margin-bottom: var(--sp-2); }
 .sent-box { margin-bottom: var(--sp-5); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--c-border); }
+.sent-box--edit { background: var(--c-bg-sunken); padding: var(--sp-3); border-radius: var(--radius-md); border: 1px solid var(--c-border); }
+.sent-box--edit .textarea { min-width: 260px; }
+.sent-box--edit .table__scroll { max-height: none; }
+.grid-tbl .th__sub { display: block; }
+.grid-tbl td { padding: 2px var(--sp-1); }
+.grid-tbl .input { width: 110px; min-width: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.grid-tbl .input.is-bad { border-color: var(--c-danger); background: var(--c-danger-bg); }
+.grid-tbl .input--label { width: 100px; text-align: left; }
+.grid-tbl td.calc { color: var(--c-fg-muted); font-size: var(--text-xs); text-align: right; }
 .sent-head .sub__title { margin: 0; }
 .sent-step { border-top: 1px solid var(--c-border); margin-top: var(--sp-4); padding-top: var(--sp-2); }
 .table--sent td.td--wrap { white-space: normal; max-width: 640px; }

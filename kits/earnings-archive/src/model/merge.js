@@ -184,6 +184,42 @@
     return putQuarter(r, q);
   }
 
+  /**
+   * 여러 분기 숫자를 한꺼번에 넣습니다 (과거 자료 일괄 입력).
+   * rows: [{ period, fiscalLabel?, values: { revenue: 123 | null, ... } }]  값은 이미 저장 단위(백만, 천 대, %)입니다.
+   * - 값이 숫자면 넣고, null 이면 그 지표를 지웁니다 (표에서 칸을 비운 경우).
+   * - values 에 없는 지표는 건드리지 않습니다.
+   * - 값이 하나도 없는 새 분기는 만들지 않습니다.
+   * - 실제로 바뀐 분기만 origin 'inside' 와 updatedAt 을 바꿉니다.
+   * @returns {{report: object, changed: string[]}} changed 는 바뀐 분기 목록
+   */
+  function applyGrid(report, company, rows) {
+    var r = clone(report) || emptyReport(company.id);
+    var changed = [];
+    (rows || []).forEach(function (row) {
+      var period = C.normPeriod(row.period);
+      if (!period) return;
+      var cur = C.quarterOf(r, period);
+      var hasAny = Object.keys(row.values || {}).some(function (k) { return row.values[k] !== null && row.values[k] !== undefined; });
+      if (!cur && !hasAny) return;
+      var q = clone(cur) || newQuarter(company, period);
+      q.values = q.values || {};
+      var before = JSON.stringify([q.values, q.fiscalLabel]);
+      Object.keys(row.values || {}).forEach(function (k) {
+        var v = row.values[k];
+        if (v === null || v === undefined) delete q.values[k];
+        else q.values[k] = v;
+      });
+      if (row.fiscalLabel !== undefined && row.fiscalLabel !== null && String(row.fiscalLabel).trim()) q.fiscalLabel = String(row.fiscalLabel).trim();
+      if (cur && JSON.stringify([q.values, q.fiscalLabel]) === before) return;
+      q.origin = 'inside';
+      q.updatedAt = now();
+      r = putQuarter(r, q);
+      changed.push(period);
+    });
+    return { report: r, changed: changed };
+  }
+
   /* ---------- 바깥에서 만든 자료 묶음(ea-pack) 가져오기 ---------- */
 
   function same(a, b) {
@@ -302,6 +338,7 @@
     applyCall: applyCall,
     applyNumbers: applyNumbers,
     applySentiment: applySentiment,
+    applyGrid: applyGrid,
     ytdToQuarter: ytdToQuarter,
     planPack: planPack,
     applyPack: applyPack,

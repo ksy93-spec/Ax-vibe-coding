@@ -369,11 +369,11 @@
     var rows = C.METRICS.filter(function (m) { return n.values[m.key] !== undefined || n.ytd[m.key] !== undefined; }).map(function (m) {
       var isYtd = n.values[m.key] === undefined;
       var val = isYtd ? n.ytd[m.key] : n.values[m.key];
-      var musd = m.flow ? C.toMusd(val, cur, S.period, fx) : null;
+      var musd = m.kind === 'money' && m.flow ? C.toMusd(val, cur, S.period, fx) : null;
       return h('tr', null, [
         h('td', { text: m.label + (isYtd ? ' (누계)' : '') }),
         h('td', { class: 'muted', text: n.raw[m.key] || '' }),
-        h('td', { class: 'num', text: m.kind === 'money' ? f.num(val) + ' 백만 ' + cur : f.pct(val) }),
+        h('td', { class: 'num', text: m.kind === 'money' ? f.num(val) + ' 백만 ' + cur : m.kind === 'count' ? f.num(val, 1) + ' 천 대' : f.pct(val) }),
         h('td', { class: 'num', text: musd ? (musd.value === null ? '환율 없음' : f.musd(musd.value) + ' MUSD') : '' }),
       ]);
     });

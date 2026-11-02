@@ -53,7 +53,7 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
     state.js   App.data       자료 읽기, 작업본(localStorage), 저장. 화면은 자료를 이 API 로만 읽고 쓴다
     format.js  App.f          숫자 표기(musd, pct, pp, num), 로고, 버튼, 입력 칸
     chart.js   App.chart      columns(세로 막대), bars(가로 막대)
-    view-overview.js  한눈에 보기 탭     view-company.js  회사별 탭     view-edit.js  분기 편집 화면
+    view-overview.js  한눈에 보기 탭     view-company.js  회사별 탭     view-edit.js  분기 편집 화면     view-grid.js  과거 실적 한꺼번에 넣기 (App.editGrid)
     view-import.js    자료 넣기 탭       view-search.js   찾기 탭       view-admin.js 관리 탭
 - src/main.js  머리글, 탭, 화면 이동. 탭 화면은 App.views.<탭 id> = function (main, route) 로 그린다.
   화면 이동은 App.go({ tab: 'company', company: 'gm', period: '2026Q2' }).
@@ -62,7 +62,7 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 [자료]
 - 분기는 달력 분기 문자열 '2026Q3' (7~9월). 3월 결산 회사도 달력 분기로 맞추고, 회사 표기는 fiscalLabel 에 둔다.
 - 분기 자료 values 의 키: revenue, operatingIncome, totalLiabilities, totalEquity (발표 통화 백만 단위),
-  debtRatio (% 숫자, 원문에 비율만 있을 때).
+  debtRatio (% 숫자, 원문에 비율만 있을 때), deliveries (판매 대수, 천 대).
 - 화면 숫자는 App.ea.core.derive(quarter, company, fx) 가 만든다.
     musd.revenue, musd.operatingIncome  백만 달러 (분기 평균 환율로 나눔)
     opMargin   영업이익 / 매출 x 100
@@ -205,7 +205,9 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | 환율 넣기, 통화 더하기 | 관리 탭 > 환율 |
 | 숫자, 하이라이트, Q&A 고치기 | 회사별 탭 > 분기 > 편집 |
 | 분기 지우기 | 회사별 탭 > 분기 > 삭제 |
-| 센티먼트 점수 고치기 | 회사별 탭 > 분기 > 편집 > 센티먼트 점수 (사람이 고치기). 비우면 모델 점수로 돌아감 |
+| 과거 매출, 영업이익, 판매 대수 등 여러 분기 넣기 | 회사별 탭 > 과거 실적 한꺼번에. 엑셀에서 복사해 붙여 넣기 |
+| 센티먼트 요인 이름, 설명, 가중치 바꾸기 | 관리 탭 > 센티먼트 설정 |
+| 센티먼트 점수, 근거, 총평 고치기 | 회사별 탭 > 분기의 센티먼트 표 > 수정. 사람 점수를 비우면 모델 점수로 돌아감 |
 | 센티먼트 다시 매기기 | 자료 넣기에서 회사와 분기를 고르면 저장된 콜 요약으로 점수 프롬프트가 나옴 |
 
 ## 6. 자주 하는 변경
@@ -221,8 +223,8 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | G | CSV 내보내기 열 바꾸기 | `src/ui/view-admin.js` 의 `exportCsv()` | 관리 탭 CSV |
 | H | 새 지표 더하기 (예: 순이익, 순이익률) | 1) `src/model/core.js` 의 `METRICS` 에 `{ key: 'netIncome', label: '순이익', kind: 'money', flow: true }`, 비율이면 `derive()` 에 계산 추가 2) `src/model/parse.js` 의 `METRIC_ALIASES` 에 별칭 3) `src/model/prompt.js` 의 `NUMBERS_TEMPLATE` [찾을 숫자] 에 한 줄 4) 같은 줄을 `prompts/11-numbers.md` 에 5) 보일 화면 파일 (A, B) | 단계마다 tests/index.html |
 | I | 녹취록 나누기가 엉뚱한 곳에서 됨 | `src/model/prompt.js` 의 `QA_MARKERS` 에 그 녹취록의 질의응답 시작 줄 형식을 더함 | 자료 넣기 3번 안내 문구 |
-| J | 센티먼트 종합 점수 가중치 바꾸기 (예: 수익성을 2배로) | `src/model/sentiment.js` 의 `WEIGHTS` 에서 숫자만 (`profit: 2`). 과거 분기도 같은 식으로 다시 계산됨 | tests/index.html, 한눈에 보기 센티먼트 표 |
-| K | 같은 요약인데 점수가 자꾸 흔들리는 요인이 있음 | `src/model/sentiment.js` 의 그 요인 `hint` 를 더 구체적으로 (무엇이면 높고 무엇이면 낮은지). 그다음 `prompts/12-sentiment.md` 표의 같은 칸 | 같은 요약으로 두 번 매겨 1점 안쪽인지 |
+| J | 센티먼트 종합 점수 가중치 바꾸기 (예: 수익성을 2배로) | 코드 수정 없음. 관리 탭 > 센티먼트 설정. 과거 분기도 같은 식으로 다시 계산됨 | 한눈에 보기 센티먼트 표 |
+| K | 같은 요약인데 점수가 자꾸 흔들리는 요인이 있음 | 코드 수정 없음. 관리 탭 > 센티먼트 설정에서 그 요인 설명을 더 구체적으로 (무엇이면 높고 무엇이면 낮은지) | 같은 요약으로 두 번 매겨 1점 안쪽인지 |
 | L | 센티먼트 요인 더하기 | 1) `src/model/sentiment.js` 의 `FACTORS` 끝에 `{ key, label, hint }` 와 `WEIGHTS` 에 같은 key 2) `prompts/12-sentiment.md` 요인 표. 프롬프트와 화면은 저절로 따라감. 이미 매긴 분기는 새 요인이 "언급 없음" 으로 보임 | tests/index.html |
 
 H 처럼 여러 파일을 고칠 때는 1번 파일을 고치고 확인한 다음 2번으로 넘어갑니다. 한꺼번에 다섯 파일을 붙여 넣지 않습니다.
@@ -247,7 +249,7 @@ H 처럼 여러 파일을 고칠 때는 1번 파일을 고치고 확인한 다�
 
 사내 PC 에 Node 가 없어도 브라우저만으로 확인합니다.
 
-1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "44/44 통과" 처럼 전부 통과해야 합니다.
+1. `tests/index.html` 을 Chrome 이나 Edge 로 엽니다. 맨 위에 "49/49 통과" 처럼 전부 통과해야 합니다.
    `src/model/` 을 고쳤는데 실패가 나오면, 실패한 줄의 이름과 빨간 문구를 그대로 "8. 막혔을 때" 양식에 넣습니다.
    (H 처럼 일부러 동작을 바꾼 변경이면 테스트를 고쳐야 할 수도 있습니다. 이때는 ChatGPT 에 맡기지 말고 바깥 저장소 담당에게 넘깁니다.)
 2. `index.html` 을 열고 F12 > Console 에 빨간 오류가 없는지 봅니다.

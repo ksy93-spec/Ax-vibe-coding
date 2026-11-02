@@ -95,15 +95,15 @@
           var storeVal = m.kind === 'money' ? C.round(n * factor, 6) : n;
           draft.values = draft.values || {};
           draft.values[m.key] = storeVal;
-          if (m.flow) {
+          if (m.kind === 'money' && m.flow) {
             var r = C.toMusd(storeVal, cur, C.normPeriod(draft.period), App.data.fx(), draft.fxOverride);
             preview.textContent = r.value === null ? '환율 없음' : '= ' + f.musd(r.value) + ' MUSD';
-          } else preview.textContent = m.kind === 'pct' ? '%  (부채, 자본이 없을 때만 씀)' : '분기 말 잔액';
+          } else preview.textContent = m.kind === 'pct' ? '%  (부채, 자본이 없을 때만 씀)' : m.kind === 'count' ? '천 대' : '분기 말 잔액';
           updRatio();
         }
         var input = h('input', { class: 'input input--num', inputmode: 'decimal', value: shown, oninput: function (e) { upd(e.target.value); } });
         upd(shown);
-        var noteName = m.key === 'operatingIncome' ? (c.metricNotes || {}).operatingIncome : '';
+        var noteName = m.key === 'operatingIncome' || m.key === 'deliveries' ? (c.metricNotes || {})[m.key] : '';
         return h('tr', null, [
           h('td', { class: 'rowh', text: m.label + (noteName ? ' (' + noteName + ')' : '') }),
           h('td', null, input),
@@ -117,7 +117,7 @@
       wrap.appendChild(h('h4', { class: 'sub__title', text: '숫자' }));
       wrap.appendChild(h('div', { class: 'row' }, [
         h('span', { class: 'muted', text: '금액 입력 단위' }), unitSel,
-        h('span', { class: 'muted', text: '적자는 음수. 부채비율은 % 숫자.' }),
+        h('span', { class: 'muted', text: '적자는 음수. 부채비율은 % 숫자, 판매 대수는 천 대.' }),
       ]));
       wrap.appendChild(h('table', { class: 'table table--form' }, h('tbody', null, numRows)));
       wrap.appendChild(h('div', { class: 'row' }, [ratio]));
@@ -141,30 +141,8 @@
       } else {
         callEditor(wrap, draft.call);
       }
-      // 센티먼트: 모델 점수는 그대로 두고 사람 점수만 고칩니다.
       if (draft.sentiment) {
-        var SE = App.ea.sentiment;
-        draft.sentiment.manual = draft.sentiment.manual || {};
-        wrap.appendChild(h('h4', { class: 'sub__title', text: '센티먼트 점수 (사람이 고치기)' }));
-        wrap.appendChild(h('p', { class: 'panel__hint', text: '비우면 모델 점수를 씁니다. 고친 점수는 화면에 밑줄로 표시됩니다.' }));
-        wrap.appendChild(h('table', { class: 'table table--form' }, h('tbody', null, SE.FACTORS.map(function (fct) {
-          var m = draft.sentiment.model && draft.sentiment.model[fct.key];
-          var cur = draft.sentiment.manual[fct.key];
-          return h('tr', null, [
-            h('td', { class: 'rowh', text: fct.label }),
-            h('td', null, f.sentCell(m ? m.score : null)),
-            h('td', { class: 'muted small', text: m && m.reason ? m.reason : '' }),
-            h('td', null, h('input', {
-              class: 'input input--num input--sm', inputmode: 'numeric', placeholder: '0~10', value: cur === undefined || cur === null ? '' : cur,
-              'aria-label': fct.label + ' 사람 점수',
-              oninput: function (e) {
-                var n = C.toNumber(e.target.value);
-                if (n === null || n < 0 || n > 10) delete draft.sentiment.manual[fct.key];
-                else draft.sentiment.manual[fct.key] = Math.round(n);
-              },
-            })),
-          ]);
-        }))));
+        wrap.appendChild(h('p', { class: 'muted small', text: '센티먼트 점수와 근거는 회사별 화면의 센티먼트 표에서 "수정" 을 눌러 고칩니다.' }));
       }
       wrap.appendChild(h('div', { class: 'row row--end' }, [
         f.btn('취소', function () { App.go({ edit: '' }); }),

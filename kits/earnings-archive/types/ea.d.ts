@@ -2,7 +2,7 @@
 
 type Period = string; // '2026Q3' 달력 분기 (분기 끝 달 기준, 7~9월 = Q3)
 // 금액 4개는 발표 통화 백만 단위, debtRatio 는 % 숫자(원문에 비율만 있을 때). 화면 지표는 매출, 영업이익, 영업이익률, 부채비율
-type MetricKey = 'revenue' | 'operatingIncome' | 'totalLiabilities' | 'totalEquity' | 'debtRatio';
+type MetricKey = 'revenue' | 'operatingIncome' | 'totalLiabilities' | 'totalEquity' | 'debtRatio' | 'deliveries'; // deliveries 는 천 대
 type Topic = '실적' | '가이던스' | '전동화' | '관세·정책' | 'SDV·전장' | '지역' | '공급망·원가' | '주주환원' | '기타';
 
 interface Company {
@@ -15,7 +15,7 @@ interface Company {
   fyEnd: number;         // 회계연도 끝 달 (12, 3)
   color: string;         // 로고가 없을 때 글자 마크 색
   logo: string;          // 'assets/logos/gm.svg' 또는 data: URL 또는 ''
-  metricNotes: { operatingIncome?: string };      // 회사가 영업이익으로 쓰는 이름 (Group EBIT 등)
+  metricNotes: { operatingIncome?: string; deliveries?: string }; // 회사가 쓰는 지표 이름 (Group EBIT, 도매 판매 등)
   aliases: string[];
 }
 
@@ -56,7 +56,11 @@ interface Sentiment {
   manual: Partial<Record<FactorKey, number>>;     // 사람이 고친 점수. 있으면 화면에서 우선
   summary: string;
   scoredAt: string;
+  editedAt?: string;                              // 수정 모드에서 사람이 고친 때
 }
+
+/** data/settings.js. 비운 칸은 처음 값 */
+interface SettingsData { rev: number; sentiment: { factors?: Partial<Record<FactorKey, { label?: string; hint?: string }>>; weights?: Partial<Record<FactorKey, number>> }; }
 
 interface ReportData { company: string; rev: number; savedAt?: string; quarters: Quarter[]; }
 interface FxData { rev: number; basis: string; source: string; rates: Record<string, Record<Period, number>>; }
@@ -108,6 +112,8 @@ declare namespace App.ea.merge {
   function joinCalls(parts: Call[]): Call;
   function applyCall(r: ReportData, c: Company, p: Period, call: Call, opts?: { transcript?: Call['transcript'] }): ReportData;
   function applyNumbers(r: ReportData, c: Company, p: Period, n: any): { report: ReportData; warnings: string[] };
+  /** 여러 분기 일괄 입력. 값 null 은 지우기, values 에 없는 지표는 그대로. 바뀐 분기만 changed 에 */
+  function applyGrid(r: ReportData, c: Company, rows: Array<{ period: Period; fiscalLabel?: string; values: Partial<Record<MetricKey, number | null>> }>): { report: ReportData; changed: Period[] };
   function planPack(pack: Pack, reports: Record<string, ReportData>, companies: Company[]): Array<{ company: string; period: Period; action: 'add' | 'replace' | 'keep' | 'same' | 'skip'; reason: string; quarter: Quarter }>;
 }
 declare namespace App.ea.sentiment {
@@ -117,6 +123,7 @@ declare namespace App.ea.sentiment {
   function effective(s: Sentiment): Record<FactorKey, { score: number | null; source: 'manual' | 'model' | null }>;
   function index(s: Sentiment, weights?: Record<FactorKey, number>): number | null;  // 가중 평균, 소수 1자리
   function band(score: number | null): 'neg2' | 'neg1' | 'mid' | 'pos1' | 'pos2' | 'none';
+  function configure(cfg: SettingsData['sentiment'] | null): void; // 관리 탭 설정 적용
 }
 declare namespace App.ea.prompt {
   function buildSentimentPrompt(c: Company, p: Period, call: Call, prev: Sentiment | null): string;
