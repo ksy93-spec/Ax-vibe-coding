@@ -91,40 +91,18 @@
     }
 
     var recent = rows.slice(0, SHOW_QUARTERS).reverse();
+    var md = App.trend.readModes(r);
+    var years = md.gran === 'y' ? C.annual(rep, c, fx).slice(0, 6).reverse() : null;
     body.appendChild(h('section', { class: 'panel' }, [
       h('div', { class: 'panel__bar' }, [
-        h('h3', { class: 'panel__title', text: '분기 실적' }),
-        h('span', { class: 'muted small', text: 'MUSD · 전년 대비는 발표 통화 기준 · * 원문에 적힌 부채비율' }),
+        h('h3', { class: 'panel__title', text: md.gran === 'y' ? '연간 실적' : '분기 실적' }),
+        h('span', { class: 'muted small', text: 'MUSD · 증감률은 발표 통화 기준 · * 원문에 적힌 부채비율' }),
+        h('div', { class: 'app__spacer' }),
+        App.trend.modeBar(md.gran, md.mode),
       ]),
-      quarterTable(recent, period, c),
+      years ? yearTable(years, c) : quarterTable(recent, period, c),
     ]));
-
-    body.appendChild(h('section', { class: 'grid3' }, [
-      h('div', { class: 'panel' }, App.chart.columns({
-        title: '매출',
-        unit: 'MUSD',
-        format: f.musd,
-        data: recent.map(function (d) {
-          return { label: C.periodLabel(d.period), value: d.musd.revenue, tip: [d.quarter.fiscalLabel || '', '전년 대비 ' + f.pct(d.yoy.revenue, true)] };
-        }),
-      })),
-      h('div', { class: 'panel' }, App.chart.columns({
-        title: '영업이익률',
-        unit: '%',
-        format: function (v) { return f.num(v, 1); },
-        data: recent.map(function (d) {
-          return { label: C.periodLabel(d.period), value: d.opMargin, tip: ['영업이익 ' + f.musd(d.musd.operatingIncome) + ' MUSD'] };
-        }),
-      })),
-      h('div', { class: 'panel' }, App.chart.columns({
-        title: '부채비율',
-        unit: '%',
-        format: function (v) { return f.num(v, 0); },
-        data: recent.map(function (d) {
-          return { label: C.periodLabel(d.period), value: d.debtRatio, tip: [d.debtRatioSource === 'reported' ? '원문에 적힌 비율' : '부채총계 / 자본총계'] };
-        }),
-      })),
-    ]));
+    body.appendChild(h('section', { class: 'grid3' }, App.trend.charts(c, rep, fx, rows, md.gran, md.mode, { quarters: SHOW_QUARTERS, years: 6, height: 190, wrap: 'panel' })));
 
     var heat = sentimentTrend(recent, period);
     if (heat) body.appendChild(heat);
@@ -143,12 +121,16 @@
     var defs = [
       ['매출', function (d) { return f.musd(d.musd.revenue); }],
       ['  전년 대비', function (d) { return f.pct(d.yoy.revenue, true); }, 'sub'],
+      ['  전 분기 대비', function (d) { return f.pct(d.qoq.revenue, true); }, 'sub'],
       ['영업이익' + (notes.operatingIncome && notes.operatingIncome !== '영업이익' ? ' (' + notes.operatingIncome + ')' : ''), function (d) { return f.musd(d.musd.operatingIncome); }],
       ['  전년 대비', function (d) { return f.pct(d.yoy.operatingIncome, true); }, 'sub'],
+      ['  전 분기 대비', function (d) { return f.pct(d.qoq.operatingIncome, true); }, 'sub'],
       ['영업이익률', function (d) { return f.pct(d.opMargin); }],
+      ['  전년 대비', function (d) { return d.opMargin === null || d.opMarginPrev === null || d.opMarginPrev === undefined ? '-' : f.pp(d.opMargin - d.opMarginPrev); }, 'sub'],
       ['부채비율', function (d) { return f.pct(d.debtRatio) + (d.debtRatioSource === 'reported' ? ' *' : ''); }],
       ['판매 대수 (천 대)' + (notes.deliveries ? ' (' + notes.deliveries + ')' : ''), function (d) { return f.num(d.deliveries); }],
       ['  전년 대비', function (d) { return d.deliveries === null ? '-' : f.pct(d.yoy.deliveries, true); }, 'sub'],
+      ['  전 분기 대비', function (d) { return d.deliveries === null ? '-' : f.pct(d.qoq.deliveries, true); }, 'sub'],
       ['환율 (' + c.currency + '/USD)', function (d) {
         if (d.currency === 'USD') return '-';
         if (d.fx.source === 'missing') return '환율 없음';
@@ -170,6 +152,33 @@
       return h('tr', { class: def[2] === 'sub' ? 'tr--sub' : '' }, [h('td', { class: 'rowh', text: def[0].trim() })].concat(cols.map(function (d) {
         var v = def[1](d);
         return cell(d, v, v === '환율 없음' ? 'warn' : '');
+      })));
+    });
+    return h('div', { class: 'table__scroll' }, h('table', { class: 'table table--q' }, [h('thead', null, head), h('tbody', null, body)]));
+  }
+
+  /** 연간 표. 분기 수가 4보다 적은 해는 부분 합계라 전년 대비를 비웁니다. */
+  function yearTable(cols, c) {
+    var defs = [
+      ['분기 수', function (d) { return d.quarters + (d.quarters < 4 ? ' (부분)' : ''); }, 'sub'],
+      ['매출', function (d) { return f.musd(d.musd.revenue); }],
+      ['  전년 대비', function (d) { return f.pct(d.yoy.revenue, true); }, 'sub'],
+      ['영업이익', function (d) { return f.musd(d.musd.operatingIncome); }],
+      ['  전년 대비', function (d) { return f.pct(d.yoy.operatingIncome, true); }, 'sub'],
+      ['영업이익률', function (d) { return f.pct(d.opMargin); }],
+      ['  전년 대비', function (d) { return d.opMargin === null || d.opMarginPrev === null || d.opMarginPrev === undefined ? '-' : f.pp(d.opMargin - d.opMarginPrev); }, 'sub'],
+      ['부채비율 (연말)', function (d) { return f.pct(d.debtRatio); }],
+      ['판매 대수 (천 대)', function (d) { return f.num(d.deliveries) + (d.deliveries !== null && d.delQuarters < 4 ? ' (' + d.delQuarters + '개 분기)' : ''); }],
+      ['  전년 대비', function (d) { return f.pct(d.yoy.deliveries, true); }, 'sub'],
+      ['매출 (' + c.currency + ' 백만)', function (d) { return f.num(d.local.revenue); }, 'sub'],
+    ];
+    defs = defs.filter(function (def) {
+      return cols.some(function (d) { var v = def[1](d); return v !== '-' && v !== ''; });
+    });
+    var head = h('tr', null, [h('th', { class: 'th', text: '' })].concat(cols.map(function (d) { return h('th', { class: 'th num', text: d.year + '년' }); })));
+    var body = defs.map(function (def) {
+      return h('tr', { class: def[2] === 'sub' ? 'tr--sub' : '' }, [h('td', { class: 'rowh', text: def[0].trim() })].concat(cols.map(function (d) {
+        return h('td', { class: 'num', text: def[1](d) });
       })));
     });
     return h('div', { class: 'table__scroll' }, h('table', { class: 'table table--q' }, [h('thead', null, head), h('tbody', null, body)]));

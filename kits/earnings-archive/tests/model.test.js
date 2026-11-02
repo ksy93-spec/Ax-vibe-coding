@@ -630,4 +630,46 @@
     eq(r2.transcriptUrl, 'https://x/t');
     eq(r2.call.sources[0], 'https://x/t');
   });
+  test('전 분기 대비(QoQ): 매출, 영업이익률 직전 분기', function () {
+    var rep = { company: 'acme', quarters: [
+      { period: '2026Q1', values: { revenue: 100, operatingIncome: 10, deliveries: 50 } },
+      { period: '2026Q2', values: { revenue: 120, operatingIncome: 6, deliveries: 55 } },
+    ] };
+    var t = C.table(rep, COMPANIES[0], FX);
+    near(t[0].qoq.revenue, 20, 1e-9);
+    near(t[0].qoq.operatingIncome, -40, 1e-9);
+    near(t[0].qoq.deliveries, 10, 1e-9);
+    near(t[0].opMarginPrevQ, 10, 1e-9);
+    eq(t[1].qoq.revenue, null, '앞 분기가 없으면 없음');
+  });
+
+  test('연간 합계: 분기 합, MUSD 는 분기별 환율로 바꿔 더함, 부분 연도는 전년 대비 없음', function () {
+    var q = function (p, r, o, d, liab, eqv) { return { period: p, values: { revenue: r, operatingIncome: o, deliveries: d, totalLiabilities: liab, totalEquity: eqv } }; };
+    var rep = { company: 'kmot', quarters: [
+      q('2025Q1', 1000, 100, 10), q('2025Q2', 1000, 100, 10), q('2025Q3', 1000, 100, 10), q('2025Q4', 1000, 100, 10, 150, 100),
+      q('2026Q1', 1400, 70, 11), q('2026Q2', 1400, 70, 11, 120, 100),
+    ] };
+    var fx = { rates: { KRW: { '2025Q1': 1, '2025Q2': 1, '2025Q3': 1, '2025Q4': 1, '2026Q1': 1.4, '2026Q2': 1.4 } } };
+    var a = C.annual(rep, COMPANIES[1], fx);
+    eq(a[0].year, '2026');
+    eq(a[0].quarters, 2);
+    eq(a[0].local.revenue, 2800);
+    near(a[0].musd.revenue, 2000, 1e-9);
+    near(a[0].opMargin, 5, 1e-9);
+    eq(a[0].yoy.revenue, null, '2026 은 2개 분기뿐이라 전년 대비 없음');
+    near(a[0].debtRatio, 120, 1e-9, '그 해 마지막 분기 부채비율');
+    eq(a[1].quarters, 4);
+    eq(a[1].musd.revenue, 4000);
+    eq(a[1].deliveries, 40);
+    near(a[1].debtRatio, 150, 1e-9);
+    var b = C.annual({ company: 'kmot', quarters: [q('2024Q1', 1, 1), q('2024Q2', 1, 1), q('2024Q3', 1, 1), q('2024Q4', 1, 1)].concat(rep.quarters.slice(0, 4)) }, COMPANIES[1], { rates: { KRW: { '2024Q1': 1, '2024Q2': 1, '2024Q3': 1, '2024Q4': 1, '2025Q1': 1, '2025Q2': 1, '2025Q3': 1, '2025Q4': 1 } } });
+    near(b[0].yoy.revenue, 99900, 1e-6, '두 해 모두 4개 분기면 전년 대비 계산');
+  });
+
+  test('연간 합계: 환율이 하나라도 없으면 MUSD 는 비움', function () {
+    var rep = { company: 'kmot', quarters: [{ period: '2026Q3', values: { revenue: 1000 } }, { period: '2026Q2', values: { revenue: 1400 } }] };
+    var a = C.annual(rep, COMPANIES[1], FX);
+    eq(a[0].musd.revenue, null);
+    eq(a[0].local.revenue, 2400);
+  });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "porsche",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q3",
@@ -79,15 +79,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 9412,
-     "operatingIncome": 373
+     "operatingIncome": 373,
+     "deliveries": 66.94
     },
     "raw": {
      "revenue": "FY2025 sales revenue 36,272 m",
      "operatingIncome": "FY2025 operating profit 413 m"
     },
-    "source": "https://www.marketscreener.com/news/dr-ing-h-c-f-porsche-ag-reports-earnings-results-for-the-full-year-ended-december-31-2025-ce7e5fdcde8cf527",
+    "source": "https://www.marketscreener.com/news/dr-ing-h-c-f-porsche-ag-reports-earnings-results-for-the-full-year-ended-december-31-2025-ce7e5fdcde8cf527 https://newsroom.porsche.com/en/2026/company/porsche-deliveries-2025-41516.html https://newsroom.porsche.com/en/2025/company/porsche-deliveries-2025-third-quarter-40773.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived FY minus 9M; revenue rounded (+-5).",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived FY minus 9M; revenue rounded (+-5). 보충: FY2025 279,449 minus 9M 212,509.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -161,15 +162,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 11520,
-     "operatingIncome": 1602
+     "operatingIncome": 1602,
+     "deliveries": 84.692
     },
     "raw": {
      "revenue": "FY2024 sales revenue 40,083 m",
      "operatingIncome": "FY2024 operating profit 5,637 m"
     },
-    "source": "https://newsroom.porsche.com/en_AU/2025/company/porsche-annual-press-conference-financial-year-2024-annual-and-sustainability-report-38860.html",
+    "source": "https://newsroom.porsche.com/en_AU/2025/company/porsche-annual-press-conference-financial-year-2024-annual-and-sustainability-report-38860.html https://newsroom.porsche.com/en/2026/company/porsche-deliveries-2025-41516.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived FY minus 9M; revenue rounded (+-10) because 9M given as 28.56bn.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived FY minus 9M; revenue rounded (+-10) because 9M given as 28.56bn. 보충: FY2024 310,718 minus 9M 226,026.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -181,15 +183,244 @@
     "currency": "EUR",
     "values": {
      "revenue": 9100,
-     "operatingIncome": 974
+     "operatingIncome": 974,
+     "deliveries": 70.081
     },
     "raw": {
      "revenue": "9M 2024 sales revenue 28.56 bn; H1 2024 19,457 m",
      "operatingIncome": "9M 2024 operating profit 4,035 m (prior-year figure in 9M 2025 release); H1 3,061 m"
     },
-    "source": "https://newsroom.porsche.com/en/2025/company/porsche-third-quarter-2025-financial-figures-40833.html https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html",
+    "source": "https://newsroom.porsche.com/en/2025/company/porsche-third-quarter-2025-financial-figures-40833.html https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html https://newsroom.porsche.com/en/2025/company/porsche-deliveries-2025-third-quarter-40773.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived by subtraction 9M minus H1; revenue rounded (28.56bn - 19.457bn, +-10).",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived by subtraction 9M minus H1; revenue rounded (28.56bn - 19.457bn, +-10). 보충: 9M 2024 226,026 minus H1 155,945.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q2",
+    "fiscalLabel": "Q2 2024",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 78.305
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 155,945 minus Q1. H1 op 3,061 (Q2 op not derivable exactly).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q1",
+    "fiscalLabel": "Q1 2024",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 77.64
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Rev ~9.01bn, op ~1.28bn only in billions; omitted.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q4",
+    "fiscalLabel": "Q4 2023",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 10398,
+     "operatingIncome": 1783,
+     "deliveries": 77.499
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/pdf/11e6cfbd-4f31-4ac3-b00e-d9921c68e59f",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: FY2023 rev 40,530 / op 7,284 / deliv 320,221 minus 9M 30,132 / 5,501 / 242,722.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q3",
+    "fiscalLabel": "Q3 2023",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "operatingIncome": 1649,
+     "deliveries": 75.368
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Op: 9M 5,501 minus H1 3,852 (H1 2023 comparison in H1 2024 release). Deliveries 9M 242,722 minus H1 167,354. Revenue not exact (H1 only in billions).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q2",
+    "fiscalLabel": "Q2 2023",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 86.587
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2023/company/porsche-positive-business-development-first-half-year-2023-33293.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 167,354 minus Q1 80,767.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q1",
+    "fiscalLabel": "Q1 2023",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 80.767
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Comparison base in Q1 2024 key figures table.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "Q4 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 10896,
+     "operatingIncome": 1724
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2022/company/porsche-increase-sales-revenue-operating-profit-return-on-sales-quarter-3-2022-30196.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: FY2022 rev 37,637 / op 6,772 minus 9M 26,741 / 5,048 (FY from 2023 annual coverage). Deliveries FY2022 not confirmed.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q3",
+    "fiscalLabel": "Q3 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 75.652
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en_US/2022/company/porsche-deliveries-first-nine-months-2022-30048.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: 9M 221,512 minus H1. Revenue/op for Q3 not exact (H1 only published in billions).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q2",
+    "fiscalLabel": "Q2 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 77.434
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/it_CH/2022/company/porsche-deliveries-first-half-year-2022-29097.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 145,860 minus Q1.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q1",
+    "fiscalLabel": "Q1 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 68.426
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2022/company/porsche-deliveries-2022-first-quarter-28019.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q3",
+    "fiscalLabel": "Q3 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 63.542
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en_US/2022/company/porsche-deliveries-first-nine-months-2022-30048.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: 9M 2021 217,198 minus H1 153,656.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q2",
+    "fiscalLabel": "Q2 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 81.67
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/it_CH/2022/company/porsche-deliveries-first-half-year-2022-29097.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 2021 153,656 minus Q1 71,986.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q1",
+    "fiscalLabel": "Q1 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 71.986
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en_US/2021/company/porsche-increases-deliveries-quarter-1-2021-24191.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q1",
+    "fiscalLabel": "Q1 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 53.125
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en_US/2021/company/porsche-increases-deliveries-quarter-1-2021-24191.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Prior-year base in Q1 2021 release.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

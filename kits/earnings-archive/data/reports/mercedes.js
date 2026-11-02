@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "mercedes",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q3",
@@ -202,7 +202,8 @@
      "revenue": 34528,
      "operatingIncome": 2517,
      "totalEquity": 90808,
-     "totalLiabilities": 171209
+     "totalLiabilities": 171209,
+     "deliveries": 594.636
     },
     "raw": {
      "revenue": "Q3 2024 revenue EUR 34,528m vs 37,001m",
@@ -210,12 +211,12 @@
      "totalEquity": "Total equity 90,808",
      "totalLiabilities": "Total assets 262,017 263,022"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/mercedes-benz-interim-report-q3-2024.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/mercedes-benz-interim-report-q3-2024.pdf https://automotiveworld.com/news-releases/mercedes-benz-sold-594600-cars-and-vans-in-the-third-quarter",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 262017 - 자본총계 90808 Quotes are from WebSearch-extracted report text (table rows/sentences), not opened PDFs. 90,808/262,017=34.7% consistent.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 262017 - 자본총계 90808 Quotes are from WebSearch-extracted report text (table rows/sentences), not opened PDFs. 90,808/262,017=34.7% consistent. 보충: Cars 503,573 + Vans 91,063; press release says 594,600",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2024Q2",
@@ -250,7 +251,8 @@
      "revenue": 35873,
      "operatingIncome": 3863,
      "totalEquity": 96828,
-     "totalLiabilities": 170321
+     "totalLiabilities": 170321,
+     "deliveries": 568.403
     },
     "raw": {
      "revenue": "Revenue 35,873 37,516 -4",
@@ -258,12 +260,12 @@
      "totalEquity": "Group total equity of 96,828 at 31 March 2024",
      "totalLiabilities": "Total equity and liabilities | 267,149 | 263,022"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/mercedes-benz-interim-report-q1-2024.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/mercedes-benz-interim-report-q1-2024.pdf https://www.automotiveworld.com/news-releases/mercedes-benz-sold-568400-cars-and-vans-in-q1-2024/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 267149 - 자본총계 96828 Quotes are from WebSearch-extracted report text (table rows/sentences), not opened PDFs. Revenue/EBIT also via businesswire 20240429275433. Equity 96,828/267,149=36.2% consistent.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 267149 - 자본총계 96828 Quotes are from WebSearch-extracted report text (table rows/sentences), not opened PDFs. Revenue/EBIT also via businesswire 20240429275433. Equity 96,828/267,149=36.2% consistent. 보충: Cars 462,978 + Vans 105,425",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2023Q4",
@@ -295,18 +297,19 @@
     "currency": "EUR",
     "values": {
      "revenue": 37200,
-     "operatingIncome": 4842
+     "operatingIncome": 4842,
+     "deliveries": 615.647
     },
     "raw": {
      "revenue": "Revenue 37,200",
      "operatingIncome": "EBIT 4,842"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/mercedes-benz-interim-report-q3-2023.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/mercedes-benz-interim-report-q3-2023.pdf https://automotiveworld.com/news-releases/mercedes-benz-sold-594600-cars-and-vans-in-the-third-quarter",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Balance sheet total at 30 Sep 2023 slightly above 31 Dec 2022 per report; figures not confirmed. Q3 2024 report restates 2023 comparatives.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Balance sheet total at 30 Sep 2023 slightly above 31 Dec 2022 per report; figures not confirmed. Q3 2024 report restates 2023 comparatives. 보충: Cars 510,564 + Vans 105,083",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2023Q2",
@@ -337,19 +340,20 @@
      "revenue": 37516,
      "operatingIncome": 5504,
      "totalEquity": 90911,
-     "totalLiabilities": 172333
+     "totalLiabilities": 172333,
+     "deliveries": 602.368
     },
     "raw": {
      "revenue": "Q1 2023 revenue 37,516 (Q4 2023 factsheet / Q1 2024 comparative)",
      "operatingIncome": "EBIT 5,504 5,229 +5",
      "totalEquity": "Equity 90,911; total assets 263,244 (31 March 2023)"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/mercedes-benz-interim-report-q1-2023.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/geschaeftsberichte/mercedes-benz/mercedes-benz-factsheet-q4-2023-final.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/mercedes-benz-interim-report-q1-2023.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/geschaeftsberichte/mercedes-benz/mercedes-benz-factsheet-q4-2023-final.pdf https://www.automotiveworld.com/news-releases/mercedes-benz-sold-568400-cars-and-vans-in-q1-2024/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 263244 - 자본총계 90911 Revenue 37,516 from later comparatives; Q1 2023 report press text says 37.5bn - exact in own report not directly seen.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 263244 - 자본총계 90911 Revenue 37,516 from later comparatives; Q1 2023 report press text says 37.5bn - exact in own report not directly seen. 보충: Cars 503,483 + Vans 98,885",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2022Q4",
@@ -381,18 +385,19 @@
     "currency": "EUR",
     "values": {
      "revenue": 37716,
-     "operatingIncome": 5196
+     "operatingIncome": 5196,
+     "deliveries": 634.414
     },
     "raw": {
      "revenue": "Group revenue for Q3 2022 was 37,716",
      "operatingIncome": "EBIT 5,196"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/mercedes-benz-ir-interim-report-q3-2022.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/mercedes-benz-ir-interim-report-q3-2022.pdf https://group.mercedes-benz.com/investors/reports-news/interim-reports/q3-2022/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Report says balance sheet total at 30 Sep 2022 slightly above 31 Dec 2021; figures not confirmed.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Report says balance sheet total at 30 Sep 2022 slightly above 31 Dec 2021; figures not confirmed. 보충: Cars 530,414 + Vans ~104,000 (Vans rounded to 1,000)",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2022Q2",
@@ -401,18 +406,19 @@
     "currency": "EUR",
     "values": {
      "revenue": 36440,
-     "operatingIncome": 4622
+     "operatingIncome": 4622,
+     "deliveries": 587.2
     },
     "raw": {
      "revenue": "Revenue 36,440 (Q2 2023 report comparatives)",
      "operatingIncome": "EBIT 4,622"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/mercedes-benz-ir-interim-report-q2-2022.pdf https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/mercedes-benz-interim-report-q2-2023.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/mercedes-benz-ir-interim-report-q2-2022.pdf https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/mercedes-benz-interim-report-q2-2023.pdf https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/mercedes-benz-ir-interim-report-q2-2022.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Balance sheet not confirmed.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Balance sheet not confirmed. 보충: Cars 487,100 + Vans 100,100",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2022Q1",
@@ -421,18 +427,19 @@
     "currency": "EUR",
     "values": {
      "revenue": 34858,
-     "operatingIncome": 5229
+     "operatingIncome": 5229,
+     "deliveries": 575.516
     },
     "raw": {
      "revenue": "H1 2022 revenue 71,298 less Q2 36,440 (Q2 2023 report comparatives); Q4 2022 factsheet row 35,240 34,858 36,440 37,716 41,003",
      "operatingIncome": "EBIT 5,229 4,701"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/mercedes-benz-ir-interim-report-q1-2022.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/geschaeftsberichte/mercedes-benz/mercedes-benz-factsheet-q4-2022-final.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/mercedes-benz-ir-interim-report-q1-2022.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/geschaeftsberichte/mercedes-benz/mercedes-benz-factsheet-q4-2022-final.pdf https://ca.marketscreener.com/quote/stock/MERCEDES-BENZ-GROUP-AG-436541/news/Mercedes-Benz-Raport-T1-2022-transmis-de-SSIF-TRADEVILLE-40188723/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Revenue 34,858 from factsheet quarterly row (press says 34.9bn). Balance sheet 31 Mar 2022 not confirmed from official source (third-party Fintel equity 78,422, unverified).",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Revenue 34,858 from factsheet quarterly row (press says 34.9bn). Balance sheet 31 Mar 2022 not confirmed from official source (third-party Fintel equity 78,422, unverified). 보충: Cars 487,008 + Vans 88,508 (restated in Q1 2023 release)",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2021Q4",
@@ -441,18 +448,19 @@
     "currency": "EUR",
     "values": {
      "revenue": 43389,
-     "operatingIncome": 14557
+     "operatingIncome": 14557,
+     "deliveries": 611.92
     },
     "raw": {
      "revenue": "Q4 revenue 43,389 (-7%) per Q4 2021 results table",
      "operatingIncome": "Q4 2021 group EBIT 14,557 incl. one-time EUR9.2bn deconsolidation gain"
     },
-    "source": "https://group.mercedes-benz.com/results-2021 https://group.Mercedes-benz.com/dokumente/investoren/berichte/geschaeftsberichte/mercedes-benz/mercedes-benz-ir-factsheet-q4-2021.pdf",
+    "source": "https://group.mercedes-benz.com/results-2021 https://group.Mercedes-benz.com/dokumente/investoren/berichte/geschaeftsberichte/mercedes-benz/mercedes-benz-ir-factsheet-q4-2021.pdf https://www.automotiveworld.com/news-releases/mercedes-benz-sees-strong-demand-as-high-end-and-electrified-vehicle-sales-surge",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Continuing-operations restated (ex Daimler Truck) per later reports: Q4 revenue 35,240, EBIT 4,115 (Q4 2022 factsheet comparative); FY2021 continuing revenue 133,893, EBIT 16.0bn. Original Q4 EBIT includes discontinued ops and the 9.2bn spin-off gain. Balance sheet at 31 Dec 2021 not confirmed from official source (third-party Fintel shows equity 73,167, unverified).",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Continuing-operations restated (ex Daimler Truck) per later reports: Q4 revenue 35,240, EBIT 4,115 (Q4 2022 factsheet comparative); FY2021 continuing revenue 133,893, EBIT 16.0bn. Original Q4 EBIT includes discontinued ops and the 9.2bn spin-off gain. Balance sheet at 31 Dec 2021 not confirmed from official source (third-party Fintel shows equity 73,167, unverified). 보충: Cars 500,421 + Vans 111,499",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2021Q3",
@@ -461,18 +469,19 @@
     "currency": "EUR",
     "values": {
      "revenue": 40083,
-     "operatingIncome": 3579
+     "operatingIncome": 3579,
+     "deliveries": 471.45
     },
     "raw": {
      "revenue": "Daimler Group revenue 40,083 (Q3 2020 40,281) per Q3 2021 factsheet",
      "operatingIncome": "Group EBIT rose to EUR3,579 million (EUR3,070 million)"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/daimler-ir-interim-report-q3-2021.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q3/daimler-ir-factsheet-q3-2021.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/daimler-ir-interim-report-q3-2021.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q3/daimler-ir-factsheet-q3-2021.pdf https://group.mercedes-benz.com/investors/reports-news/interim-reports/q3-2022/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Continuing-operations restated (ex Daimler Truck) per later reports: revenue 31,647, EBIT 2,838 (Q3 2022 release comparative). Original includes Daimler Trucks (held for distribution in balance sheet). Equity at 30 Sep 2021 not confirmed.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 분기 말 자본총계, 자산총계를 확인하지 못해 부채비율 비움 Continuing-operations restated (ex Daimler Truck) per later reports: revenue 31,647, EBIT 2,838 (Q3 2022 release comparative). Original includes Daimler Trucks (held for distribution in balance sheet). Equity at 30 Sep 2021 not confirmed. 보충: Cars 383,450 + Vans ~88,000 (Vans rounded to 1,000)",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2021Q2",
@@ -483,19 +492,20 @@
      "revenue": 43482,
      "operatingIncome": 5185,
      "totalEquity": 72141,
-     "totalLiabilities": 220591
+     "totalLiabilities": 220591,
+     "deliveries": 619.6
     },
     "raw": {
      "revenue": "Revenue grew by 44% to EUR43.5 billion; factsheet table 43,482",
      "operatingIncome": "EBIT of EUR5,185 million (Q2 2020: minus EUR1,682 million)",
      "totalEquity": "total equity of 72,141 and total equity and liabilities of 292,732 (Consolidated Statement of Financial Position C.05)"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/daimler-ir-interimreport-q2-2021.pdf https://group.mercedes-benz.com/investors/reports-news/financial-news/20210714-daimler-q2-2021.html https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q2/daimler-ir-factsheet-q2-2021.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/daimler-ir-interimreport-q2-2021.pdf https://group.mercedes-benz.com/investors/reports-news/financial-news/20210714-daimler-q2-2021.html https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q2/daimler-ir-factsheet-q2-2021.pdf https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/mercedes-benz-ir-interim-report-q2-2022.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 292732 - 자본총계 72141 Continuing-operations restated (ex Daimler Truck) per later reports: revenue 34.1bn (Q2 2022 report comparative). Original includes Daimler Trucks.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 292732 - 자본총계 72141 Continuing-operations restated (ex Daimler Truck) per later reports: revenue 34.1bn (Q2 2022 report comparative). Original includes Daimler Trucks. 보충: Cars 521,200 + Vans 98,400",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2021Q1",
@@ -506,19 +516,20 @@
      "revenue": 41017,
      "operatingIncome": 5748,
      "totalEquity": 67993,
-     "totalLiabilities": 227345
+     "totalLiabilities": 227345,
+     "deliveries": 627.3
     },
     "raw": {
      "revenue": "Revenue 41,017 37,223 +10%",
      "operatingIncome": "EBIT 5,748 617 +832%",
      "totalEquity": "Equity of 67,993 and total equity and liabilities of 295,338 (search summary of Q1 2021 report, condensed balance sheet)"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/daimler-ir-interimreport-q1-2021.pdf https://group.mercedes-benz.com/investors/reports-news/financial-news/20210416-daimler-q1-2021.html",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q1/daimler-ir-interimreport-q1-2021.pdf https://group.mercedes-benz.com/investors/reports-news/financial-news/20210416-daimler-q1-2021.html https://ca.marketscreener.com/quote/stock/MERCEDES-BENZ-GROUP-AG-436541/news/Mercedes-Benz-Raport-T1-2022-transmis-de-SSIF-TRADEVILLE-40188723/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 295338 - 자본총계 67993 Continuing-operations restated (ex Daimler Truck) per later reports: revenue 32.9bn (Q1 2022 report comparative), EBIT 4,701. Original includes Daimler Trucks. Equity line labelled 'Equity' in report; totalAssets = total equity and liabilities.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 295338 - 자본총계 67993 Continuing-operations restated (ex Daimler Truck) per later reports: revenue 32.9bn (Q1 2022 report comparative), EBIT 4,701. Original includes Daimler Trucks. Equity line labelled 'Equity' in report; totalAssets = total equity and liabilities. 보충: Cars 538,900 + Vans 88,400 (rounded to 100)",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2020Q4",
@@ -529,7 +540,8 @@
      "revenue": 46621,
      "operatingIncome": 4598,
      "totalEquity": 62248,
-     "totalLiabilities": 223489
+     "totalLiabilities": 223489,
+     "deliveries": 760.895
     },
     "raw": {
      "revenue": "Q4 revenue EUR 46,621 million vs 47,127 (FY2020 results table)",
@@ -537,12 +549,12 @@
      "totalEquity": "Total equity 62,248",
      "totalLiabilities": "Total equity and liabilities 285,737"
     },
-    "source": "https://media.mercedes-benz.it/download/984420/20210218-daimler-ag-table-results-fy-2020.pdf https://annualreport.daimler.com/2020/combined-management-report-with-non-financial-statement/profitability-liquidity-and-capital-resources-financial-position/financial-position/",
+    "source": "https://media.mercedes-benz.it/download/984420/20210218-daimler-ag-table-results-fy-2020.pdf https://annualreport.daimler.com/2020/combined-management-report-with-non-financial-statement/profitability-liquidity-and-capital-resources-financial-position/financial-position/ https://www.automotiveworld.com/news-releases/mercedes-benz-sees-strong-demand-as-high-end-and-electrified-vehicle-sales-surge",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 285737 - 자본총계 62248 Figures come from WebSearch result summaries of the PDFs (PDFs not opened directly); quotes are as returned by the search. Later restated for Daimler Truck spin-off (2021); not used.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 285737 - 자본총계 62248 Figures come from WebSearch result summaries of the PDFs (PDFs not opened directly); quotes are as returned by the search. Later restated for Daimler Truck spin-off (2021); not used. 보충: Cars+Vans per FY2021 release prior-year column",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2020Q3",

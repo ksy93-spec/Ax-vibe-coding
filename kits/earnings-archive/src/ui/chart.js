@@ -13,7 +13,7 @@
   function s(tag, attrs) {
     var el = document.createElementNS(NS, tag);
     Object.keys(attrs || {}).forEach(function (k) {
-      el.setAttribute(k, attrs[k]);
+      if (attrs[k] !== null && attrs[k] !== undefined) el.setAttribute(k, attrs[k]);
     });
     return el;
   }
@@ -86,7 +86,9 @@
 
   /**
    * 세로 막대.
-   * @param {{title: string, unit: string, data: Array<{label: string, value: number|null, tip?: string[]}>, format: Function, height?: number}} o
+   * @param {{title: string, unit: string, data: Array<{label: string, value: number|null, tip?: string[]}>, format: Function, height?: number,
+   *   color?: string, negColor?: string, labels?: 'all'|'last'|false}} o
+   *   color 는 막대 색(CSS 값, 예: 'var(--viz-2)'), negColor 는 음수 막대 색, labels 는 막대 위 값 글자
    */
   function columns(o) {
     var W = 520;
@@ -125,6 +127,8 @@
     var slot = (W - pad.l - pad.r) / n;
     var bw = Math.min(36, slot * 0.6);
     var tip = tooltipHost(box);
+    var lastIdx = -1;
+    o.data.forEach(function (d, i) { if (d.value !== null && d.value !== undefined && isFinite(d.value)) lastIdx = i; });
     o.data.forEach(function (d, i) {
       var cx = pad.l + slot * i + slot / 2;
       var lab = s('text', { x: cx, y: H - 8, class: 'chart__tick', 'text-anchor': 'middle' });
@@ -136,7 +140,13 @@
         var y0 = y(0);
         var yv = y(d.value);
         var path = d.value >= 0 ? barPath(cx - bw / 2, yv, bw, y0 - yv, 'up') : barPath(cx - bw / 2, y0, bw, yv - y0, 'down');
-        if (path) g.appendChild(s('path', { d: path, class: 'chart__bar' }));
+        var fill = d.value < 0 && o.negColor ? o.negColor : o.color;
+        if (path) g.appendChild(s('path', { d: path, class: 'chart__bar', style: fill ? 'fill:' + fill : null }));
+        if (o.labels === 'all' || (o.labels === 'last' && i === lastIdx)) {
+          var vt = s('text', { x: cx, y: d.value >= 0 ? yv - 4 : yv + 11, class: 'chart__value', 'text-anchor': 'middle' });
+          vt.textContent = o.format(d.value);
+          g.appendChild(vt);
+        }
       } else {
         var na = s('text', { x: cx, y: y(0) - 6, class: 'chart__na', 'text-anchor': 'middle' });
         na.textContent = '없음';
@@ -199,7 +209,8 @@
       g.appendChild(lab);
       var len = Math.abs(x(d.value) - x0);
       var p = hbarPath(x0, yy + 6, len, rowH - 12, d.value >= 0 ? 'right' : 'left');
-      if (p) g.appendChild(s('path', { d: p, class: 'chart__bar' }));
+      var fill = d.color || o.color;
+      if (p) g.appendChild(s('path', { d: p, class: 'chart__bar', style: fill ? 'fill:' + fill : null }));
       var val = s('text', {
         x: d.value >= 0 ? x0 + len + 6 : x0 - len - 6,
         y: yy + rowH / 2 + 4,

@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "honda",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q2",
@@ -184,6 +184,24 @@
     "source": "https://global.honda/en/investors/library/financialresult/main/08/teaserItems3/018/linkList/04/link/FYE202603_4Q_financial_presentation_script_e_3.pdf",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded to 0.1bn. OI derived: H1 FY2025 742.6bn - Q2 257.9bn.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q1",
+    "fiscalLabel": "FY2024 Q4",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "operatingIncome": 305600
+    },
+    "raw": {
+     "operatingIncome": "operating profit for the three months to March 31 grew more than six-fold from a year earlier to 305.6 billion yen"
+    },
+    "source": "https://www.businesstoday.com.my/2024/05/10/japans-honda-4q-profit-jumps-six-fold/",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Rounded to 0.1bn from news report (Reuters-style); revenue not confirmed.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

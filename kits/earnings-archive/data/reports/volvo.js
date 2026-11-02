@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "volvo",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q3",
@@ -306,6 +306,218 @@
     "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-record-core-operating-profit-of-sek-8-2-billion-in-q2-2024,c4014967",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded to SEK 0.1 bn, taken from Q2 2024 comparative.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "Q4 2022",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 105200,
+     "operatingIncome": 3400,
+     "deliveries": 186.1
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-full-year-2022-results---accelerating-strategic-journey-and-navigating-challenges,c3711515",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q3",
+    "fiscalLabel": "Q3 2022",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 79300,
+     "operatingIncome": 2100,
+     "deliveries": 137.7
+    },
+    "raw": {},
+    "source": "https://autocar.co.uk/node/121776",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q2",
+    "fiscalLabel": "Q2 2022",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 71300,
+     "operatingIncome": 10800,
+     "deliveries": 143
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-second-quarter-2022---steady-earnings-in-a-turbulent-world,c3603469",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Reported EBIT inflated by Polestar listing accounting effect; EBIT excl JVs/associates 4.6bn.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q1",
+    "fiscalLabel": "Q1 2022",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 74300,
+     "operatingIncome": 6000,
+     "deliveries": 148.3
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-first-quarter-2022---a-stable-performance-in-an-unstable-environment,c3555070",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q4",
+    "fiscalLabel": "Q4 2021",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 80100,
+     "operatingIncome": 3700,
+     "deliveries": 168
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-all-time-high-revenue-and-profitability-for-the-full-year-2021,c3502088",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q3",
+    "fiscalLabel": "Q3 2021",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 60800,
+     "operatingIncome": 3300,
+     "deliveries": 149.9
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-interim-report-first-nine-months--third-quarter,c3462621",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q2",
+    "fiscalLabel": "Q2 2021",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 72500,
+     "operatingIncome": 4800,
+     "deliveries": 195.1
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-second-quarter-2022---steady-earnings-in-a-turbulent-world,c3603469",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Q2 2022 report comparatives (restated for cost reclassification, no EBIT impact); SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q1",
+    "fiscalLabel": "Q1 2021",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 68600,
+     "operatingIncome": 8400,
+     "deliveries": 185.7
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-first-quarter-2022---a-stable-performance-in-an-unstable-environment,c3555070",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Q1 2022 report comparatives; SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q4",
+    "fiscalLabel": "Q4 2020",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 85300,
+     "operatingIncome": 4900,
+     "deliveries": 210.6
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-all-time-high-revenue-and-profitability-for-the-full-year-2021,c3502088",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Q4 2021 report comparatives; revenue/EBIT SEK bn rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q3",
+    "fiscalLabel": "Q3 2020",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "revenue": 65800,
+     "operatingIncome": 4600,
+     "deliveries": 181.2
+    },
+    "raw": {},
+    "source": "https://news.cision.com/volvo-car-ab--publ-/r/volvo-cars-reports-all-time-high-revenue-and-profitability-for-the-full-year-2021,c3502088",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Q3 2021 report comparatives, SEK bn rounded to 0.1.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q2",
+    "fiscalLabel": "Q2 2020",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "deliveries": 138.073
+    },
+    "raw": {},
+    "source": "https://investors.volvocars.com/~/media/Files/V/Volvo-Cars-IR/results-center/2020/volvofirsthalfyear2020report.pdf",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: H1 retail 269,962 minus Q1 131,889. Revenue/EBIT split not found.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q1",
+    "fiscalLabel": "Q1 2020",
+    "reportDate": "",
+    "currency": "SEK",
+    "values": {
+     "deliveries": 131.889
+    },
+    "raw": {},
+    "source": "https://motorsactu.com/volvo-sold-131889-cars-in-the-first-quarter-of-2020/",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue/EBIT not found; H1 2020 total revenue 111,759, EBIT -989, retail 269,962 (Volvo H1 2020 report).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

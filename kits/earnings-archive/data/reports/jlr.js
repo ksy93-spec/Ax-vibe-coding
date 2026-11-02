@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "jlr",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q2",
@@ -181,14 +181,50 @@
     "currency": "GBP",
     "values": {
      "revenue": 7100,
-     "deliveries": 102.889
+     "deliveries": 102.889,
+     "operatingIncome": 462
     },
     "raw": {
      "revenue": "Revenues in Q4 FY23 were £7.1 billion"
     },
-    "source": "https://www.jlr.com/news/2023/05/jlr-delivers-significantly-improved-revenue-profit-and-free-cash-flow-quarter",
+    "source": "https://www.jlr.com/news/2023/05/jlr-delivers-significantly-improved-revenue-profit-and-free-cash-flow-quarter https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded (GBP bn x1000). EBIT margin 6.5% (EBIT in GBP m not confirmed, left null). PBT before exceptionals 368m. Units = retail.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded (GBP bn x1000). EBIT margin 6.5% (EBIT in GBP m not confirmed, left null). PBT before exceptionals 368m. Units = retail. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: 6.5% x 7,100.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "FY2023 Q3",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "revenue": 6000,
+     "operatingIncome": 225
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). Adjusted EBIT GBP 225m (3.7%) as reported; a 5.9% figure in another source conflicts.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q3",
+    "fiscalLabel": "FY2023 Q2",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "revenue": 5300,
+     "operatingIncome": 54,
+     "deliveries": 88.121
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). Adjusted EBIT GBP 54m (1%) as reported.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -200,14 +236,67 @@
     "currency": "GBP",
     "values": {
      "revenue": 4800,
-     "deliveries": 79.008
+     "deliveries": 79.008,
+     "operatingIncome": 96
     },
     "raw": {
      "revenue": "Revenue was £4.8 billion in Q4 FY22"
     },
-    "source": "https://media.jaguarlandrover.com/news/2022/05/jaguar-land-rover-reports-positive-cashflow-and-profit-margin-fourth-quarter",
+    "source": "https://media.jaguarlandrover.com/news/2022/05/jaguar-land-rover-reports-positive-cashflow-and-profit-margin-fourth-quarter https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded (GBP bn x1000). EBIT margin 2.0% (EBIT in GBP m not confirmed, left null). Units = retail.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded (GBP bn x1000). EBIT margin 2.0% (EBIT in GBP m not confirmed, left null). Units = retail. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: 2.0% x 4,800; approx.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q4",
+    "fiscalLabel": "FY2022 Q3",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "revenue": 4700,
+     "operatingIncome": 66,
+     "deliveries": 80.126
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: 1.4% x 4,700.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q3",
+    "fiscalLabel": "FY2022 Q2",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "revenue": 3900,
+     "operatingIncome": -183,
+     "deliveries": 92.71
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: -4.7% (secondary source, less certain) x 3,900.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q2",
+    "fiscalLabel": "FY2022 Q1",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "deliveries": 124.537
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Retail incl. CJLR; revenue ~GBP 5.0bn and EBIT margin not confirmed.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -219,14 +308,67 @@
     "currency": "GBP",
     "values": {
      "revenue": 6500,
-     "deliveries": 123.483
+     "deliveries": 123.483,
+     "operatingIncome": 488
     },
     "raw": {
      "revenue": "Revenue rose 20.5% to £6.5 billion in Q4"
     },
-    "source": "https://www.jlr.com/news/2021/05/strong-end-fiscal-202021-significant-q4-profit-and-positive-free-cash-flow",
+    "source": "https://www.jlr.com/news/2021/05/strong-end-fiscal-202021-significant-q4-profit-and-positive-free-cash-flow https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded (GBP bn x1000). EBIT margin 7.5% (EBIT in GBP m not confirmed, left null). PBT before exceptionals 534m. Units = retail.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Revenue rounded (GBP bn x1000). EBIT margin 7.5% (EBIT in GBP m not confirmed, left null). PBT before exceptionals 534m. Units = retail. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: 7.5% x 6,500.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q4",
+    "fiscalLabel": "FY2021 Q3",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "revenue": 6000,
+     "operatingIncome": 402,
+     "deliveries": 128.469
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: 6.7% (adjusted) x 6,000; revenue approx 'roughly 6bn'.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q3",
+    "fiscalLabel": "FY2021 Q2",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "deliveries": 113.569
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Retail incl. CJLR as Q2 FY21 comparative cited in Q1 FY22 coverage.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q2",
+    "fiscalLabel": "FY2021 Q1",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "revenue": 2900,
+     "operatingIncome": -394,
+     "deliveries": 74.067
+    },
+    "raw": {},
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue rounded to GBP 0.1bn as reported in press text (not exact GBP m). EBIT derived from margin: -13.6% x 2,900.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

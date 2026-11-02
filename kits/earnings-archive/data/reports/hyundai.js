@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "hyundai",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q3",
@@ -51,6 +51,24 @@
     "updatedAt": "2026-11-02 00:00:00"
    },
    {
+    "period": "2026Q1",
+    "fiscalLabel": "Q1 2026",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 45938900,
+     "operatingIncome": 2514700,
+     "deliveries": 976.219
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
     "period": "2025Q4",
     "fiscalLabel": "Q4 2025",
     "reportDate": "",
@@ -81,15 +99,270 @@
     "currency": "KRW",
     "values": {
      "revenue": 46700000,
-     "operatingIncome": 2500000
+     "operatingIncome": 2500000,
+     "deliveries": 1038.353
     },
     "raw": {
      "revenue": "Q3 revenue rose 8.8% year over year to KRW 46.7 trillion",
      "operatingIncome": "operating income down 29.2% to KRW 2.5 trillion"
     },
-    "source": "https://quartr.com/events/hyundai-motor-company-005380-q3-2025_FLOx5sK4",
+    "source": "https://quartr.com/events/hyundai-motor-company-005380-q3-2025_FLOx5sK4 Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Rounded (0.1 trillion), via secondary summary. Units not confirmed.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Rounded (0.1 trillion), via secondary summary. Units not confirmed. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q2",
+    "fiscalLabel": "Q2 2025",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 48286700,
+     "operatingIncome": 3601600,
+     "deliveries": 1065.836
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q1",
+    "fiscalLabel": "Q1 2025",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 44407800,
+     "operatingIncome": 3633600,
+     "deliveries": 1001.12
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q4",
+    "fiscalLabel": "Q4 2024",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 46623700,
+     "operatingIncome": 2822200,
+     "deliveries": 1066.239
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q3",
+    "fiscalLabel": "Q3 2024",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 42928300,
+     "operatingIncome": 3580900,
+     "deliveries": 1011.808
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q2",
+    "fiscalLabel": "Q2 2024",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 45020600,
+     "operatingIncome": 4279100,
+     "deliveries": 1057.168
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q1",
+    "fiscalLabel": "Q1 2024",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 40658500,
+     "operatingIncome": 3557400,
+     "deliveries": 1006.767
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q4",
+    "fiscalLabel": "Q4 2023",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 41669200,
+     "operatingIncome": 3407800,
+     "deliveries": 1089.862
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q3",
+    "fiscalLabel": "Q3 2023",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "operatingIncome": 3821800,
+     "deliveries": 1045.51,
+     "revenue": 41002700
+    },
+    "raw": {
+     "revenue": "매출액 41조27억원 (표 41,003십억원)"
+    },
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures; revenue omitted: article text '41조27억' conflicts with table 41,003bn",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q2",
+    "fiscalLabel": "Q2 2023",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 42249700,
+     "operatingIncome": 4237900,
+     "deliveries": 1059.713
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q1",
+    "fiscalLabel": "Q1 2023",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 37778700,
+     "operatingIncome": 3592700,
+     "deliveries": 1021.712
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "Q4 2022",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 38523600,
+     "operatingIncome": 3359200,
+     "deliveries": 1038.874
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q3",
+    "fiscalLabel": "Q3 2022",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 37705400,
+     "operatingIncome": 1551800,
+     "deliveries": 1025.008
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q2",
+    "fiscalLabel": "Q2 2022",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 35999900,
+     "operatingIncome": 2979800,
+     "deliveries": 976.35
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q1",
+    "fiscalLabel": "Q1 2022",
+    "reportDate": "",
+    "currency": "KRW",
+    "values": {
+     "revenue": 30298600,
+     "operatingIncome": 1928900,
+     "deliveries": 902.945
+    },
+    "raw": {},
+    "source": "Korean news quoting Hyundai Motor IR earnings release (newswire.co.kr, hyundaimotorgroup.com, inews24, etc.)",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Converted from 조/억원 (1억원=100 KRW millions); IFRS consolidated; first-release figures",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

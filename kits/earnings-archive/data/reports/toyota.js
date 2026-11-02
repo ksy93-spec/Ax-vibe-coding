@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "toyota",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q2",
@@ -36,14 +36,15 @@
     "values": {
      "operatingIncome": 569500,
      "totalEquity": 41020068,
-     "totalLiabilities": 64502263
+     "totalLiabilities": 64502263,
+     "revenue": 12597352
     },
     "raw": {
      "operatingIncome": "3,766.2 billion yen (full year)"
     },
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_4q_summary_en.pdf https://www.sec.gov/Archives/edgar/data/1094517/000119312526213363/d125424dex991.htm",
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_4q_summary_en.pdf https://www.sec.gov/Archives/edgar/data/1094517/000119312526213363/d125424dex991.htm https://finance.matsui.co.jp/stock/7203/settlement/index",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived: full year 3,766.2bn minus nine months 3,196.7bn (rounded). Full-year revenue 50,684.9bn, units 9,595k.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived: full year 3,766.2bn minus nine months 3,196.7bn (rounded). Full-year revenue 50,684.9bn, units 9,595k. 보충: FY26 sales 50,684,952M from securities-info site (not official filing) minus 9M 38,087,600M (+-50M rounding); treat as approximate",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -54,14 +55,15 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "operatingIncome": 1191100
+     "operatingIncome": 1191100,
+     "revenue": 13456900
     },
     "raw": {
      "operatingIncome": "3,196.7 billion yen (nine months)"
     },
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_3q_summary_en.pdf",
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_3q_summary_en.pdf https://car.watch.impress.co.jp/docs/news/2060714.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived: nine months 3,196.7bn minus six months 2,005.6bn (rounded).",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived: nine months 3,196.7bn minus six months 2,005.6bn (rounded). 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 9M rev 38,087.6bn minus 6M rev 24,630.7bn",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -72,14 +74,15 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "operatingIncome": 839500
+     "operatingIncome": 839500,
+     "revenue": 12377400
     },
     "raw": {
      "operatingIncome": "2,005.6 billion yen (six months)"
     },
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_2q_summary_en.pdf",
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_2q_summary_en.pdf https://car.watch.impress.co.jp/docs/news/2060714.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived: six months 2,005.6bn minus Q1 1,166.1bn (rounded).",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived: six months 2,005.6bn minus Q1 1,166.1bn (rounded). 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M rev 24,630.7bn minus Q1 rev 12,253.3bn",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -102,6 +105,206 @@
     "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2026_1q_summary_en.pdf",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Rounded to 0.1bn yen.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q1",
+    "fiscalLabel": "FY2025 Q4",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 12363200,
+     "operatingIncome": 1116100
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY25 rev 48,036.7bn/OI 4,795.5bn minus 9M",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q4",
+    "fiscalLabel": "FY2025 Q3",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 12391100,
+     "operatingIncome": 1215200
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/1660512.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 9M rev 35,673.5bn/OI 3,679.4bn minus 6M",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q3",
+    "fiscalLabel": "FY2025 Q2",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 11444600,
+     "operatingIncome": 1155800
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/1637240.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M rev 23,282.4bn/OI 2,464.2bn minus Q1",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q2",
+    "fiscalLabel": "FY2025 Q1",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 11837800,
+     "operatingIncome": 1308400
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/1613074.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) reported directly as Q1",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q1",
+    "fiscalLabel": "FY2024 Q4",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "operatingIncome": 1112700
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY24 OI 5,352.9bn minus 9M OI 4,240.2bn",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q4",
+    "fiscalLabel": "FY2024 Q3",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 12041100,
+     "operatingIncome": 1681000
+    },
+    "raw": {},
+    "source": "https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 9M rev 34,022.7bn/OI 4,240.2bn minus 6M",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q3",
+    "fiscalLabel": "FY2024 Q2",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 11434800,
+     "operatingIncome": 1438300
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/1613074.html https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M FY24 rev 21,981.6bn/OI 2,559.2bn minus Q1",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q2",
+    "fiscalLabel": "FY2024 Q1",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 10546800,
+     "operatingIncome": 1120900
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) Q1 FY25 rev 11,837.8bn (+1,291.0bn) and OI 1,308.4bn (+187.5bn) imply prior-year Q1",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2023Q1",
+    "fiscalLabel": "FY2023 Q4",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "operatingIncome": 627000
+    },
+    "raw": {},
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_jp.pdf https://car.watch.impress.co.jp/img/car/docs/2012/691/html/009_o.jpg.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY23 OI 2,725.0bn minus 9M OI 2,098.0bn",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "FY2023 Q3",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "operatingIncome": 956600
+    },
+    "raw": {},
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_jp.pdf",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) Toyota 3Q FY23 presentation states 3-month OI 956.6bn (9M 2,098.0bn)",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q1",
+    "fiscalLabel": "FY2022 Q4",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 8112500,
+     "operatingIncome": 463800
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/1387213.html https://car.watch.impress.co.jp/img/car/docs/2012/691/html/009_o.jpg.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY22 rev 31,379.5bn/OI 2,995.6bn minus 9M rev 23,267.0bn/OI 2,531.8bn",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q4",
+    "fiscalLabel": "FY2022 Q3",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "operatingIncome": 784400
+    },
+    "raw": {},
+    "source": "https://car.watch.impress.co.jp/docs/news/1387213.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 9M OI 2,531.8bn minus 6M OI 1,747.4bn",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

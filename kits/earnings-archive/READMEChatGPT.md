@@ -185,7 +185,7 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 
 | 파일 | 화면 | 주로 고치는 곳 |
 | --- | --- | --- |
-| `src/ui/view-overview.js` | 한눈에 보기 (업체 대시보드는 `dashboard()`) | `card()` 카드 안 항목, `compareTable()` 표 열, `views.overview` 안 `App.chart.bars(...)` 비교 차트 |
+| `src/ui/view-overview.js` | 한눈에 보기 (업체 대시보드는 `dashboard()`). 추이 차트는 `App.trend` (`SPECS` 지표 목록, `COLORS` 지표별 색, 분기/연간과 값/전년 대비/전 분기 대비 전환)로 회사별 탭과 같이 씀 | `card()` 카드 안 항목, `compareTable()` 표 열, `SPECS` 차트 지표, `COLORS` 막대 색 |
 | `src/ui/view-company.js` | 회사별 | `quarterTable()` 의 `defs` 배열 (표 줄), `detail()` 안 `App.chart.columns(...)` (차트), `quarterDetail()` (콜 요약 보기) |
 | `src/ui/view-edit.js` | 분기 편집 | `METRICS` 를 돌며 입력 줄을 만듦. 지표를 더하면 저절로 줄이 생김 |
 | `src/ui/view-import.js` | 자료 넣기 | 안내 문구, `previewNumbers()` |
@@ -217,6 +217,7 @@ index.html 을 더블클릭해 file:// 로 연다. 완성차 13곳과 부품사 
 | | 변경 | 고칠 파일 (순서대로, 파일마다 요청 한 번) | 확인 |
 | --- | --- | --- | --- |
 | A | 한눈에 보기 카드에 항목 더하기, 빼기 | `src/ui/view-overview.js` 의 `card()` | 한눈에 보기 |
+| A | 차트 색 바꾸기 | `src/ui/view-overview.js` 의 `COLORS` (값은 `var(--viz-1)` 같은 토큰) | 한눈에 보기, 회사별 |
 | B | 회사별 표에 줄 더하기, 빼기, 순서 바꾸기 | `src/ui/view-company.js` 의 `quarterTable()` 안 `defs` | 회사별 |
 | C | 하이라이트 주제 더하기 (예: "자율주행") | `src/model/core.js` 의 `TOPICS` (맨 끝 '기타' 앞에 넣기). 프롬프트에는 저절로 들어감 | tests/index.html, 자료 넣기 프롬프트 |
 | D | 모델이 지표 이름을 다르게 써서 "지표를 몰라 뺌" 경고가 남 | `src/model/parse.js` 의 `METRIC_ALIASES` 에 별칭 더하기 | tests/index.html, 자료 넣기 검사 |

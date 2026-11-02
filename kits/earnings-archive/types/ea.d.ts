@@ -100,7 +100,9 @@ declare namespace App.ea.core {
   function rateFor(fx: FxData, currency: string, p: Period): number | null;
   function toMusd(millions: number, currency: string, p: Period, fx: FxData, override?: number): { value: number | null; rate: number | null; source: string };
   function derive(q: Quarter, c: Company, fx: FxData): Derived;
-  function table(r: ReportData, c: Company, fx: FxData): Derived[]; // 최근 분기부터, YoY 는 발표 통화 기준
+  function table(r: ReportData, c: Company, fx: FxData): Derived[]; // 최근 분기부터, yoy/qoq 는 발표 통화 기준. opMarginPrev(Q), debtRatioPrev(Q) 도 붙음
+  /** 달력 연도 합계, 최근 연도부터. yoy 는 두 해 모두 4개 분기가 있을 때만 */
+  function annual(r: ReportData, c: Company, fx: FxData): Array<{ year: number; quarters: number; local: { revenue: number | null; operatingIncome: number | null }; musd: { revenue: number | null; operatingIncome: number | null }; deliveries: number | null; delQuarters: number; opMargin: number | null; debtRatio: number | null; yoy: { revenue: number | null; operatingIncome: number | null; deliveries: number | null }; opMarginPrev: number | null; debtRatioPrev: number | null }>;
   function findCompany(list: Company[], key: string): Company | null;
 }
 declare namespace App.ea.parse {

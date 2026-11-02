@@ -4,8 +4,149 @@
  "kind": "report",
  "data": {
   "company": "audi",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
+   {
+    "period": "2026Q3",
+    "fiscalLabel": "Q3 2026",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 12886,
+     "operatingIncome": 28
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/media-releases/challenging-first-nine-months-audi-is-strengthening-its-measures-to-increase-competitiveness-18427",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. 9M 2026 rev 42,063 / op 1,150 minus H1. Audi brand 9M deliveries not found (Brand Group 9M 1,056,103).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2026Q2",
+    "fiscalLabel": "Q2 2026",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 14999,
+     "deliveries": 367.139
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/audi-group-maintains-stable-operating-profit-in-the-first-half-of-2026-despite-challenging-markets-18148",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. H1 2026 rev 29,177 / op 1,122 / Audi brand deliv 727,245 minus Q1 (op uses Q1=588, see note).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2026Q1",
+    "fiscalLabel": "Q1 2026",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 14178,
+     "deliveries": 360.106
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/media-releases/first-quarter-of-2026-audi-figures-shaped-by-challenging-market-conditions-growth-in-germany-and-europe-17118",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue and Audi brand deliveries per Q1 2026 release; op 588 from secondary summary (release text showed conflicting -26, inconsistent with 4.2% margin) - verify.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q4",
+    "fiscalLabel": "Q4 2025",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 17123,
+     "operatingIncome": 1816,
+     "deliveries": 447.786
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/amc-2026-17062",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. FY2025 rev 65,503 / op 3,371 / Audi brand deliv 1,623,551 minus 9M.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q3",
+    "fiscalLabel": "Q3 2025",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 15807,
+     "operatingIncome": 468,
+     "deliveries": 392.234
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/audi-group-first-nine-months-marked-by-challenging-conditions-and-strategic-realignment-16885 https://www.audi.com/en/media-releases/challenging-first-nine-months-audi-is-strengthening-its-measures-to-increase-competitiveness-18427",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. 9M 2025 rev 48,380 / op 1,555 (comparatives in 9M 2026 release) / Audi brand deliv 1,175,765 minus H1.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q2",
+    "fiscalLabel": "Q2 2025",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 17142,
+     "operatingIncome": 550,
+     "deliveries": 400.13
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/challenging-half-year-audi-realignment-gains-momentum-16748",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. H1 2025 rev 32,573 (comparison in H1 2026 release) / op 1,087 / deliv 783,531 minus Q1.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2025Q1",
+    "fiscalLabel": "Q1 2025",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 15431,
+     "operatingIncome": 537,
+     "deliveries": 383.401
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/challenging-half-year-audi-realignment-gains-momentum-16748",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Operating result per key-figures table (537; Q1 2024 466). Press text elsewhere shows conflicting numbers; table used.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q4",
+    "fiscalLabel": "Q4 2024",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 18270,
+     "operatingIncome": 1815,
+     "deliveries": 435.628
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/amc-2025-16570 https://www.audi.com/en/press-releases/audi-group-challenging-market-environment-shapes-financial-performance-in-the-first-nine-months-16322",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. FY2024 rev 64,532 / op 3,903 minus 9M 46,262 / 2,088. Deliveries FY Audi brand 1,671,218 minus 9M 1,235,590 (9M less certain).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
    {
     "period": "2024Q3",
     "fiscalLabel": "Q3 2024",
@@ -13,12 +154,49 @@
     "currency": "EUR",
     "values": {
      "revenue": 15323,
-     "operatingIncome": 106
+     "operatingIncome": 106,
+     "deliveries": 402.633
     },
     "raw": {},
-    "source": "https://www.just-auto.com/news/audi-profit-after-q1-q3-2024",
+    "source": "https://www.just-auto.com/news/audi-profit-after-q1-q3-2024 https://www.audi.com/en/press-releases/audi-group-challenging-market-environment-shapes-financial-performance-in-the-first-nine-months-16322",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived by subtraction from cumulative (Q1/H1/9M/FY) figures. 9M 46262/2088 minus H1 30939/1982. Audi brand 9M deliveries not confirmed (only Brand Group 1,251,381).",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Derived by subtraction from cumulative (Q1/H1/9M/FY) figures. 9M 46262/2088 minus H1 30939/1982. Audi brand 9M deliveries not confirmed (only Brand Group 1,251,381). 보충: Derived from cumulative figures by subtraction. Deliveries: 9M 2024 Audi brand 1,235,590 (secondary source autocar, less certain; Brand Group 1,251,381) minus H1 832,957.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q2",
+    "fiscalLabel": "Q2 2024",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 17214,
+     "operatingIncome": 1516,
+     "deliveries": 436.045
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/audi-group-stabilizes-earnings-in-the-first-half-of-the-year-despite-major-challenges-16119",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived from cumulative figures by subtraction. H1 2024 rev 30,939 / op 1,982 / Audi brand deliv 832,957 minus Q1.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2024Q1",
+    "fiscalLabel": "Q1 2024",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 13725,
+     "operatingIncome": 466,
+     "deliveries": 396.912
+    },
+    "raw": {},
+    "source": "https://www.audi.com/en/press-releases/amc-2025-16570 https://www.audi.com/en/press-releases/challenging-half-year-audi-realignment-gains-momentum-16748",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Q1 2024 rev/op from Audi Q1 2024 release (via search summary); deliveries = Audi brand Q1 2024 comparison in Q1 2025 release.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

@@ -303,9 +303,82 @@
       };
       d.opMarginPrev = pd ? pd.opMargin : null;
       d.debtRatioPrev = pd ? pd.debtRatio : null;
+      // 전 분기 대비(QoQ). 계절성이 섞이므로 전년 대비와 같이 봅니다.
+      var prevQ = quarterOf(report, periodAdd(q.period, -1));
+      var pq = prevQ ? derive(prevQ, company, fx) : null;
+      d.qoq = {
+        revenue: pq ? growth(d.local.revenue, pq.local.revenue) : null,
+        operatingIncome: pq ? growth(d.local.operatingIncome, pq.local.operatingIncome) : null,
+        deliveries: pq ? growth(d.deliveries, pq.deliveries) : null,
+      };
+      d.opMarginPrevQ = pq ? pq.opMargin : null;
+      d.debtRatioPrevQ = pq ? pq.debtRatio : null;
       d.quarter = q;
       return d;
     });
+  }
+
+  /**
+   * 연간 합계 (달력 연도). 최근 연도부터.
+   * - 매출, 영업이익, 판매 대수는 그 해 분기 값을 더합니다. MUSD 는 분기마다 그 분기 환율로 바꾼 뒤 더합니다.
+   * - quarters 는 매출이 있는 분기 수입니다. 4 가 아니면 화면에서 "(n개 분기)" 로 표시합니다.
+   * - 영업이익률은 매출과 영업이익이 둘 다 있는 분기끼리 더해 계산합니다.
+   * - 부채비율은 그 해 마지막으로 값이 있는 분기의 것(연말 기준)입니다.
+   * - 전년 대비는 두 해 모두 4개 분기가 다 있을 때만 계산합니다.
+   */
+  function annual(report, company, fx) {
+    var rows = table(report, company, fx);
+    var byYear = {};
+    rows.slice().reverse().forEach(function (d) {
+      var y = d.period.slice(0, 4);
+      var a = byYear[y] = byYear[y] || {
+        year: y, period: y, quarters: 0, local: { revenue: 0, operatingIncome: 0 }, musd: { revenue: 0, operatingIncome: 0 },
+        deliveries: null, delQuarters: 0, missingFx: false, debtRatio: null, debtRatioSource: null, _r: 0, _o: 0, _both: 0,
+      };
+      if (d.local.revenue !== null) {
+        a.quarters++;
+        a.local.revenue += d.local.revenue;
+        if (d.musd.revenue === null) a.missingFx = true; else a.musd.revenue += d.musd.revenue;
+      }
+      if (d.local.operatingIncome !== null) {
+        a.local.operatingIncome += d.local.operatingIncome;
+        a._oq = (a._oq || 0) + 1;
+        if (d.musd.operatingIncome === null) a.missingFx = true; else a.musd.operatingIncome += d.musd.operatingIncome;
+      }
+      if (d.local.revenue !== null && d.local.operatingIncome !== null) {
+        a._r += d.local.revenue;
+        a._o += d.local.operatingIncome;
+      }
+      if (d.deliveries !== null) {
+        a.deliveries = (a.deliveries || 0) + d.deliveries;
+        a.delQuarters++;
+      }
+      if (d.debtRatio !== null) {
+        a.debtRatio = d.debtRatio;
+        a.debtRatioSource = d.debtRatioSource;
+      }
+    });
+    var out = Object.keys(byYear).sort().reverse().map(function (y) {
+      var a = byYear[y];
+      if (!a.quarters) { a.local.revenue = null; a.musd.revenue = null; }
+      if (!a._oq) { a.local.operatingIncome = null; a.musd.operatingIncome = null; }
+      if (a.missingFx) { a.musd.revenue = null; a.musd.operatingIncome = null; }
+      a.opMargin = a._r ? (a._o / a._r) * 100 : null;
+      delete a._r; delete a._o; delete a._oq;
+      return a;
+    });
+    out.forEach(function (a) {
+      var p = byYear[String(+a.year - 1)];
+      var full = a.quarters === 4 && p && p.quarters === 4;
+      a.yoy = {
+        revenue: full ? growth(a.local.revenue, p.local.revenue) : null,
+        operatingIncome: full ? growth(a.local.operatingIncome, p.local.operatingIncome) : null,
+        deliveries: a.delQuarters === 4 && p && p.delQuarters === 4 ? growth(a.deliveries, p.deliveries) : null,
+      };
+      a.opMarginPrev = p ? p.opMargin : null;
+      a.debtRatioPrev = p ? p.debtRatio : null;
+    });
+    return out;
   }
 
   function latestPeriod(report) {
@@ -356,6 +429,7 @@
     derive: derive,
     growth: growth,
     table: table,
+    annual: annual,
     latestPeriod: latestPeriod,
     findCompany: findCompany,
   };

@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "vw",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q3",
@@ -309,6 +309,265 @@
     "source": "https://www.volkswagen-group.com/en/press-releases/volkswagen-group-achieves-robust-annual-results-for-2023-with-a-strong-fourth-quarter-18250",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Search result showed only operating result before special items 5,747; after-special-items value not confirmed, left null. Deliveries rounded to thousand.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "Q4 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 76235,
+     "operatingIncome": 5027,
+     "deliveries": 2207
+    },
+    "raw": {
+     "revenue": "FY2022 279,232",
+     "operatingIncome": "FY2022 operating result 22,124",
+     "deliveries": "FY2022 8,262,776"
+    },
+    "source": "https://italia-informa.com/public/italiainforma/ComunicatiStampa/Volkswagen/PM_Volkswagen_Group_achieves_solid_annual_results_significant_increase_in_deliveries_expected_in_2023.pdf https://annualreport2022.volkswagenag.com/group-management-report/business-development/deliveries.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived FY minus 9M: revenue 279,232-202,997; op 22,124-(12,828+4,269); deliveries 8,262,776-6,056,000 ~2,207k (wiki 2,206,400). Approximate; op uses H1 reported 12,828 so may differ slightly from Q1+Q2+Q3 sums.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q3",
+    "fiscalLabel": "Q3 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 70712,
+     "operatingIncome": 4269,
+     "deliveries": 2181
+    },
+    "raw": {
+     "revenue": "70,712 vs 56,931",
+     "operatingIncome": "before special items 4,269; no special items in Q3 2022"
+    },
+    "source": "https://moreir.de/download/companies/VW/Quarterly Reports/DE0007664039-Q3-2022-EQ-E-00.pdf",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Deliveries derived: 9M 6,056k - H1 3,875k = 2,181k (matches 2,181,300 press). Operating result equals before-special-items since no special items.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q2",
+    "fiscalLabel": "Q2 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 69543,
+     "operatingIncome": 4505,
+     "deliveries": 1977
+    },
+    "raw": {
+     "revenue": "69,543 vs 67,293",
+     "operatingIncome": "4,505 vs 6,546 (before special 4,735)",
+     "deliveries": "Deliveries 1,977 2,547"
+    },
+    "source": "https://moreir.de/download/companies/VW/Quarterly Reports/DE0007664039-Q2-2022-EQ-E-00.pdf",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Thousands, rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q1",
+    "fiscalLabel": "Q1 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 62711,
+     "operatingIncome": 8328,
+     "deliveries": 1898
+    },
+    "raw": {
+     "revenue": "Q1 2023 report comparative 62,711",
+     "operatingIncome": "operating result 8,328; before special items 8,458",
+     "deliveries": "Deliveries 2,041 1,898"
+    },
+    "source": "https://www.marketscreener.com/quote/stock/VOLKSWAGEN-AG-436737/news/Volkswagen-Q1-Report-2023-43733641/",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: From Q1 2023 report prior-year column; may be IFRS 17 adjusted vs original. Thousands, rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q4",
+    "fiscalLabel": "Q4 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 63600,
+     "operatingIncome": 5322,
+     "deliveries": 1930
+    },
+    "raw": {
+     "revenue": "FY2021 250,200",
+     "operatingIncome": "FY2021 operating result 19,275",
+     "deliveries": "FY2021 8,881,957"
+    },
+    "source": "https://italia-informa.com/public/italiainforma/ComunicatiStampa/Volkswagen/PM_Volkswagen_Group_achieves_solid_annual_results_significant_increase_in_deliveries_expected_in_2023.pdf https://annualreport2021.volkswagenag.com/group-management-report/business-development/deliveries.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived FY minus (Q1+Q2+Q3): revenue 250,200-186,600; op 19,275-13,953; deliveries 8,881,957-6,952,000 ~1,930k (matches wiki 1,930,500); approximate to thousands.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q3",
+    "fiscalLabel": "Q3 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 56931,
+     "operatingIncome": 2595,
+     "deliveries": 1973
+    },
+    "raw": {
+     "revenue": "Sales revenue 56,931 59,355",
+     "operatingIncome": "Operating result 2,595 3,183",
+     "deliveries": "Deliveries 1,973 2,612"
+    },
+    "source": "https://in.marketscreener.com/quote/stock/VOLKSWAGEN-AG-436737/news/Q3-Report-2021-36807769/",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Operating result after special items (before: 2,798). Thousands, rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q2",
+    "fiscalLabel": "Q2 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 67293,
+     "operatingIncome": 6546,
+     "deliveries": 2547
+    },
+    "raw": {
+     "revenue": "Sales revenue 67,293 41,076",
+     "operatingIncome": "Operating result 6,546 -2,394",
+     "deliveries": "H1 2022 table: Q2 2021 2,547; H1 2021 4,979"
+    },
+    "source": "https://www.hispanidad.com/uploads/s1/54/80/82/resultados-del-grupo-volkswagen-en-el-primer-semestre-de-2021.pdf https://moreir.de/download/companies/VW/Quarterly Reports/DE0007664039-Q2-2022-EQ-E-00.pdf",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Deliveries from H1 2022 report comparative (2,547k = 4,979 - 2,432, consistent). Thousands, rounded.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2021Q1",
+    "fiscalLabel": "Q1 2021",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 62376,
+     "operatingIncome": 4812,
+     "deliveries": 2432
+    },
+    "raw": {
+     "revenue": "Sales revenue 62,376 55,054",
+     "operatingIncome": "Operating result 4,812 904",
+     "deliveries": "Deliveries to customers 2,432 2,006"
+    },
+    "source": "https://www.volkswagen-group.com/en/interim-report-and-results-q1-2021-17295",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Deliveries in thousands (rounded).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q4",
+    "fiscalLabel": "Q4 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 67398,
+     "operatingIncome": 7982
+    },
+    "raw": {
+     "revenue": "FY2020 222,884; 9M 155,486",
+     "operatingIncome": "FY2020 operating result 9,675; 9M 1,693"
+    },
+    "source": "https://annualreport2020.volkswagenag.com/consolidated-financial-statements/income-statement.html https://www.volkswagen-group.com/en/interim-report-and-results-q3-2021-17285",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY minus 9M (revenue 222,884-155,486; op 9,675-1,693). Deliveries not derivable exactly (FY 9,305,372; 9M only 6.5m rounded).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q3",
+    "fiscalLabel": "Q3 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 59355,
+     "operatingIncome": 3183,
+     "deliveries": 2612
+    },
+    "raw": {
+     "revenue": "Sales revenue 56,931 59,355",
+     "operatingIncome": "Operating result 2,595 3,183",
+     "deliveries": "Deliveries 1,973 2,612"
+    },
+    "source": "https://in.marketscreener.com/quote/stock/VOLKSWAGEN-AG-436737/news/Q3-Report-2021-36807769/",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: From Q3 2021 report comparative column. Deliveries in thousands (rounded).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q2",
+    "fiscalLabel": "Q2 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 41076,
+     "operatingIncome": -2394
+    },
+    "raw": {
+     "revenue": "Sales revenue 67,293 41,076",
+     "operatingIncome": "Operating result 6,546 -2,394"
+    },
+    "source": "https://www.hispanidad.com/uploads/s1/54/80/82/resultados-del-grupo-volkswagen-en-el-primer-semestre-de-2021.pdf https://www.volkswagen-group.com/en/interim-report-and-results-q3-2021-17285",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: From H1 2021 report comparative column. Consistent with 9M 2020 op result 1,693 = 904 + (-2,394) + 3,183. Deliveries not confirmed (H1 2020 only 3.9m rounded).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q1",
+    "fiscalLabel": "Q1 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 55054,
+     "operatingIncome": 904,
+     "deliveries": 2006
+    },
+    "raw": {
+     "revenue": "Sales revenue 62,376 55,054",
+     "operatingIncome": "Operating result 4,812 904",
+     "deliveries": "Deliveries to customers 2,432 2,006"
+    },
+    "source": "https://www.volkswagen-group.com/en/interim-report-and-results-q1-2021-17295",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: From Q1 2021 report comparative column. Deliveries reported in thousands (rounded).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

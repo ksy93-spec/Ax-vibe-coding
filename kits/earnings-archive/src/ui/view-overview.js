@@ -87,7 +87,7 @@
       var first = rows.filter(function (x) { return x.latest; })[0];
       focus = first ? first.c.id : '';
     }
-    if (focus) main.appendChild(dashboard(App.data.company(focus), period));
+    if (focus) main.appendChild(dashboard(App.data.company(focus), period, r));
 
     // 회사 카드. 누르면 위 대시보드가 그 업체로 바뀝니다.
     var grid = h('section', { class: 'cards', 'aria-label': '회사별 요약' });
@@ -119,7 +119,7 @@
           unit: 'MUSD',
           format: f.musd,
           data: rev.map(function (x) {
-            return { label: label(x), value: x.t.musd.revenue, tip: ['전년 동기 대비 ' + f.pct(x.t.yoy.revenue, true) + ' (발표 통화 기준)'], onClick: go(x) };
+            return { label: label(x), value: x.t.musd.revenue, color: x.c.group === 'Tier1' ? 'var(--viz-2)' : 'var(--viz-1)', tip: ['YoY ' + f.pct(x.t.yoy.revenue, true) + ' · QoQ ' + f.pct(x.t.qoq.revenue, true)], onClick: go(x) };
           }),
         }),
         App.chart.bars({
@@ -127,7 +127,7 @@
           unit: '%',
           format: function (v) { return f.num(v, 1); },
           data: mar.map(function (x) {
-            return { label: label(x), value: x.t.opMargin, tip: ['영업이익 ' + f.musd(x.t.musd.operatingIncome) + ' MUSD'], onClick: go(x) };
+            return { label: label(x), value: x.t.opMargin, color: x.c.group === 'Tier1' ? 'var(--viz-2)' : 'var(--viz-1)', tip: ['영업이익 ' + f.musd(x.t.musd.operatingIncome) + ' MUSD'], onClick: go(x) };
           }),
         }),
         App.chart.bars({
@@ -135,7 +135,7 @@
           unit: '% (낮은 순)',
           format: function (v) { return f.num(v, 1); },
           data: debt.map(function (x) {
-            return { label: label(x), value: x.t.debtRatio, tip: [x.t.debtRatioSource === 'reported' ? '원문에 적힌 비율' : '부채총계 / 자본총계'], onClick: go(x) };
+            return { label: label(x), value: x.t.debtRatio, color: x.c.group === 'Tier1' ? 'var(--viz-2)' : 'var(--viz-1)', tip: [x.t.debtRatioSource === 'reported' ? '원문에 적힌 비율' : '부채총계 / 자본총계'], onClick: go(x) };
           }),
         }),
       ]),
@@ -180,22 +180,100 @@
     return p.slice(2, 4) + 'Q' + p.slice(5);
   }
 
-  /** 업체 한 곳의 대시보드: 고른 분기 숫자, 최근 12개 분기 추이, 센티먼트 */
-  function dashboard(c, period) {
+  /* 지표별 막대 색. 음수(감소)는 빨강. */
+  var COLORS = { revenue: 'var(--viz-1)', operatingIncome: 'var(--viz-2)', opMargin: 'var(--viz-3)', debtRatio: 'var(--viz-7)', deliveries: 'var(--viz-6)' };
+  var NEG = 'var(--viz-8)';
+
+  /** 보기 바꾸기 단추 묶음 */
+  function seg2(items, cur, key) {
+    return h('div', { class: 'seg', role: 'group' }, items.map(function (it) {
+      return h('button', {
+        type: 'button', class: 'seg__btn' + (it[0] === cur ? ' is-on' : ''), text: it[1], disabled: it[2] ? true : null,
+        onclick: function () { var o = {}; o[key] = it[0]; App.go(o, true); },
+      });
+    }));
+  }
+
+  /**
+   * 차트 한 개에 들어갈 값. mode 'val' 은 값, 'yoy' 는 전년 대비, 'qoq' 는 전 분기 대비.
+   * 금액과 대수는 증감률(%), 비율(영업이익률, 부채비율)은 차이(%p)로 보여 줍니다.
+   */
+  var SPECS = [
+    { key: 'revenue', title: '매출', unit: 'MUSD', kind: 'flow', val: function (d) { return d.musd.revenue; }, fmt: function (v) { return f.musd(v); } },
+    { key: 'operatingIncome', title: '영업이익', unit: 'MUSD', kind: 'flow', val: function (d) { return d.musd.operatingIncome; }, fmt: function (v) { return f.musd(v); } },
+    { key: 'opMargin', title: '영업이익률', unit: '%', kind: 'ratio', val: function (d) { return d.opMargin; }, prevY: 'opMarginPrev', prevQ: 'opMarginPrevQ', fmt: function (v) { return f.num(v, 1); } },
+    { key: 'debtRatio', title: '부채비율', unit: '%', kind: 'ratio', val: function (d) { return d.debtRatio; }, prevY: 'debtRatioPrev', prevQ: 'debtRatioPrevQ', fmt: function (v) { return f.num(v, 0); } },
+    { key: 'deliveries', title: '판매 대수', unit: '천 대', kind: 'flow', val: function (d) { return d.deliveries; }, fmt: function (v) { return f.num(v); } },
+  ];
+  function seriesValue(sp, d, mode) {
+    if (mode === 'val') return sp.val(d);
+    if (sp.kind === 'flow') {
+      var g = mode === 'yoy' ? d.yoy : d.qoq;
+      return g ? g[sp.key] : null;
+    }
+    var cur = sp.val(d);
+    var prev = d[mode === 'yoy' ? sp.prevY : sp.prevQ];
+    return cur === null || cur === undefined || prev === null || prev === undefined ? null : cur - prev;
+  }
+
+  /** 분기/연간, 값/전년 대비/전 분기 대비 고르는 줄. 회사별 탭도 같이 씁니다. */
+  function readModes(r) {
+    var gran = r.gran === 'y' ? 'y' : 'q';
+    var mode = r.dm === 'yoy' || (r.dm === 'qoq' && gran === 'q') ? r.dm : 'val';
+    return { gran: gran, mode: mode };
+  }
+  function modeBar(gran, mode) {
+    return h('div', { class: 'toolbar dash__modes' }, [
+      seg2([['q', '분기'], ['y', '연간']], gran, 'gran'),
+      seg2([['val', '값'], ['yoy', '전년 대비'], ['qoq', '전 분기 대비', gran === 'y']], mode, 'dm'),
+      gran === 'y' ? h('span', { class: 'muted small', text: '달력 연도 합계. 4개 분기가 다 없는 해는 연도 옆 괄호에 분기 수' } ) : null,
+    ]);
+  }
+  /** 지표별 막대 차트 묶음. o.quarters, o.years 는 보여 줄 개수, o.wrap 은 감쌀 클래스 */
+  function trendCharts(c, rep, fx, rows, gran, mode, o) {
+    var series = gran === 'y' ? C.annual(rep, c, fx).slice(0, o.years).reverse() : rows.slice(0, o.quarters).reverse();
+    var label = gran === 'y'
+      ? function (d) { return d.year + (d.quarters < 4 ? ' (' + d.quarters + ')' : ''); }
+      : function (d) { return shortP(d.period); };
+    var out = [];
+    SPECS.forEach(function (sp) {
+      if (sp.key === 'deliveries' && c.group === 'Tier1') return;
+      var data = series.map(function (d) {
+        var tips = [gran === 'y' ? d.year + '년' + (d.quarters < 4 ? ' (' + d.quarters + '개 분기 합)' : '') : C.periodLabel(d.period) + (d.quarter.fiscalLabel ? ' · ' + d.quarter.fiscalLabel : '')];
+        if (mode !== 'val') tips.push('값 ' + sp.fmt(sp.val(d)) + ' ' + sp.unit);
+        return { label: label(d), value: seriesValue(sp, d, mode), tip: tips };
+      });
+      if (!data.some(function (x) { return x.value !== null && x.value !== undefined; })) return;
+      out.push(h('div', { class: o.wrap }, App.chart.columns({
+        title: sp.title + (mode === 'yoy' ? ' 전년 대비' : mode === 'qoq' ? ' 전 분기 대비' : ''),
+        unit: mode === 'val' ? sp.unit : sp.kind === 'flow' ? '%' : '%p',
+        format: mode === 'val' ? sp.fmt : function (v) { return (v > 0 ? '+' : '') + f.num(v, 1); },
+        height: o.height, data: data,
+        color: COLORS[sp.key], negColor: NEG, labels: mode === 'val' ? 'last' : 'all',
+      })));
+    });
+    return out;
+  }
+  App.trend = { readModes: readModes, modeBar: modeBar, charts: trendCharts };
+
+  /** 업체 한 곳의 대시보드: 고른 분기 숫자, 추이(분기/연간, 값/전년 대비/전 분기 대비), 센티먼트 */
+  function dashboard(c, period, r) {
     var SE = App.ea.sentiment;
     var rep = App.data.report(c.id);
-    var rows = C.table(rep, c, App.data.fx());
+    var fx = App.data.fx();
+    var rows = C.table(rep, c, fx);
+    var md = readModes(r), gran = md.gran, mode = md.mode;
     var box = h('section', { class: 'panel dash', id: 'dash' });
     var at = rows.filter(function (d) { return d.period === period; })[0] || rows[0];
     box.appendChild(h('div', { class: 'dash__head' }, [
       f.logo(c, 'lg'),
       h('div', null, [
         h('h2', { class: 'dash__name', text: c.nameKo || c.name }),
-        h('div', { class: 'muted small', text: c.name + ' · ' + (c.group === 'Tier1' ? '부품사' : '완성차') + ' · 발표 통화 ' + c.currency +
-          (rows.length ? ' · 자료 ' + C.periodLabel(rows[rows.length - 1].period) + ' ~ ' + C.periodLabel(rows[0].period) + ' (' + rows.length + '개 분기)' : '') }),
+        h('div', { class: 'muted small', text: c.name + ' · ' + (c.group === 'Tier1' ? '부품사' : '완성차') + ' · ' + c.currency +
+          (rows.length ? ' · ' + C.periodLabel(rows[rows.length - 1].period) + ' ~ ' + C.periodLabel(rows[0].period) + ' (' + rows.length + '개 분기)' : '') }),
       ]),
       h('div', { class: 'app__spacer' }),
-      f.btn('상세 보기', function () { App.go({ tab: 'company', company: c.id, period: at ? at.period : '' }); }, 'primary'),
+      f.btn('상세 보기', function () { App.go({ tab: 'company', company: c.id, period: at ? at.period : '', gran: r.gran, dm: r.dm }); }, 'primary'),
     ]));
     if (!rows.length) {
       box.appendChild(f.empty('이 업체는 아직 자료가 없습니다', null, [
@@ -205,53 +283,47 @@
       return box;
     }
 
-    // 고른 분기(없으면 최근 분기) 숫자
+    // 고른 분기(없으면 최근 분기) 숫자. 아래 줄에 전년 대비, 전 분기 대비
     var sent = at.quarter.sentiment;
-    function tile(label, value, sub, extra) {
-      return h('div', { class: 'tile' }, [
+    function chg(y, q, pp) {
+      var fy = pp ? f.pp : function (v) { return f.pct(v, true); };
+      var a = [];
+      if (y !== null && y !== undefined) a.push('YoY ' + fy(y));
+      if (q !== null && q !== undefined) a.push('QoQ ' + fy(q));
+      return a.join(' · ');
+    }
+    function diff(cur, prev) { return cur === null || prev === null || prev === undefined ? null : cur - prev; }
+    function tile(label, value, sub, color) {
+      return h('div', { class: 'tile', style: color ? { borderTopColor: color } : null }, [
         h('div', { class: 'tile__label', text: label }),
         h('div', { class: 'tile__value' }, value),
         sub ? h('div', { class: 'tile__sub', text: sub }) : null,
-        extra || null,
       ]);
     }
-    box.appendChild(h('div', { class: 'muted small dash__at', text: C.periodLabel(at.period, true) + (at.quarter.fiscalLabel ? ' · ' + at.quarter.fiscalLabel : '') + (at.period !== period ? ' (고른 분기 자료가 없어 최근 분기)' : '') + ' · 전년 동기 대비' }));
+    box.appendChild(h('div', { class: 'muted small dash__at', text: C.periodLabel(at.period, true) + (at.quarter.fiscalLabel ? ' · ' + at.quarter.fiscalLabel : '') + (at.period !== period ? ' (고른 분기 자료가 없어 최근 분기)' : '') }));
     box.appendChild(h('div', { class: 'tiles' }, [
-      tile('매출 (MUSD)', f.musd(at.musd.revenue), f.pct(at.yoy.revenue, true)),
-      tile('영업이익 (MUSD)', f.musd(at.musd.operatingIncome), f.pct(at.yoy.operatingIncome, true)),
-      tile('영업이익률', f.pct(at.opMargin), at.opMarginPrev !== null && at.opMargin !== null ? f.pp(at.opMargin - at.opMarginPrev) : ''),
-      tile('부채비율', f.pct(at.debtRatio) + (at.debtRatioSource === 'reported' ? ' *' : ''), at.debtRatioPrev !== null && at.debtRatio !== null ? f.pp(at.debtRatio - at.debtRatioPrev) : ''),
-      c.group === 'Tier1' ? null : tile('판매 대수 (천 대)', f.num(at.deliveries), f.pct(at.yoy.deliveries, true)),
+      tile('매출 (MUSD)', f.musd(at.musd.revenue), chg(at.yoy.revenue, at.qoq.revenue), COLORS.revenue),
+      tile('영업이익 (MUSD)', f.musd(at.musd.operatingIncome), chg(at.yoy.operatingIncome, at.qoq.operatingIncome), COLORS.operatingIncome),
+      tile('영업이익률', f.pct(at.opMargin), chg(diff(at.opMargin, at.opMarginPrev), diff(at.opMargin, at.opMarginPrevQ), true), COLORS.opMargin),
+      tile('부채비율', f.pct(at.debtRatio) + (at.debtRatioSource === 'reported' ? ' *' : ''), chg(diff(at.debtRatio, at.debtRatioPrev), diff(at.debtRatio, at.debtRatioPrevQ), true), COLORS.debtRatio),
+      c.group === 'Tier1' ? null : tile('판매 대수 (천 대)', f.num(at.deliveries), chg(at.yoy.deliveries, at.qoq.deliveries), COLORS.deliveries),
       tile('센티먼트', sent ? f.sentCell(SE.index(sent), { cls: 'sent--big' }) : '-', sent ? '' : '콜 요약 없음'),
     ]));
 
-    // 최근 12개 분기 추이. 숫자가 하나도 없는 지표는 그리지 않습니다.
-    var recent = rows.slice(0, 12).reverse();
-    var specs = [
-      ['매출', 'MUSD', f.musd, function (d) { return d.musd.revenue; }],
-      ['영업이익', 'MUSD', f.musd, function (d) { return d.musd.operatingIncome; }],
-      ['영업이익률', '%', function (v) { return f.num(v, 1); }, function (d) { return d.opMargin; }],
-      ['부채비율', '%', function (v) { return f.num(v, 0); }, function (d) { return d.debtRatio; }],
-      ['판매 대수', '천 대', function (v) { return f.num(v); }, function (d) { return d.deliveries; }],
-    ];
+    box.appendChild(modeBar(gran, mode));
     var charts = h('div', { class: 'grid3 dash__charts' });
-    specs.forEach(function (sp) {
-      if (!recent.some(function (d) { var v = sp[3](d); return v !== null && v !== undefined; })) return;
-      charts.appendChild(h('div', { class: 'dash__chart' }, App.chart.columns({
-        title: sp[0], unit: sp[1], format: sp[2], height: 170,
-        data: recent.map(function (d) { return { label: shortP(d.period), value: sp[3](d), tip: [C.periodLabel(d.period) + (d.quarter.fiscalLabel ? ' · ' + d.quarter.fiscalLabel : '')] }; }),
-      })));
-    });
+    trendCharts(c, rep, fx, rows, gran, mode, { quarters: 12, years: 7, height: 170, wrap: 'dash__chart' }).forEach(function (n) { charts.appendChild(n); });
 
     // 센티먼트: 분기별 종합 점수와 가장 최근 콜 총평
-    var scored = recent.filter(function (d) { return d.quarter.sentiment; });
+    var recentQ = rows.slice(0, 12).reverse();
+    var scored = recentQ.filter(function (d) { return d.quarter.sentiment; });
     var lastCall = rows.filter(function (d) { return d.quarter.call; })[0];
     charts.appendChild(h('div', { class: 'dash__chart dash__sent' }, [
-      h('div', { class: 'chart__head' }, [h('span', { class: 'chart__title', text: '컨퍼런스콜 센티먼트' }), h('span', { class: 'chart__unit', text: '종합, 0~10점' })]),
-      scored.length ? h('div', { class: 'sent-strip' }, recent.map(function (d) {
+      h('div', { class: 'chart__head' }, [h('span', { class: 'chart__title', text: '컨퍼런스콜 센티먼트' }), h('span', { class: 'chart__unit', text: '0~10점' })]),
+      scored.length ? h('div', { class: 'sent-strip' }, recentQ.map(function (d) {
         var se = d.quarter.sentiment;
         return h('div', { class: 'sent-strip__q' }, [f.sentCell(se ? SE.index(se) : null), h('span', { class: 'small muted', text: shortP(d.period) })]);
-      })) : h('div', { class: 'chart__empty', text: '센티먼트 점수가 있는 분기가 없습니다' }),
+      })) : h('div', { class: 'chart__empty', text: '점수가 있는 분기가 없습니다' }),
       lastCall ? h('div', { class: 'dash__call' }, [
         h('div', { class: 'small muted', text: C.periodLabel(lastCall.period) + ' 콜' }),
         h('div', { text: lastCall.quarter.call.summary || '' }),

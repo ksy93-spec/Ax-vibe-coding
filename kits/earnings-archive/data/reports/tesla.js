@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "tesla",
-  "rev": 2,
+  "rev": 3,
   "quarters": [
    {
     "period": "2026Q3",
@@ -123,13 +123,14 @@
     "currency": "USD",
     "values": {
      "revenue": 22496,
-     "operatingIncome": 923
+     "operatingIncome": 923,
+     "deliveries": 384.122
     },
     "raw": {
      "revenue": "22,496",
      "operatingIncome": "923"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025035806/tsla-20250630.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025035806/tsla-20250630.htm https://electrek.co/2025/07/02/tesla-tsla-deliveries-q2-2025/",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
     "call": null,
@@ -143,13 +144,14 @@
     "currency": "USD",
     "values": {
      "revenue": 19335,
-     "operatingIncome": 399
+     "operatingIncome": 399,
+     "deliveries": 336.681
     },
     "raw": {
      "revenue": "19,335",
      "operatingIncome": "Income from operations | 399 | 1171"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025018911/tsla-20250331.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025018911/tsla-20250331.htm https://driveteslacanada.ca/news/tesla-delivers-384122-vehicles-in-q2-2025-energy-continues-to-shine/",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
     "call": null,
@@ -185,13 +187,14 @@
     "currency": "USD",
     "values": {
      "revenue": 25182,
-     "operatingIncome": 2717
+     "operatingIncome": 2717,
+     "deliveries": 462.89
     },
     "raw": {
      "revenue": "25,182",
      "operatingIncome": "2,717"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025002993/exhibit991.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000162828025002993/exhibit991.htm https://longportapp.cn/news/259927383",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
     "call": null,
@@ -271,13 +274,14 @@
     "currency": "USD",
     "values": {
      "revenue": 23350,
-     "operatingIncome": 1764
+     "operatingIncome": 1764,
+     "deliveries": 435.059
     },
     "raw": {
      "revenue": "23,350",
      "operatingIncome": "1,764"
     },
-    "source": "https://electrek.co/wp-content/uploads/sites/3/2024/01/TSLA-Q4-2023-Update.pdf",
+    "source": "https://electrek.co/wp-content/uploads/sites/3/2024/01/TSLA-Q4-2023-Update.pdf https://www.marklines.com/en/news/295491",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
     "call": null,
@@ -291,13 +295,14 @@
     "currency": "USD",
     "values": {
      "revenue": 24927,
-     "operatingIncome": 2399
+     "operatingIncome": 2399,
+     "deliveries": 466.14
     },
     "raw": {
      "revenue": "24,927",
      "operatingIncome": "2,399"
     },
-    "source": "https://electrek.co/wp-content/uploads/sites/3/2024/01/TSLA-Q4-2023-Update.pdf",
+    "source": "https://electrek.co/wp-content/uploads/sites/3/2024/01/TSLA-Q4-2023-Update.pdf https://www.cnbc.com/2023/10/02/tesla-tsla-q3-2023-vehicle-delivery-and-production-numbers.html",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
     "call": null,
@@ -311,15 +316,16 @@
     "currency": "USD",
     "values": {
      "revenue": 23329,
-     "operatingIncome": 2664
+     "operatingIncome": 2664,
+     "deliveries": 422.875
     },
     "raw": {
      "revenue": "23,329",
      "operatingIncome": "2,664"
     },
-    "source": "https://electrek.co/wp-content/uploads/sites/3/2024/01/TSLA-Q4-2023-Update.pdf",
+    "source": "https://electrek.co/wp-content/uploads/sites/3/2024/01/TSLA-Q4-2023-Update.pdf https://benzinga.com/z/35068972",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 보충: quarterly table",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -353,13 +359,14 @@
     "currency": "USD",
     "values": {
      "revenue": 21454,
-     "operatingIncome": 3700
+     "operatingIncome": 3700,
+     "deliveries": 343.83
     },
     "raw": {
      "revenue": "Total $ 21,454",
      "operatingIncome": "$3.7B GAAP operating income; 17.2% operating margin"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022019867/tsla-20220930.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022019867/tsla-20220930.htm https://www.cnbc.com/2023/10/02/tesla-tsla-q3-2023-vehicle-delivery-and-production-numbers.html",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. operating income rounded",
     "call": null,
@@ -373,15 +380,16 @@
     "currency": "USD",
     "values": {
      "revenue": 16900,
-     "operatingIncome": 2464
+     "operatingIncome": 2464,
+     "deliveries": 254.695
     },
     "raw": {
      "revenue": "Total revenue grew 42% YoY in Q2 to $16.9B",
      "operatingIncome": "2,464 (six-month 6,067)"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022012936/tsla-20220630.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022012936/tsla-20220630.htm https://benzinga.com/z/35068972",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. revenue rounded",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. revenue rounded 보충: quarterly table",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -393,13 +401,14 @@
     "currency": "USD",
     "values": {
      "revenue": 18756,
-     "operatingIncome": 3603
+     "operatingIncome": 3603,
+     "deliveries": 310.048
     },
     "raw": {
      "revenue": "Total revenues $18,756",
      "operatingIncome": "Income from operations 3,603"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022006034/tsla-20220331.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022006034/tsla-20220331.htm https://insideevs.com/news/577387/tesla-q1-2022-deliveries/",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
     "call": null,
@@ -413,15 +422,16 @@
     "currency": "USD",
     "values": {
      "revenue": 17700,
-     "operatingIncome": 2613
+     "operatingIncome": 2613,
+     "deliveries": 308.6
     },
     "raw": {
      "revenue": "Total revenue grew 65% YoY in Q4 to $17.7B",
      "operatingIncome": "575 594 1,312 2,004 2,613"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459022002476/tsla-ex991_209.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459022002476/tsla-ex991_209.htm https://insideevs.com/news/577387/tesla-q1-2022-deliveries/",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. revenue rounded; stockholders' equity 30,189 excludes NCI",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. revenue rounded; stockholders' equity 30,189 excludes NCI 보충: Prior record cited in Q1 2022 coverage",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -452,12 +462,15 @@
     "reportDate": "",
     "currency": "USD",
     "values": {
-     "operatingIncome": 1312
+     "operatingIncome": 1312,
+     "revenue": 11958,
+     "deliveries": 201.25
     },
     "raw": {
-     "operatingIncome": "575 594 1,312 2,004 2,613"
+     "operatingIncome": "575 594 1,312 2,004 2,613",
+     "revenue": "Total revenues $11,958 million, +98% YoY"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021002645/tsla-ex991_99.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021002645/tsla-ex991_99.htm https://cleantechnica.com/2021/07/26/teslas-11-958-billion-in-revenue-is-accelerating-our-transition-to-sustainability/ https://insideevs.com/news/516922/tesla-q2-2021-deliveries/",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. revenue not confirmed in searches; stockholders' equity 24,804 excludes NCI",
     "call": null,
@@ -471,15 +484,16 @@
     "currency": "USD",
     "values": {
      "revenue": 10389,
-     "operatingIncome": 594
+     "operatingIncome": 594,
+     "deliveries": 184.8
     },
     "raw": {
      "revenue": "Total revenues $18,756 $10,389",
      "operatingIncome": "575 594 1,312 2,004 2,613"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022006034/tsla-20220331.htm https://www.sec.gov/Archives/edgar/data/1318605/000156459021002645/tsla-ex991_99.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1318605/000095017022006034/tsla-20220331.htm https://www.sec.gov/Archives/edgar/data/1318605/000156459021002645/tsla-ex991_99.htm https://electrive.com/2021/07/03/tesla-built-and-delivered-over-200000-bevs-during-q2",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. stockholders' equity 23,017 excludes NCI",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. stockholders' equity 23,017 excludes NCI 보충: Tesla release figure (rounded to 100)",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

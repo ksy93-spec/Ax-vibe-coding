@@ -22,7 +22,7 @@
     return out;
   }
   function writeHash(r) {
-    var keep = ['tab', 'company', 'period', 'edit', 'group', 'view', 'focus'];
+    var keep = ['tab', 'company', 'period', 'edit', 'group', 'view', 'focus', 'gran', 'dm'];
     var s = keep.filter(function (k) {
       return r[k];
     }).map(function (k) {
