@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "toyota",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q2",
@@ -150,12 +150,13 @@
     "currency": "JPY",
     "values": {
      "revenue": 11444600,
-     "operatingIncome": 1155800
+     "operatingIncome": 1155800,
+     "deliveries": 2304
     },
     "raw": {},
-    "source": "https://car.watch.impress.co.jp/docs/news/1637240.html",
+    "source": "https://car.watch.impress.co.jp/docs/news/1637240.html https://global.toyota/pages/global_toyota/ir/financial-results/2025_2q_presentation_en.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M rev 23,282.4bn/OI 2,464.2bn minus Q1",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M rev 23,282.4bn/OI 2,464.2bn minus Q1 보충: Derived: 4,556k minus Q1 2,252k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -184,14 +185,15 @@
     "currency": "JPY",
     "values": {
      "operatingIncome": 1112700,
-     "revenue": 11072600
+     "revenue": 11072600,
+     "deliveries": 2148
     },
     "raw": {
      "revenue": "FY2024 sales revenues 45,095.3bn; 9M comparison base 34,022.7bn"
     },
-    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html https://global.toyota/pages/global_toyota/ir/financial-results/2024_4q_summary_en.pdf https://www.marklines.com/en/news/321453",
+    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html https://global.toyota/pages/global_toyota/ir/financial-results/2024_4q_summary_en.pdf https://www.marklines.com/en/news/321453 https://pressroom.toyota.com/tmc-announces-april-through-march-2024-financial-results/",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY24 OI 5,352.9bn minus 9M OI 4,240.2bn 보충: Derived: FY 45,095.3bn minus 9M Apr-Dec 2023 34,022.7bn; the 9M value came from a MarkLines prior-year comparison, not Toyota's own Q3 FY2024 document. Precision 0.1bn.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY24 OI 5,352.9bn minus 9M OI 4,240.2bn 보충: Derived: FY 45,095.3bn minus 9M Apr-Dec 2023 34,022.7bn; the 9M value came from a MarkLines prior-year comparison, not Toyota's own Q3 FY2024 document. Precision 0.1bn. 보충: Derived: 9,443k minus 7,295k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -203,12 +205,13 @@
     "currency": "JPY",
     "values": {
      "revenue": 12041100,
-     "operatingIncome": 1681000
+     "operatingIncome": 1681000,
+     "deliveries": 2551
     },
     "raw": {},
-    "source": "https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html",
+    "source": "https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 9M rev 34,022.7bn/OI 4,240.2bn minus 6M",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 9M rev 34,022.7bn/OI 4,240.2bn minus 6M 보충: Derived: 9M 7,295k (secondary report of company figure, 729.5万台) minus H1 4,744k. Cross-check: quarters sum to FY2024 9,443k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -220,12 +223,13 @@
     "currency": "JPY",
     "values": {
      "revenue": 11434800,
-     "operatingIncome": 1438300
+     "operatingIncome": 1438300,
+     "deliveries": 2418
     },
     "raw": {},
-    "source": "https://car.watch.impress.co.jp/docs/news/1613074.html https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html",
+    "source": "https://car.watch.impress.co.jp/docs/news/1613074.html https://monoist.itmedia.co.jp/mn/spv/2402/07/news080.html https://global.toyota/pages/global_toyota/ir/financial-results/2025_2q_presentation_en.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M FY24 rev 21,981.6bn/OI 2,559.2bn minus Q1",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) 6M FY24 rev 21,981.6bn/OI 2,559.2bn minus Q1 보충: Derived: 4,744k minus 2,326k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -237,12 +241,13 @@
     "currency": "JPY",
     "values": {
      "revenue": 10546800,
-     "operatingIncome": 1120900
+     "operatingIncome": 1120900,
+     "deliveries": 2326
     },
     "raw": {},
-    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html",
+    "source": "https://car.watch.impress.co.jp/docs/news/2012691.html https://pressroom.toyota.com/?generate_pdf=85836",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) Q1 FY25 rev 11,837.8bn (+1,291.0bn) and OI 1,308.4bn (+187.5bn) imply prior-year Q1",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) Q1 FY25 rev 11,837.8bn (+1,291.0bn) and OI 1,308.4bn (+187.5bn) imply prior-year Q1 보충: Reported 3-month Apr-Jun 2023.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -253,12 +258,16 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "operatingIncome": 627000
+     "operatingIncome": 627000,
+     "revenue": 9690265,
+     "deliveries": 2331
     },
-    "raw": {},
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_jp.pdf https://car.watch.impress.co.jp/img/car/docs/2012/691/html/009_o.jpg.html",
+    "raw": {
+     "revenue": "FY2023 sales revenues 37,154,298; 9M 27,464,033"
+    },
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_jp.pdf https://car.watch.impress.co.jp/img/car/docs/2012/691/html/009_o.jpg.html https://www.sec.gov/Archives/edgar/data/834071/000095010324008462/dp212957_ex9902.htm https://www2.jpx.co.jp/disc/72030/140120230202599130.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY23 OI 2,725.0bn minus 9M OI 2,098.0bn",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) FY23 OI 2,725.0bn minus 9M OI 2,098.0bn 보충: Revenue derived: FY 37,154,298 (company, via SEC exhibit) minus 9M 27,464,033 (Q3 tanshin value as relayed by search summary; not seen verbatim). Deliveries derived: FY2023 8,822k (9,443k minus 621k increase) minus 9M 6,491k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -270,14 +279,15 @@
     "currency": "JPY",
     "values": {
      "operatingIncome": 956600,
-     "revenue": 9750000
+     "revenue": 9750000,
+     "deliveries": 2332
     },
     "raw": {
      "revenue": "9M FY2023 sales revenue 27.46tn; H1 17.71tn"
     },
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_jp.pdf https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_2_en.pdf https://global.toyota/pages/global_toyota/ir/financial-results/2023_2q_summary_en.pdf",
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_jp.pdf https://global.toyota/pages/global_toyota/ir/financial-results/2023_3q_presentation_2_en.pdf https://global.toyota/pages/global_toyota/ir/financial-results/2023_2q_summary_en.pdf https://pressroom.toyota.com/?generate_pdf=82280",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) Toyota 3Q FY23 presentation states 3-month OI 956.6bn (9M 2,098.0bn) 보충: LOW PRECISION (+-~10bn): 9M 27.46tn minus H1 17.71tn.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: derived by subtraction of cumulative figures (Japanese reports, 100M-yen precision) Toyota 3Q FY23 presentation states 3-month OI 956.6bn (9M 2,098.0bn) 보충: LOW PRECISION (+-~10bn): 9M 27.46tn minus H1 17.71tn. 보충: Derived: 9M 6,491k minus H1 4,159k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -289,14 +299,15 @@
     "currency": "JPY",
     "values": {
      "revenue": 9220000,
-     "operatingIncome": 561000
+     "operatingIncome": 561000,
+     "deliveries": 2146
     },
     "raw": {
      "revenue": "H1 FY2023 sales revenues ~17.71tn, OI ~1.14tn"
     },
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_2q_summary_en.pdf",
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_2q_summary_en.pdf https://toyotatimes.jp/en/report/financial_results_2023/001.html https://pressroom.toyota.com/?generate_pdf=77679",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: LOW PRECISION (+-~10bn): H1 only seen rounded to 0.01tn (17.71tn, 1.14tn) minus Q1 (8,491.1bn / 578.7bn). Replace with exact value if available.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: LOW PRECISION (+-~10bn): H1 only seen rounded to 0.01tn (17.71tn, 1.14tn) minus Q1 (8,491.1bn / 578.7bn). Replace with exact value if available. 보충: Derived: H1 4,159k minus Q1 2,013k. Thousand-unit precision.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -308,14 +319,15 @@
     "currency": "JPY",
     "values": {
      "revenue": 8491100,
-     "operatingIncome": 578700
+     "operatingIncome": 578700,
+     "deliveries": 2013
     },
     "raw": {
      "revenue": "Q1 sales revenues 8,491.1bn, +555.5bn; OI 578.7bn (pressroom says 578.6bn)"
     },
-    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_1q_presentation_en.pdf https://global.toyota/pages/global_toyota/ir/financial-results/2023_1q_summary_en.pdf",
+    "source": "https://global.toyota/pages/global_toyota/ir/financial-results/2023_1q_presentation_en.pdf https://global.toyota/pages/global_toyota/ir/financial-results/2023_1q_summary_en.pdf https://pressroom.toyota.com/?generate_pdf=77679",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Precision 0.1bn; OI reported as 578.6 or 578.7bn.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Precision 0.1bn; OI reported as 578.6 or 578.7bn. 보충: Apr-Jun 2022 3-month figure reported by Toyota (thousand-unit precision).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

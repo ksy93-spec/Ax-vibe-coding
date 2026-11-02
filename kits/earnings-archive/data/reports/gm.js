@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "gm",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -538,14 +538,16 @@
     "reportDate": "",
     "currency": "USD",
     "values": {
-     "operatingIncome": -536
+     "operatingIncome": -536,
+     "revenue": 16778
     },
     "raw": {
-     "operatingIncome": "EBIT (loss)-adjusted $ 4,117 $ (536)"
+     "operatingIncome": "EBIT (loss)-adjusted $ 4,117 $ (536)",
+     "revenue": "reported revenues of $16,778 million (GMNA 11,604; GMI 1,677; GM Financial 3,423)"
     },
-    "source": "https://www.sec.gov/Archives/edgar/data/1467858/000146785821000141/q22021earnings08042021.htm",
+    "source": "https://www.sec.gov/Archives/edgar/data/1467858/000146785821000141/q22021earnings08042021.htm https://www.sec.gov/Archives/edgar/data/1467858/000146785820000110/q22020earnings07292020.htm https://au.finance.yahoo.com/news/general-motors-gm-posts-narrower-135501335.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: revenue only known as ~16.8B, not exact, omitted",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: revenue only known as ~16.8B, not exact, omitted 보충: Exact figure taken from Zacks-based Yahoo article, not verified in the 8-K table (GM release says $16.8B). Deliveries not found.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

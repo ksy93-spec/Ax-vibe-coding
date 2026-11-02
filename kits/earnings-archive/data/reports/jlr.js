@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "jlr",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q2",
@@ -264,6 +264,25 @@
     "updatedAt": "2026-11-02 00:00:00"
    },
    {
+    "period": "2023Q2",
+    "fiscalLabel": "FY2024 Q1",
+    "reportDate": "",
+    "currency": "GBP",
+    "values": {
+     "operatingIncome": 595,
+     "deliveries": 101.994
+    },
+    "raw": {
+     "operatingIncome": "Adjusted EBIT was GBP595 million (8.6%) in Q1 FY24"
+    },
+    "source": "https://www.tatamotors.com/wp-content/uploads/2023/11/q1fy24-jlr-Interim-report.pdf https://www.autocarpro.in/news-international/jlr-sales-up-29-percent-in-q1-fy2024-ramped-up-production-cuts-order-backlog-115770",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue only 6.9bn rounded, omitted.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
     "period": "2023Q1",
     "fiscalLabel": "Q4 FY23",
     "reportDate": "",
@@ -327,14 +346,16 @@
     "reportDate": "",
     "currency": "GBP",
     "values": {
-     "deliveries": 78.825
+     "deliveries": 78.825,
+     "operatingIncome": -196
     },
     "raw": {
-     "deliveries": "Retail sales in Q1 FY23 were 78,825 units, broadly flat (183 units lower) compared with the last quarter"
+     "deliveries": "Retail sales in Q1 FY23 were 78,825 units, broadly flat (183 units lower) compared with the last quarter",
+     "operatingIncome": "Adjusted EBIT was -196 million (-4.4%) in Q1 FY23"
     },
-    "source": "https://www.autocarpro.in/news-national/jlr-q1fy23-retail-sales-rmains-constrained-by-chip-shortage-92160",
+    "source": "https://www.autocarpro.in/news-national/jlr-q1fy23-retail-sales-rmains-constrained-by-chip-shortage-92160 https://www.tatamotors.com/wp-content/uploads/2023/11/q1fy24-jlr-Interim-report.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Retail incl. CJLR (consistent with archive Q4 FY22 79,008 = 78,825+183). News quoting JLR.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Retail incl. CJLR (consistent with archive Q4 FY22 79,008 = 78,825+183). News quoting JLR. 보충: Revenue only 4.4bn rounded, omitted.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -401,12 +422,15 @@
     "reportDate": "",
     "currency": "GBP",
     "values": {
-     "deliveries": 124.537
+     "deliveries": 124.537,
+     "operatingIncome": -46
     },
-    "raw": {},
-    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases)",
+    "raw": {
+     "operatingIncome": "Adjusted EBIT -196 in Q1 FY23, vs -46 in Q1 FY22"
+    },
+    "source": "https://media.jaguarlandrover.com/news/2022/01/third-quarter-ebit-and-cashflow-turn-positive-despite-semicondutor-supply-constraints https://www.tatamotors.com (JLR quarterly interim reports / press releases) https://www.tatamotors.com/wp-content/uploads/2023/12/q1fy23-jlr-Interim-report.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Retail incl. CJLR; revenue ~GBP 5.0bn and EBIT margin not confirmed.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Retail incl. CJLR; revenue ~GBP 5.0bn and EBIT margin not confirmed. 보충: Adjusted EBIT from prior-year column as reported by search summary of Q1 FY23 interim report; revenue only ~5.0bn implied (not exact).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

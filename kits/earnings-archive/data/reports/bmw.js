@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "bmw",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -224,6 +224,26 @@
     "updatedAt": "2026-11-02 00:00:00"
    },
    {
+    "period": "2023Q4",
+    "fiscalLabel": "Q4 2023",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 42968,
+     "operatingIncome": 4412
+    },
+    "raw": {
+     "revenue": "FY 155,498 - 9M 112,530",
+     "operatingIncome": "FY EBIT 18,482 - 9M 14,070"
+    },
+    "source": "https://www.marklines.com/en/news/304976 https://www.press.bmwgroup.com/global/article/detail/T0438129EN/bmw-group-quarterly-statement-to-30-september-2023",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived by subtraction; matches 42.97bn and 4.41bn reported. 9M EBIT 14,070 taken from prior-year column of the 2024 Q3 release. Deliveries Q4 2023 not filled: sources conflict (718,778 vs 717,620).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
     "period": "2023Q3",
     "fiscalLabel": "Q3 2023",
     "reportDate": "",
@@ -272,14 +292,37 @@
     "currency": "EUR",
     "values": {
      "deliveries": 588.138,
-     "operatingIncome": 5375
+     "operatingIncome": 5375,
+     "revenue": 36853
     },
     "raw": {
-     "operatingIncome": "H1 2023 EBIT 9,718; Q2 2023 EBIT 4,343"
+     "operatingIncome": "H1 2023 EBIT 9,718; Q2 2023 EBIT 4,343",
+     "revenue": "revenues of EUR 36,853 million, up 18.3% from 31,142"
     },
-    "source": "https://uk.marketscreener.com/quote/stock/BMW-AG-56358353/news/BMW-QUARTERLY-STATEMENT-TO-31-MARCH-2024-46792580 https://www.press.bmwgroup.com/global/article/detail/T0427119EN/bmw-group-upgrades-fy-guidance-after-strong-first-half-year",
+    "source": "https://uk.marketscreener.com/quote/stock/BMW-AG-56358353/news/BMW-QUARTERLY-STATEMENT-TO-31-MARCH-2024-46792580 https://www.press.bmwgroup.com/global/article/detail/T0427119EN/bmw-group-upgrades-fy-guidance-after-strong-first-half-year https://www.press.bmwgroup.com/global/article/detail/T0415380EN/bmw-group-achieves-healthy-margins-in-volatile-environment-thanks-to-high-demand",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: prior-year column of Q1 2024 statement 보충: DERIVED: H1 9,718 minus Q2 4,343.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: prior-year column of Q1 2024 statement 보충: DERIVED: H1 9,718 minus Q2 4,343. 보충: Company release.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2022Q4",
+    "fiscalLabel": "Q4 2022",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "revenue": 39522,
+     "operatingIncome": 3500,
+     "deliveries": 651.798
+    },
+    "raw": {
+     "revenue": "FY 142,610 - 9M 103,088",
+     "operatingIncome": "FY EBIT 13,999 - 9M 10,499"
+    },
+    "source": "https://press.bmwgroup.com/global/article/detail/T0410558EN/solid-business-figures-for-2022-confirm-bmw-group-strategy https://inkl.com/news/bmw-group-doubled-all-electric-car-sales-in-q4-and-in-2022",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue and EBIT derived by subtraction; match RTTNews Q4 39.52bn / 3.50bn (rounded) and Q4 2023 comparison of 39.52bn/3.50bn.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -290,12 +333,17 @@
     "reportDate": "",
     "currency": "EUR",
     "values": {
-     "deliveries": 587.744
+     "deliveries": 587.744,
+     "revenue": 37176,
+     "operatingIncome": 3682
     },
-    "raw": {},
-    "source": "https://www.rttnews.com/3322837/bmw-q3-profit-climbs-backs-fy22-view-stock-down.aspx",
+    "raw": {
+     "revenue": "Group revenues 38,458 (2022: 37,176)",
+     "operatingIncome": "Q3 2022 EBT 4,100 less financial result 418"
+    },
+    "source": "https://www.rttnews.com/3322837/bmw-q3-profit-climbs-backs-fy22-view-stock-down.aspx https://www.press.bmwgroup.com/global/article/detail/T0405299EN/bmw-group-remains-on-track-for-success-as-transformation-continues https://www.press.bmwgroup.com/global/article/detail/T0438129EN/bmw-group-quarterly-statement-to-30-september-2023",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: RTTNews reporting BMW release. Group EBIT reported by Investing.com as about 3.68bn (rounded, not used).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: RTTNews reporting BMW release. Group EBIT reported by Investing.com as about 3.68bn (rounded, not used). 보충: EBIT derived: EBT 4,100 - financial result 418 = 3,682; cross-check H1 6,817 + 3,682 = 10,499 = 9M EBT 20,256 - fin. result 9,757.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -307,14 +355,16 @@
     "currency": "EUR",
     "values": {
      "operatingIncome": 3426,
-     "deliveries": 563.187
+     "deliveries": 563.187,
+     "revenue": 34770
     },
     "raw": {
-     "operatingIncome": "Group EBIT Q2 3,426 vs 5,005"
+     "operatingIncome": "Group EBIT Q2 3,426 vs 5,005",
+     "revenue": "9M 2022 103,088 - Q1 31,142 - Q3 37,176"
     },
-    "source": "https://www.press.bmwgroup.com/global/article/detail/T0402723EN/",
+    "source": "https://www.press.bmwgroup.com/global/article/detail/T0402723EN/ https://www.press.bmwgroup.com/global/article/detail/T0402723EN/statement-dr-nicolas-peter-member-of-the-board-of-bmw-ag-finance-conference-call-half-year-report-to-30-june-2022",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: revenue approx 34.77bn not exact, omitted",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: revenue approx 34.77bn not exact, omitted 보충: Derived; also matches secondary source figure 34,770 (+21.6%); H1 2022 65,912 = 31,142+34,770.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -325,14 +375,17 @@
     "reportDate": "",
     "currency": "EUR",
     "values": {
-     "operatingIncome": 3391
+     "operatingIncome": 3391,
+     "revenue": 31142,
+     "deliveries": 596.907
     },
     "raw": {
-     "operatingIncome": "H1 2022 EBIT 6,817; Q2 2022 EBIT 3,426"
+     "operatingIncome": "H1 2022 EBIT 6,817; Q2 2022 EBIT 3,426",
+     "revenue": "Q1 2023 release: revenues 36,853 vs 31,142 prior year"
     },
-    "source": "https://www.press.bmwgroup.com/global/article/detail/T0427119EN/bmw-group-upgrades-fy-guidance-after-strong-first-half-year",
+    "source": "https://www.press.bmwgroup.com/global/article/detail/T0427119EN/bmw-group-upgrades-fy-guidance-after-strong-first-half-year https://www.press.bmwgroup.com/global/article/detail/T0415380EN/bmw-group-achieves-healthy-margins-in-volatile-environment-thanks-to-high-demand https://www.press.bmwgroup.com/global/article/detail/T0386613EN/strong-increase-in-earnings-and-margin-following-full-consolidation-of-china-joint-venture",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: DERIVED: H1 2022 EBIT 6,817 minus Q2 2022 EBIT 3,426 (comparison columns of H1 2023 report, via search summary). Revenue not filled: sources conflicted (36,853 vs 31,142).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: DERIVED: H1 2022 EBIT 6,817 minus Q2 2022 EBIT 3,426 (comparison columns of H1 2023 report, via search summary). Revenue not filled: sources conflicted (36,853 vs 31,142). 보충: CONFLICT RESOLVED: 36,853 is NOT a restated 2022Q1; it is Q1 2023 revenue (BMW Q1 2023 release: 36,853 vs prior-year 31,142, +18.3%). 2022Q1 = 31,142 (BBA consolidated from 11 Feb 2022 contributed 3,287). Use 31,142 for 2022Q1 and 36,853 for 2023Q1.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -402,14 +455,32 @@
     "currency": "EUR",
     "values": {
      "revenue": 26778,
-     "deliveries": 636.606
+     "deliveries": 636.606,
+     "operatingIncome": 3025
     },
     "raw": {
-     "revenue": "Group revenues 26,778 (Q1 2020: 23,252)"
+     "revenue": "Group revenues 26,778 (Q1 2020: 23,252)",
+     "operatingIncome": "H1 2021 EBIT 8,030 minus Q2 2021 EBIT 5,005"
     },
-    "source": "https://m.bvb.ro/info/Raportari/BMW/BMW-BMW%20Group%20Q1%202021%20EN.pdf https://www.press.bmwgroup.com/united-kingdom/article/detail/T0329330EN_GB/bmw-group-on-clear-growth-path-with-record-first-quarter-sales",
+    "source": "https://m.bvb.ro/info/Raportari/BMW/BMW-BMW%20Group%20Q1%202021%20EN.pdf https://www.press.bmwgroup.com/united-kingdom/article/detail/T0329330EN_GB/bmw-group-on-clear-growth-path-with-record-first-quarter-sales https://press.bmwgroup.com/global/article/attachment/T0402719EN/565008",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Deliveries = BMW 560,543 + MINI 74,683 + RR 1,380.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Deliveries = BMW 560,543 + MINI 74,683 + RR 1,380. 보충: Derived from prior-year columns of the H1 2022 report (H1 8,030; Q2 5,005). Consistent with Q1 2022 EBIT 3,391 being +12.1%.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q4",
+    "fiscalLabel": "Q4 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 686.493
+    },
+    "raw": {},
+    "source": "https://paultan.org/2021/01/13/bmw-group-reaches-2-3-million-sales-in-2020-across-three-brands-phev-model-sales-up-38-9-from-2019/",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived by subtraction (full year minus nine months).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -420,14 +491,15 @@
     "reportDate": "",
     "currency": "EUR",
     "values": {
-     "operatingIncome": 1924
+     "operatingIncome": 1924,
+     "deliveries": 675.592
     },
     "raw": {
      "operatingIncome": "EBIT Q3 2021 2,883 vs 1,924 in Q3 2020"
     },
-    "source": "https://www.press.bmwgroup.com/mexico/article/detail/T0355353ES/bmw-group-boosts-performance-with-significantly-higher-earnings",
+    "source": "https://www.press.bmwgroup.com/mexico/article/detail/T0355353ES/bmw-group-boosts-performance-with-significantly-higher-earnings https://www.press.bmwgroup.com/global/article/detail/T0318368EN/bmw-group-posts-solid-third-quarter-sales-growth",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: prior-year column of Q3 2021 statement",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: prior-year column of Q3 2021 statement 보충: Sum of brand figures from Q3 2020 sales release as relayed by search summary; one summary cited 675,680 for the same quarter, so +-88 uncertainty.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

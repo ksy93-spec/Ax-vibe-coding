@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "denso",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -485,6 +485,25 @@
     "source": "https://www.acnnewswire.com/press-release/english/60550/denso-announces-first-quarter-financial-results",
     "status": "검증 필요",
     "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. Single quarter as reported (Q1 of FY, already 3 months). Figures from search-result summary of release, not verified verbatim.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q1",
+    "fiscalLabel": "FY2020 Q4",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 1258432,
+     "operatingIncome": -101598
+    },
+    "raw": {
+     "revenue": "FY3/2020 revenue 5,153,476 OP 61,078 minus 9M 3,895,044 / 162,676"
+    },
+    "source": "https://www.marklines.com/en/top500/cf/denso_hl2019 https://www2.jpx.co.jp/disc/69020/140120200130454000.pdf",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: full year (MarkLines business report, matches Denso release) minus 9M cumulative (Denso Q3 tanshin).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "visteon",
-  "rev": 3,
+  "rev": 4,
   "quarters": [
    {
     "period": "2026Q3",
@@ -34,14 +34,16 @@
     "reportDate": "",
     "currency": "USD",
     "values": {
-     "revenue": 960
+     "revenue": 960,
+     "operatingIncome": 116
     },
     "raw": {
-     "revenue": "Net sales $960 million"
+     "revenue": "Net sales $960 million",
+     "operatingIncome": "Adjusted EBITDA $116 million (12.1% margin)"
     },
-    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1)",
+    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1) https://www.sec.gov/Archives/edgar/data/0001111335/000111133526000045/visteonq22026pr.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 보충: Adjusted EBITDA.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -52,14 +54,16 @@
     "reportDate": "",
     "currency": "USD",
     "values": {
-     "revenue": 954
+     "revenue": 954,
+     "operatingIncome": 104
     },
     "raw": {
-     "revenue": "Net sales $954 million"
+     "revenue": "Net sales $954 million",
+     "operatingIncome": "Adjusted EBITDA $104 million"
     },
-    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1)",
+    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1) https://www.sec.gov/Archives/edgar/data/0001111335/000111133526000015/visteonq12026pr.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 보충: Adjusted EBITDA.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -111,14 +115,16 @@
     "reportDate": "",
     "currency": "USD",
     "values": {
-     "revenue": 969
+     "revenue": 969,
+     "operatingIncome": 134
     },
     "raw": {
-     "revenue": "Sales $969M"
+     "revenue": "Sales $969M",
+     "operatingIncome": "Adjusted EBITDA was $134 million, margin 13.8%"
     },
-    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1)",
+    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1) https://www.sec.gov/Archives/edgar/data/1111335/000111133525000136/visteonq22025pr.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전.",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. 보충: Adjusted EBITDA.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -129,14 +135,16 @@
     "reportDate": "",
     "currency": "USD",
     "values": {
-     "revenue": 934
+     "revenue": 934,
+     "operatingIncome": 129
     },
     "raw": {
-     "revenue": "Q1 2025 934 (comparison in Q1 2026 release)"
+     "revenue": "Q1 2025 934 (comparison in Q1 2026 release)",
+     "operatingIncome": "Adjusted EBITDA $129 million"
     },
-    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1)",
+    "source": "https://www.sec.gov/ (Visteon 8-K earnings releases, Ex.99.1) https://www.sec.gov/Archives/edgar/data/1111335/000111133525000058/visteonq12025pr.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. also H1 1,903 - Q2 969",
+    "note": "웹 검색으로 회사 문서 인용을 확인한 값. 원문 대조 전. also H1 1,903 - Q2 969 보충: Adjusted EBITDA (archive definition).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

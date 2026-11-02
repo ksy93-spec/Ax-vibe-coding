@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "honda",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q2",
@@ -214,14 +214,16 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "revenue": 5390100
+     "revenue": 5390100,
+     "operatingIncome": 379800
     },
     "raw": {
-     "revenue": "9M 14,999.4bn minus H1 9,609.3bn"
+     "revenue": "9M 14,999.4bn minus H1 9,609.3bn",
+     "operatingIncome": "operating profit rose 35% to 379.8 billion yen"
     },
-    "source": "https://sec.gov/Archives/edgar/data/715153/000119312524027395/d758040d6k.htm",
+    "source": "https://sec.gov/Archives/edgar/data/715153/000119312524027395/d758040d6k.htm https://capedge.com/filing/715153/0001193125-24-027395/HMC-6K",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived by subtraction, 0.1bn precision. OP not confirmed.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived by subtraction, 0.1bn precision. OP not confirmed. 보충: 億円 precision.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -271,14 +273,16 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "revenue": 4384235
+     "revenue": 4384235,
+     "operatingIncome": 105400
     },
     "raw": {
-     "revenue": "FY 16,907,725 minus 9M 12,523,490"
+     "revenue": "FY 16,907,725 minus 9M 12,523,490",
+     "operatingIncome": "FY op profit 839.3bn; 9M 733.9bn"
     },
-    "source": "https://quantisnow.com/insight/honda-motor-co-ltd-hmcnyse-announced-its-consolidated-financial-summary-4486015 https://bulletin.webull.com/20240221/169071/eb7826dbc4c7b19e04762e7a43541a7d.html",
+    "source": "https://quantisnow.com/insight/honda-motor-co-ltd-hmcnyse-announced-its-consolidated-financial-summary-4486015 https://bulletin.webull.com/20240221/169071/eb7826dbc4c7b19e04762e7a43541a7d.html https://global.honda/en/newsroom/news/2023/c230210eng.html https://capedge.com/filing/715153/0001193125-23-141332/HMC-6K",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: full year minus 9M. OP not confirmed.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: full year minus 9M. OP not confirmed. 보충: Derived: full year 839.3bn minus 9M 733.9bn; 億円 precision.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -289,14 +293,16 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "revenue": 4438200
+     "revenue": 4438200,
+     "operatingIncome": 280400
     },
     "raw": {
-     "revenue": "9M 12,523.4bn minus H1 8,085.3bn"
+     "revenue": "9M 12,523.4bn minus H1 8,085.3bn",
+     "operatingIncome": "three months ended Dec 31, 2022 operating profit 280.4 billion yen"
     },
-    "source": "https://global.honda/en/newsroom/news/2023/c230210eng.html https://global.honda/newsroom/news/2022/c221109eng.html",
+    "source": "https://global.honda/en/newsroom/news/2023/c230210eng.html https://global.honda/newsroom/news/2022/c221109eng.html https://global.honda/en/newsroom/news/2023/c230210eng.html",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue derived by subtraction (9M - H1), 0.1bn precision. OP not confirmed (9M 733.9bn known; H1 OP not confirmed).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue derived by subtraction (9M - H1), 0.1bn precision. OP not confirmed (9M 733.9bn known; H1 OP not confirmed). 보충: 億円 precision.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -307,14 +313,16 @@
     "reportDate": "",
     "currency": "JPY",
     "values": {
-     "revenue": 4255754
+     "revenue": 4255754,
+     "operatingIncome": 231236
     },
     "raw": {
-     "revenue": "3,404,358 4,255,754"
+     "revenue": "3,404,358 4,255,754",
+     "operatingIncome": "6-K: operating profit 231,236 for three months ended September 30, 2022"
     },
-    "source": "https://global.honda/newsroom/news/2022/c221109eng.html",
+    "source": "https://global.honda/newsroom/news/2022/c221109eng.html https://global.honda/newsroom/news/2022/c221109eng.html https://www.sec.gov/Archives/edgar/data/715153/000119312522280791/d409581d6k.htm",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: 3-month revenue from condensed income statement. OP not confirmed (a 189.2bn figure appeared but ambiguous).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: 3-month revenue from condensed income statement. OP not confirmed (a 189.2bn figure appeared but ambiguous). 보충: Exact JPY millions per 6-K.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -435,6 +443,45 @@
     "source": "https://global.honda/newsroom/news/2021/c210514eng.html https://global.honda/en/newsroom/news/2022/c220513aeng.html",
     "status": "검증 필요",
     "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue/OP in 0.1bn precision. Deliveries = consolidated automobile unit sales (inferred, see 2020Q1).",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q4",
+    "fiscalLabel": "FY2021 Q3",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 3771569,
+     "operatingIncome": 277700
+    },
+    "raw": {
+     "revenue": "Consolidated sales revenue for the three months ended December 31, 2020 increased by 0.6%, to JPY 3,771.5 billion; Total 3,771,569"
+    },
+    "source": "https://global.honda/newsroom/news/2021/c210209eng.html https://www.automotiveworld.com/news-releases/honda-consolidated-financial-summary-for-the-fiscal-3rd-quarter-ended-december-31-2020-and-forecasts-for-the-fiscal-year-ending-march-31-2021",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Revenue exact JPY millions; operating profit 277.7bn (億円 precision), Honda Feb 9 2021 release.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q3",
+    "fiscalLabel": "FY2021 Q2",
+    "reportDate": "",
+    "currency": "JPY",
+    "values": {
+     "revenue": 3651300,
+     "operatingIncome": 282900
+    },
+    "raw": {
+     "revenue": "three months ended September 30, 2020 ... JPY 3,651.3 billion",
+     "operatingIncome": "operating profit ... 282.9 billion yen"
+    },
+    "source": "https://global.honda/newsroom/news/2020/c201106eng.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: 億円 precision (0.1bn).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

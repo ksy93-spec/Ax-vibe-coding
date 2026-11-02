@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "porsche",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -208,14 +208,16 @@
     "currency": "EUR",
     "values": {
      "deliveries": 78.305,
-     "revenue": 10446
+     "revenue": 10446,
+     "operatingIncome": 1779
     },
     "raw": {
-     "revenue": "H1 2024 sales revenue 19,457 minus Q1 9,011"
+     "revenue": "H1 2024 sales revenue 19,457 minus Q1 9,011",
+     "operatingIncome": "Operating profit H1 2024 3,061 (H1 2023 3,852)"
     },
-    "source": "https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html https://irpages2.eqs.com/download/companies/59326a/Quarterly Reports/DE000PAG9113-Q2-2024-EQ-E-00.pdf https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html",
+    "source": "https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html https://irpages2.eqs.com/download/companies/59326a/Quarterly Reports/DE000PAG9113-Q2-2024-EQ-E-00.pdf https://newsroom.porsche.com/en/2024/company/porsche-second-quarter-half-year-profit-sales-revenue-36915.html https://investorrelations.porsche.com/~/media/Files/P/porsche-ir/results-and-presentations/financial-reports-and-presentation/2024/q2/half-year-financial-report-2024.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 155,945 minus Q1. H1 op 3,061 (Q2 op not derivable exactly). 보충: Derived by subtraction. Operating profit not filled: H1 2024 only found rounded (3.06bn); Q2 margin 17.0%.",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 155,945 minus Q1. H1 op 3,061 (Q2 op not derivable exactly). 보충: Derived by subtraction. Operating profit not filled: H1 2024 only found rounded (3.06bn); Q2 margin 17.0%. 보충: Derived: H1 2024 3,061 minus Q1 2024 1,282 (existing archive value). Cumulative subtraction.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -480,6 +482,38 @@
     "source": "https://newsroom.porsche.com/pdf/85284bb5-c889-4977-897d-7e57ebb66433 https://paultan.org/2020/10/20/porsche-sold-191547-vehicles-in-the-first-nine-months-of-2020-5-dip-from-2019-nearly-11k-taycan-sold/",
     "status": "검증 필요",
     "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived by subtraction.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q3",
+    "fiscalLabel": "Q3 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 74.583
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2020/company/porsche-deliveries-quarter-3-2020-22584.html https://newsroom.porsche.com/en/2020/company/porsche-deliveries-quarter-2-2020-21513.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: 9M 2020 191,547 minus H1 2020 116,964.",
+    "call": null,
+    "origin": "outside",
+    "updatedAt": "2026-11-02 00:00:00"
+   },
+   {
+    "period": "2020Q2",
+    "fiscalLabel": "Q2 2020",
+    "reportDate": "",
+    "currency": "EUR",
+    "values": {
+     "deliveries": 63.839
+    },
+    "raw": {},
+    "source": "https://newsroom.porsche.com/en/2020/company/porsche-deliveries-quarter-2-2020-21513.html",
+    "status": "검증 필요",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: H1 2020 116,964 minus Q1 2020 53,125 (existing archive value).",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

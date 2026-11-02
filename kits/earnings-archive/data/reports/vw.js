@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "vw",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -502,15 +502,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 67398,
-     "operatingIncome": 7982
+     "operatingIncome": 7982,
+     "deliveries": 2800.7
     },
     "raw": {
      "revenue": "FY2020 222,884; 9M 155,486",
      "operatingIncome": "FY2020 operating result 9,675; 9M 1,693"
     },
-    "source": "https://annualreport2020.volkswagenag.com/consolidated-financial-statements/income-statement.html https://www.volkswagen-group.com/en/interim-report-and-results-q3-2021-17285",
+    "source": "https://annualreport2020.volkswagenag.com/consolidated-financial-statements/income-statement.html https://www.volkswagen-group.com/en/interim-report-and-results-q3-2021-17285 https://marketscreener.com/quote/stock/VOLKSWAGEN-AG-436737/news/Volkswagen-Deliveries-to-customers-December-2020-32187874",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY minus 9M (revenue 222,884-155,486; op 9,675-1,693). Deliveries not derivable exactly (FY 9,305,372; 9M only 6.5m rounded).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: Derived: FY minus 9M (revenue 222,884-155,486; op 9,675-1,693). Deliveries not derivable exactly (FY 9,305,372; 9M only 6.5m rounded). 보충: VW December 2020 deliveries release table (hundreds precision); consistent with FY 9,305,372 - 9M 6,505k.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"
@@ -544,15 +545,16 @@
     "currency": "EUR",
     "values": {
      "revenue": 41076,
-     "operatingIncome": -2394
+     "operatingIncome": -2394,
+     "deliveries": 1887
     },
     "raw": {
      "revenue": "Sales revenue 67,293 41,076",
      "operatingIncome": "Operating result 6,546 -2,394"
     },
-    "source": "https://www.hispanidad.com/uploads/s1/54/80/82/resultados-del-grupo-volkswagen-en-el-primer-semestre-de-2021.pdf https://www.volkswagen-group.com/en/interim-report-and-results-q3-2021-17285",
+    "source": "https://www.hispanidad.com/uploads/s1/54/80/82/resultados-del-grupo-volkswagen-en-el-primer-semestre-de-2021.pdf https://www.volkswagen-group.com/en/interim-report-and-results-q3-2021-17285 https://www.volkswagen-group.com/en/interim-report-and-results-q3-2020-17259 https://www.hispanidad.com/uploads/s1/58/48/51/resultados-del-grupo-volkswagen-en-los-nueve-primeros-meses-de-2021.pdf",
     "status": "검증 필요",
-    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: From H1 2021 report comparative column. Consistent with 9M 2020 op result 1,693 = 904 + (-2,394) + 3,183. Deliveries not confirmed (H1 2020 only 3.9m rounded).",
+    "note": "웹 검색으로 찾은 값. 원문 대조 전. 보충: From H1 2021 report comparative column. Consistent with 9M 2020 op result 1,693 = 904 + (-2,394) + 3,183. Deliveries not confirmed (H1 2020 only 3.9m rounded). 보충: DERIVED: 6,505k - 2,612k - 2,006k = 1,887k; precision is thousands (+/-1k), not an exact unit count. Cross-check H1 about 3.9m ok.",
     "call": null,
     "origin": "outside",
     "updatedAt": "2026-11-02 00:00:00"

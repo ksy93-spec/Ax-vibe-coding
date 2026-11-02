@@ -4,7 +4,7 @@
  "kind": "report",
  "data": {
   "company": "mercedes",
-  "rev": 4,
+  "rev": 5,
   "quarters": [
    {
     "period": "2026Q3",
@@ -571,7 +571,8 @@
      "revenue": 40281,
      "operatingIncome": 3070,
      "totalEquity": 58623,
-     "totalLiabilities": 232030
+     "totalLiabilities": 232030,
+     "deliveries": 721.608
     },
     "raw": {
      "revenue": "Revenue 40,281 (Q3 2020 factsheet); release: 'slipped by 7% to EUR 40.3 billion'",
@@ -579,12 +580,12 @@
      "totalEquity": "Total equity 58,623",
      "totalLiabilities": "Total equity and liabilities 290,653"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/daimler-ir-interimreport-q3-2020.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q3/daimler-ir-factsheet-q3-2020.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q3/daimler-ir-interimreport-q3-2020.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q3/daimler-ir-factsheet-q3-2020.pdf https://brandspurng.com/2020/10/06/mercedes-benz-cars-vans-continues-positive-development-of-unit-sales-in-third-quarter/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 290653 - 자본총계 58623 Figures come from WebSearch result summaries of the PDFs (PDFs not opened directly); quotes are as returned by the search. 9M check: 37,223+30,184+40,281=107,688 matches YTD.",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 290653 - 자본총계 58623 Figures come from WebSearch result summaries of the PDFs (PDFs not opened directly); quotes are as returned by the search. 9M check: 37,223+30,184+40,281=107,688 matches YTD. 보충: Retail unit sales press release. Daimler Q3 report shows 673,400 on a different basis.",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2020Q2",
@@ -595,7 +596,8 @@
      "revenue": 30184,
      "operatingIncome": -1682,
      "totalEquity": 58857,
-     "totalLiabilities": 235908
+     "totalLiabilities": 235908,
+     "deliveries": 523.307
     },
     "raw": {
      "revenue": "Revenue fell to EUR 30.2 billion (Q2 2019: EUR 42.7 billion); factsheet row 30,184",
@@ -603,12 +605,12 @@
      "totalEquity": "Equity 58,857 | 62,841",
      "totalLiabilities": "Total equity and liabilities 294,765 | 302,438"
     },
-    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/daimler-ir-interimreport-q2-2020.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q3/daimler-ir-factsheet-q3-2020.pdf",
+    "source": "https://group.mercedes-benz.com/documents/investors/reports/interim-reports/q2/daimler-ir-interimreport-q2-2020.pdf https://group.Mercedes-benz.com/dokumente/investoren/berichte/zwischenberichte/q3/daimler-ir-factsheet-q3-2020.pdf https://www.businesswire.com/news/home/20200708005560/en/Mercedes-Benz-Reports-Q2-Sales-of-59461-Vehicles https://media.mercedes-benz.it/mercedes-benz-cars--vans-delivers-more-than-a-million-vehicles-worldwide-in-first-half-of-2020/",
     "status": "검증 필요",
-    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 294765 - 자본총계 58857 Figures come from WebSearch result summaries of the PDFs (PDFs not opened directly); quotes are as returned by the search. Equity ratio for 30 Jun 2020 not confirmed. One search summary cited an unrelated 'EBIT 263' (ignore, likely different item).",
+    "note": "웹 검색으로 공식 문서 인용을 확인한 값. 원문 PDF 대조 전. 부채총계 = 자산총계 294765 - 자본총계 58857 Figures come from WebSearch result summaries of the PDFs (PDFs not opened directly); quotes are as returned by the search. Equity ratio for 30 Jun 2020 not confirmed. One search summary cited an unrelated 'EBIT 263' (ignore, likely different item). 보충: Retail unit sales press release (Cars incl. smart + Vans). Daimler results report uses a different wholesale-type unit-sales basis.",
     "call": null,
     "origin": "outside",
-    "updatedAt": "2026-10-26 02:47:05"
+    "updatedAt": "2026-11-02 00:00:00"
    },
    {
     "period": "2020Q1",
