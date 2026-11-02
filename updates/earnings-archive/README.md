@@ -14,3 +14,4 @@ GitHub 에서 zip 파일을 누르고 다운로드 단추(Download raw file)로 
 | 2026.10.23.1 | 2026.10.23.2 | [earnings-archive-2026.10.23.2.zip](earnings-archive-2026.10.23.2.zip) | 88KB | - | `d07ae988eb9a48bc` |
 | 2026.10.23.2 | 2026.10.26.1 | [earnings-archive-2026.10.26.1.zip](earnings-archive-2026.10.26.1.zip) | 21KB | - | `5422e7dc2ce525e8` |
 | 2026.10.26.1 | 2026.11.02.1 | [earnings-archive-2026.11.02.1.zip](earnings-archive-2026.11.02.1.zip) | 99KB | - | `adb4bf51c70eebb2` |
+| 2026.11.02.1 | 2026.11.02.2 | [earnings-archive-2026.11.02.2.zip](earnings-archive-2026.11.02.2.zip) | 107KB | - | `020289ab7eef9ab3` |
